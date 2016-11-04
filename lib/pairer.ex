@@ -6,7 +6,7 @@ defmodule Pairmotron.Pairer do
     |> unlonelify
   end
 
-  def unlonelify(pairs) do
+  defp unlonelify(pairs) do
     pairs
     |> Enum.reverse
     |> friendify

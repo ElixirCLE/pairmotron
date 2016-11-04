@@ -41,29 +41,4 @@ defmodule Pairmotron.PairerTest do
       assert Enum.sort(second_pair) == [@user_3, @user_4, @user_5]
     end
   end
-
-  describe ".unlonelify" do
-    test "empty list returns an empty list" do
-      assert Pairer.unlonelify([]) == []
-    end
-
-    test "list of one single user pair returns that pair" do
-      assert Pairer.unlonelify([[@user_1]]) == [[@user_1]]
-    end
-
-    test "list of one two user pair returns that pair" do
-      assert Pairer.unlonelify([[@user_1, @user_2]]) == [[@user_1, @user_2]]
-    end
-
-    test "list of three users in two pairs returns one three user pair" do
-      assert [first_pair] = Pairer.unlonelify([[@user_1, @user_2], [@user_3]])
-      assert Enum.sort(first_pair) == [@user_1, @user_2, @user_3]
-    end
-
-    test "list of four users in two pairs returns two two user pairs" do
-      assert [first_pair, second_pair] = Pairer.unlonelify([[@user_1, @user_2], [@user_3, @user_4]])
-      assert Enum.sort(first_pair) == [@user_1, @user_2]
-      assert Enum.sort(second_pair) == [@user_3, @user_4]
-    end
-  end
 end
