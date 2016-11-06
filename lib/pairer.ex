@@ -1,5 +1,5 @@
 defmodule Pairmotron.Pairer do
-  
+
   def generate_pairs(users) do
     users
     |> Enum.chunk(2, 2, [])
