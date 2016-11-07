@@ -1,6 +1,6 @@
 defmodule Pairmotron.PairerTest do
   use ExUnit.Case, async: true
-    
+
   alias Pairmotron.Pairer
   alias Pairmotron.User
 
