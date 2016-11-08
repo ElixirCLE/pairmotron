@@ -1,6 +1,6 @@
 <h2>Pairs for <%= Timex.today %></h2>
 <ul class="list-group">
-  <%= for pair <- @users do %>
+  <%= for pair <- @pairs do %>
     <li class="list-group-item">
       <div class="row">
         <%= for user <- pair do %>
