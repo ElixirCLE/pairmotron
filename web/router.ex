@@ -18,6 +18,7 @@ defmodule Pairmotron.Router do
 
     get "/", PageController, :index
     resources "/users", UserController
+    resources "/projects", ProjectController
   end
 
   # Other scopes may use custom stacks.
