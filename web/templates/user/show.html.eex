@@ -12,6 +12,11 @@
     <%= @user.email %>
   </li>
 
+  <li>
+    <strong>Active:</strong>
+    <%= @user.active %>
+  </li>
+
 </ul>
 
 <%= link "Edit", to: user_path(@conn, :edit, @user) %>

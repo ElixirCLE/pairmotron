@@ -7,9 +7,9 @@ defmodule Pairmotron.PageController do
 
   def index(conn, _params) do
     {_year, week} = Timex.iso_week(Timex.today)
-    users = Repo.all(User)
+    pairs = Repo.all(User.active_users)
       |> Mixer.mixify(week)
       |> Pairer.generate_pairs
-    render conn, "index.html", users: users
+    render conn, "index.html", pairs: pairs
   end
 end
