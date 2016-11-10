@@ -8,6 +8,7 @@
     <meta name="author" content="">
 
     <title>Hello Pairmotron!</title>
+    <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
@@ -16,10 +17,12 @@
       <header class="header">
         <nav role="navigation">
           <ul class="nav nav-pills pull-right">
-            <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
+            <li><%= link "Users", to: user_path(@conn, :index) %></li>
+            <li><%= link "Projects", to: project_path(@conn, :index) %></li>
           </ul>
         </nav>
-        <span class="logo"></span>
+        <span class="logo"><%= link "Pairmotron", to: page_path(@conn, :index) %>
+</span>
       </header>
 
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>

@@ -4,7 +4,7 @@
     <li class="list-group-item">
       <div class="row">
         <%= for user <- pair do %>
-          <div class="col-lg-4">
+          <div class="col-sm-4">
             <p><%= user.name %></p>
           </div>
         <% end %>
