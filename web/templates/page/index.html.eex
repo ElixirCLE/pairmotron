@@ -1,4 +1,4 @@
-<h2>Pairs for <%= Timex.today %></h2>
+<h2>Pairs for <%= @year %> week <%= @week %></h2>
 <ul class="list-group">
   <%= for pair <- @pairs do %>
     <li class="list-group-item">
@@ -12,3 +12,9 @@
     </li>
   <% end %>
 </ul>
+<%= form_for @conn, page_path(@conn, :delete, @year, @week), [as: :repairify, method: "delete"], fn _ -> %>
+  <div class="form-group">
+    <%= submit "Repairify", class: "btn btn-danger" %>
+  </div>
+<% end %>
+
