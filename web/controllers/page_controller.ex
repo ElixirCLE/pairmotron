@@ -30,12 +30,13 @@ defmodule Pairmotron.PageController do
   end
 
   defp fetch_or_gen(year, week) do
-    case fetch_pairs(year, week) |> fetch_user_pairs do
+    case fetch_pairs(year, week) do
       [] ->
         generate_pairs(year, week)
-        fetch_pairs(year, week) |> fetch_user_pairs
+        fetch_pairs(year, week)
       pairs -> pairs
     end
+      |> fetch_users_from_pairs
   end
 
   defp fetch_pairs(year, week) do
@@ -45,7 +46,7 @@ defmodule Pairmotron.PageController do
       |> Repo.all
   end
 
-  defp fetch_user_pairs(pairs) do
+  defp fetch_users_from_pairs(pairs) do
     pairs
       |> Repo.preload([:user])
       |> Enum.map(fn(p) -> p.user end)
