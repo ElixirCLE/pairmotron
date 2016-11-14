@@ -7,6 +7,9 @@ defmodule Pairmotron.Pair do
     field :pair_group, :integer
     belongs_to :user, Pairmotron.User
 
+    @required_fields ~w(year week pair_group user_id)
+    @optional_fields ~w()
+
     timestamps()
   end
 
@@ -15,7 +18,6 @@ defmodule Pairmotron.Pair do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:year, :week, :pair_group, :user_id])
-    |> validate_required([:year, :week, :pair_group, :user_id])
+    |> cast(params, @required_fields, @optional_fields)
   end
 end
