@@ -3,7 +3,7 @@
   <%= for pair <- @pairs do %>
     <li class="list-group-item">
       <div class="row">
-        <%= for user <- pair do %>
+        <%= for user <- pair.users do %>
           <div class="col-sm-4">
             <p><%= user.name %></p>
           </div>

@@ -1,8 +1,9 @@
 defmodule Pairmotron.PageController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.User
   alias Pairmotron.Pair
+  alias Pairmotron.User
+  alias Pairmotron.UserPair
   alias Pairmotron.Mixer
   alias Pairmotron.Pairer
 
@@ -48,9 +49,7 @@ defmodule Pairmotron.PageController do
 
   defp fetch_users_from_pairs(pairs) do
     pairs
-      |> Repo.preload([:user])
-      |> Enum.map(fn(p) -> p.user end)
-      |> Pairer.generate_pairs
+      |> Repo.preload([:users])
   end
 
   defp generate_pairs(year, week) do
@@ -66,7 +65,8 @@ defmodule Pairmotron.PageController do
   end
 
   defp make_pair(users, index, year, week) do
+    pair = Repo.insert! %Pair{year: year, week: week, pair_group: index}
     users
-      |> Enum.map(fn(user) -> %Pair{year: year, week: week, user_id: user.id, pair_group: index} end)
+      |> Enum.map(fn(user) -> %UserPair{pair_id: pair.id, user_id: user.id} end)
   end
 end

@@ -1,13 +1,11 @@
-defmodule Pairmotron.Pair do
+defmodule Pairmotron.UserPair do
   use Pairmotron.Web, :model
 
-  schema "pairs" do
-    field :year, :integer
-    field :week, :integer
-    field :pair_group, :integer
-    many_to_many :users, Pairmotron.User, join_through: "users_pairs"
+  schema "users_pairs" do
+    belongs_to :user, Pairmotron.User
+    belongs_to :pair, Pairmotron.Pair
 
-    @required_fields ~w(year week pair_group)
+    @required_fields ~w(pair_id user_id)
     @optional_fields ~w()
 
     timestamps()
