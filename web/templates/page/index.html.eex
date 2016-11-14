@@ -1,4 +1,4 @@
-<h2>Pairs for <%= @year %> week <%= @week %></h2>
+<h2>Pairs for week <%= @week %> of <%= @year %></h2>
 <ul class="list-group">
   <%= for pair <- @pairs do %>
     <li class="list-group-item">
