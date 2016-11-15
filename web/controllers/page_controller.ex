@@ -43,7 +43,7 @@ defmodule Pairmotron.PageController do
   defp fetch_pairs(year, week) do
     Pair
       |> where(year: ^year, week: ^week)
-      |> order_by(:pair_group)
+      |> order_by(:id)
       |> Repo.all
   end
 
@@ -58,15 +58,14 @@ defmodule Pairmotron.PageController do
       |> Repo.all
       |> Mixer.mixify(week)
       |> Pairer.generate_pairs
-      |> Enum.with_index
-      |> Enum.map(fn({users, pair_index}) -> make_pair(users, pair_index, year, week) end)
+      |> Enum.map(fn(users) -> make_pairs(users, year, week) end)
       |> List.flatten
       |> Enum.map(fn(p) -> Repo.insert! p end)
   end
 
-  defp make_pair(users, index, year, week) do
-    pair = Repo.insert! %Pair{year: year, week: week, pair_group: index}
+  defp make_pairs(users, year, week) do
+    pair = Repo.insert! Pair.changeset(%Pair{}, %{year: year, week: week})
     users
-      |> Enum.map(fn(user) -> %UserPair{pair_id: pair.id, user_id: user.id} end)
+      |> Enum.map(fn(user) -> UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: user.id}) end)
   end
 end

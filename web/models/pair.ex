@@ -4,10 +4,9 @@ defmodule Pairmotron.Pair do
   schema "pairs" do
     field :year, :integer
     field :week, :integer
-    field :pair_group, :integer
     many_to_many :users, Pairmotron.User, join_through: "users_pairs"
 
-    @required_fields ~w(year week pair_group)
+    @required_fields ~w(year week)
     @optional_fields ~w()
 
     timestamps()

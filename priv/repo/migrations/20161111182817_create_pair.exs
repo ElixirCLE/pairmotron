@@ -5,7 +5,6 @@ defmodule Pairmotron.Repo.Migrations.CreatePair do
     create table(:pairs) do
       add :year, :integer, primary_key: true
       add :week, :integer, primary_key: true
-      add :pair_group, :integer
 
       timestamps()
     end
