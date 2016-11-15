@@ -19,6 +19,8 @@ defmodule Pairmotron.Router do
     get "/", PageController, :index
     resources "/users", UserController
     resources "/projects", ProjectController
+    get "/:year/:week", PageController, :show
+    delete "/:year/:week", PageController, :delete
   end
 
   # Other scopes may use custom stacks.
