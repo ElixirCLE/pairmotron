@@ -19,6 +19,11 @@
       <td class="text-right">
         <%= link "Show", to: user_path(@conn, :show, user), class: "btn btn-default btn-xs" %>
         <%= link "Edit", to: user_path(@conn, :edit, user), class: "btn btn-default btn-xs" %>
+        <%= if user.active do %>
+          <%= link "Deactivate", to: user_deactivate_path(@conn, :deactivate, user), method: :put, class: "btn btn-default btn-xs" %>
+        <% else %>
+          <%= link "Activate", to: user_activate_path(@conn, :activate, user), method: :put, class: "btn btn-default btn-xs" %>
+        <% end %>
         <%= link "Delete", to: user_path(@conn, :delete, user), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
       </td>
     </tr>

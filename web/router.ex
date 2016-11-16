@@ -17,7 +17,10 @@ defmodule Pairmotron.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    resources "/users", UserController
+    resources "/users", UserController do
+      put "/activate", UserController, :activate, as: :activate
+      put "/deactivate", UserController, :deactivate, as: :deactivate
+    end
     resources "/projects", ProjectController
     get "/:year/:week", PageController, :show
     delete "/:year/:week", PageController, :delete
