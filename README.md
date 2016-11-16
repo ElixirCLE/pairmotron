@@ -5,6 +5,7 @@
 To start your Phoenix app:
 
   * Install dependencies with `mix deps.get`
+  * Set your database username and password by adding `PG_USER=<your db user>` and `PG_PASSWORD=<your db password>` to your `.bashrc`, `.zshrc`, etc.
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   * Install Node.js dependencies with `npm install`
   * Start Phoenix endpoint with `mix phoenix.server`
