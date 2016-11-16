@@ -26,4 +26,5 @@
   </tbody>
 </table>
 
+<%= link "Back", to: page_path(@conn, :index), class: "padded-link" %>
 <%= link "New user", to: user_path(@conn, :new) %>
