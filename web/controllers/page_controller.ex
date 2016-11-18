@@ -32,12 +32,19 @@ defmodule Pairmotron.PageController do
 
   defp fetch_or_gen(year, week) do
     case fetch_pairs(year, week) do
-      [] ->
-        generate_pairs(year, week)
-        fetch_pairs(year, week)
+      []    -> generate_and_fetch_if_current_week(year, week)
       pairs -> pairs
     end
       |> fetch_users_from_pairs
+  end
+
+  defp generate_and_fetch_if_current_week(year, week) do
+    case Pairmotron.Time.same_week?(year, week, Timex.today) do
+      true ->
+        generate_pairs(year, week)
+        fetch_pairs(year, week)
+      false -> []
+    end
   end
 
   defp fetch_pairs(year, week) do
