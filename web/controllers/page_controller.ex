@@ -39,7 +39,7 @@ defmodule Pairmotron.PageController do
   end
 
   defp generate_and_fetch_if_current_week(year, week) do
-    case Pairmotron.Time.same_week?(year, week, Timex.today) do
+    case Pairmotron.Calendar.same_week?(year, week, Timex.today) do
       true ->
         generate_pairs(year, week)
         fetch_pairs(year, week)

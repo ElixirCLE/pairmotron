@@ -1,4 +1,4 @@
-defmodule Pairmotron.Time do
+defmodule Pairmotron.Calendar do
 
   @doc """
   Returns true if the year and week passed in are the same week as the current
@@ -9,5 +9,4 @@ defmodule Pairmotron.Time do
     {curr_year, curr_week} = Timex.iso_week(current_date)
     curr_year == year && curr_week == week
   end
-
 end

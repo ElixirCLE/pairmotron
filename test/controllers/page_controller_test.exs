@@ -27,7 +27,7 @@ defmodule Pairmotron.PageControllerTest do
       {:ok, [conn: conn, usera: usera, userb: userb]}
     end
 
-    test "displayse the users that were paired", %{conn: conn, usera: usera, userb: userb} do
+    test "displays the users that were paired", %{conn: conn, usera: usera, userb: userb} do
       assert html_response(conn, 200) =~ usera.name
       assert html_response(conn, 200) =~ userb.name
     end
