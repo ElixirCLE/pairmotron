@@ -2,3 +2,8 @@
 a.padded-link {
   padding-right: 5px;
 }
+
+.inline-form {
+  display: inline-block;
+  margin: 0px;
+}

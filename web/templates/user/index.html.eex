@@ -19,6 +19,16 @@
       <td class="text-right">
         <%= link "Show", to: user_path(@conn, :show, user), class: "btn btn-default btn-xs" %>
         <%= link "Edit", to: user_path(@conn, :edit, user), class: "btn btn-default btn-xs" %>
+        <%= form_for Pairmotron.User.changeset(user), user_path(@conn, :update, user), [class: "inline-form"], fn f -> %>
+          <div class="form-group">
+            <%= checkbox f, :active, [value: !user.active, hidden: true] %>
+            <%= if user.active do %>
+              <%= submit "Deactivate", class: "btn btn-default btn-xs" %>
+            <% else %>
+              <%= submit "Activate", class: "btn btn-default btn-xs" %>
+            <% end %>
+          </div>
+        <% end %>
         <%= link "Delete", to: user_path(@conn, :delete, user), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
       </td>
     </tr>

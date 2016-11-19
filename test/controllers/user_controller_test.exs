@@ -47,7 +47,7 @@ defmodule Pairmotron.UserControllerTest do
   test "updates chosen resource and redirects when data is valid", %{conn: conn} do
     user = Repo.insert! %User{}
     conn = put conn, user_path(conn, :update, user), user: @valid_attrs
-    assert redirected_to(conn) == user_path(conn, :show, user)
+    assert redirected_to(conn) == user_path(conn, :index)
     assert Repo.get_by(User, @valid_attrs)
   end
 
@@ -62,5 +62,29 @@ defmodule Pairmotron.UserControllerTest do
     conn = delete conn, user_path(conn, :delete, user)
     assert redirected_to(conn) == user_path(conn, :index)
     refute Repo.get(User, user.id)
+  end
+
+  test "activates chosen resource", %{conn: conn} do
+    user = Repo.insert! %User{name: "foo", email: "bar", active: false}
+    conn = get conn, user_path(conn, :index)
+    assert html_response(conn, 200) =~ "Inactive"
+
+    conn = put conn, user_path(conn, :update, user), user: %{active: true}
+    assert redirected_to(conn) == user_path(conn, :index)
+
+    conn = get conn, user_path(conn, :index)
+    assert html_response(conn, 200) =~ "Active"
+  end
+
+  test "inactivates chosen resource", %{conn: conn} do
+    user = Repo.insert! %User{name: "foo", email: "bar", active: true}
+    conn = get conn, user_path(conn, :index)
+    assert html_response(conn, 200) =~ "Active"
+
+    conn = put conn, user_path(conn, :update, user), user: %{active: false}
+    assert redirected_to(conn) == user_path(conn, :index)
+
+    conn = get conn, user_path(conn, :index)
+    assert html_response(conn, 200) =~ "Inactive"
   end
 end
