@@ -9,12 +9,12 @@ defmodule Pairmotron.UserController do
   end
 
   def new(conn, _params) do
-    changeset = User.changeset(%User{})
+    changeset = User.registration_changeset(%User{})
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"user" => user_params}) do
-    changeset = User.changeset(%User{}, user_params)
+    changeset = User.registration_changeset(%User{}, user_params)
 
     case Repo.insert(changeset) do
       {:ok, _user} ->
@@ -41,6 +41,16 @@ defmodule Pairmotron.UserController do
     user = Repo.get!(User, id)
     changeset = User.changeset(user, user_params)
 
+    if current_assigned_user_id(conn) != id && changeset.changes[:password] do
+      conn
+      |> put_flash(:info, "You cannot change the password for a different user")
+      |> render("edit.html", user: user, changeset: changeset)
+    else
+      _update(conn, user, changeset)
+    end
+  end
+
+  defp _update(conn, user, changeset) do
     case Repo.update(changeset) do
       {:ok, user} ->
         conn
@@ -61,5 +71,12 @@ defmodule Pairmotron.UserController do
     conn
     |> put_flash(:info, "User deleted successfully.")
     |> redirect(to: user_path(conn, :index))
+  end
+
+  defp current_assigned_user_id(conn) do
+    case user = conn.assigns[:current_user] do
+      %User{} -> Integer.to_string(user.id)
+      _ -> nil
+    end
   end
 end

@@ -6,11 +6,17 @@ defmodule Pairmotron.User do
     field :email, :string
     field :active, :boolean
 
+    field :password, :string, virtual: true
+    field :password_confirmation, :string, virtual: true
+    field :password_hash, :string
+
     timestamps()
   end
 
-  @required_params [:name, :email]
-  @optional_params [:active]
+  @minimum_password_length 8
+
+  @required_params ~w(name email)
+  @optional_params ~w(password password_confirmation active)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -18,7 +24,34 @@ defmodule Pairmotron.User do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_params, @optional_params)
-    |> validate_required([:name, :email])
+    |> common_changeset
+  end
+
+  @required_registration_params ~w(name email password password_confirmation)
+  @optional_registration_params ~w(active)
+
+  def registration_changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @required_registration_params, @optional_registration_params)
+    |> common_changeset
+  end
+
+  defp common_changeset(changeset) do
+    changeset
+    |> unique_constraint(:email)
+    |> validate_length(:password, min: @minimum_password_length)
+    |> validate_length(:password_confirmation, min: @minimum_password_length)
+    |> validate_confirmation(:password)
+    |> generate_password
+  end
+
+  defp generate_password(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
+        put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(pass))
+      _ ->
+        changeset
+    end
   end
 
   def active_users do
