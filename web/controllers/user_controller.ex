@@ -5,7 +5,9 @@ defmodule Pairmotron.UserController do
 
   def index(conn, _params) do
     users = Repo.all(User)
-    render(conn, "index.html", users: users)
+    changesets = users |> Enum.map &User.changeset/1
+    user_changesets = Enum.zip(users, changesets)
+    render(conn, "index.html", user_changesets: user_changesets)
   end
 
   def new(conn, _params) do
