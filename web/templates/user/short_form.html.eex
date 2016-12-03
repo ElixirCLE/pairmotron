@@ -1,0 +1,19 @@
+<div class="row">
+    <%= form_for @changeset, @action, fn f ->%>
+        <div class="col-md-3">
+            <%= field_value f, :name %>
+        </div>
+
+        <div class="col-md-3">
+            <%= field_value f, :email %>
+        </div>
+
+        <div class="col-md-3">
+            <%= checkbox f, :active %>
+        </div>
+
+        <div class="col-md-3">
+            <%= submit "Update", class: "btn btn-default btn-xs" %>
+        </div>
+    <% end %>
+</div>
