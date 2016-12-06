@@ -20,6 +20,14 @@
             <li><%= link "Pairs", to: page_path(@conn, :index) %></li>
             <li><%= link "Users", to: user_path(@conn, :index) %></li>
             <li><%= link "Projects", to: project_path(@conn, :index) %></li>
+            <li>
+              <%= case @conn.assigns[:current_user] do %>
+                <% nil -> %>
+                  <%= link "Login", class: "btn btn-success", role: "button", to: session_path(@conn, :new) %>
+                <% _current_user -> %>
+                  <%= link "Logout", class: "btn btn-danger", role: "button", to: session_path(@conn, :delete) %>
+              <% end %>         
+            </li>
           </ul>
         </nav>
         <span class="logo"><%= link "Pairmotron", to: page_path(@conn, :index) %>

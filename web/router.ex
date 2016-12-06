@@ -9,14 +9,28 @@ defmodule Pairmotron.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :authenticate do
+    plug Pairmotron.Plug.Authenticate
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
 
   scope "/", Pairmotron do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :browser
 
-    get "/", PageController, :index
+    resources "/registration", RegistrationController, only: [:new, :create]
+
+    get "/", SessionController, :new
+    post "/login", SessionController, :create
+    get "/logout", SessionController, :delete
+  end
+
+  scope "/", Pairmotron do
+    pipe_through [:browser, :authenticate] # Use the default browser stack
+
+    get "/pairs", PageController, :index
     resources "/users", UserController
     resources "/projects", ProjectController
     get "/:year/:week", PageController, :show

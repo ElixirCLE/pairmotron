@@ -26,6 +26,7 @@ defmodule Pairmotron.ConnCase do
       import Ecto.Query
 
       import Pairmotron.Router.Helpers
+      import Pairmotron.Factory
 
       # The default endpoint for testing
       @endpoint Pairmotron.Endpoint
