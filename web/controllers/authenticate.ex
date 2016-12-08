@@ -13,7 +13,7 @@ defmodule Pairmotron.Plug.Authenticate do
   end
 
   defp assign_current_user(conn = %Plug.Conn{}) do
-    current_user_id = current_assigned_user_id(conn) || get_session(conn, :current_user_id)
+    current_user_id = current_assigned_user_id(conn) || Guardian.Plug.current_resource(conn)
     assign_current_user(conn, current_user_id)
   end
   defp assign_current_user(conn, id) when is_integer(id) do
