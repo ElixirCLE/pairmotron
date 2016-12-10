@@ -27,3 +27,5 @@ config :pairmotron, Pairmotron.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   ssl: true
 
+config :guardian, Guardian,
+  secret_key: System.get_env("GUARDIAN_JWK_KEY")
