@@ -4,17 +4,16 @@
 
   <li>
     <strong>Name:</strong>
-    <%= @project.name %>
+    <%= if @project.url do %>
+      <%= link @project.name, to: @project.url %>
+    <%= else %>
+      <%= @project.name %>
+    <%= end %>
   </li>
 
   <li>
     <strong>Description:</strong>
     <%= @project.description %>
-  </li>
-
-  <li>
-    <strong>Url:</strong>
-    <%= @project.url %>
   </li>
 
 </ul>

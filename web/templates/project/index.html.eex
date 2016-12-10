@@ -5,7 +5,6 @@
     <tr>
       <th>Name</th>
       <th>Description</th>
-      <th>Url</th>
 
       <th></th>
     </tr>
@@ -13,9 +12,14 @@
   <tbody>
 <%= for project <- @projects do %>
     <tr>
-      <td><%= project.name %></td>
+      <td>
+        <%= if project.url do %>
+          <%= link project.name, to: project.url %>
+        <%= else %>
+          <%= project.name %>
+        <%= end %>
+      </td>
       <td><%= project.description %></td>
-      <td><%= project.url %></td>
 
       <td class="text-right">
         <%= link "Show", to: project_path(@conn, :show, project), class: "btn btn-default btn-xs" %>
