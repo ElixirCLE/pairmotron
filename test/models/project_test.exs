@@ -3,7 +3,7 @@ defmodule Pairmotron.ProjectTest do
 
   alias Pairmotron.Project
 
-  @valid_attrs %{description: "some content", name: "some content", url: "some content"}
+  @valid_attrs %{name: "some content", url: "some content"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

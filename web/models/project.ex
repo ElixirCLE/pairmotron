@@ -9,12 +9,14 @@ defmodule Pairmotron.Project do
     timestamps()
   end
 
+  @required_params ~w(name)
+  @optional_params ~w(description url)
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :description, :url])
-    |> validate_required([:name, :description, :url])
+    |> cast(params, @required_params, @optional_params)
   end
 end
