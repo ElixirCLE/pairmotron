@@ -2,12 +2,10 @@ defmodule Pairmotron.ProjectControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.Project
+  import Pairmotron.ControllerTestHelper, only: [log_in: 2]
+
   @valid_attrs %{description: "some content", name: "some content", url: "http://example.org"}
   @invalid_attrs %{url: "nothing"}
-
-  def log_in(conn, user) do
-    conn |> Plug.Conn.assign(:current_user, user)
-  end
 
   test "redirects to sign-in when not logged in", %{conn: conn} do
     conn = get conn, project_path(conn, :index)

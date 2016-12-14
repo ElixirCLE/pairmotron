@@ -1,0 +1,13 @@
+<h2>Show pair retro</h2>
+
+<ul>
+
+  <li>
+    <strong>Comment:</strong>
+    <%= @pair_retro.comment %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: pair_retro_path(@conn, :edit, @pair_retro) %>
+<%= link "Back", to: pair_retro_path(@conn, :index) %>

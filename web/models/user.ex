@@ -10,6 +10,8 @@ defmodule Pairmotron.User do
     field :password_confirmation, :string, virtual: true
     field :password_hash, :string
 
+    has_many :pair_retros, Pairmotron.PairRetro
+
     timestamps()
   end
 

@@ -1,0 +1,6 @@
+<h2>New pair retro</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: pair_retro_path(@conn, :create) %>
+
+<%= link "Back", to: pair_retro_path(@conn, :index) %>

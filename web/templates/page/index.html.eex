@@ -8,6 +8,9 @@
             <p><%= user.name %></p>
           </div>
         <% end %>
+        <div class="col-sm-4">
+          <a href="<%= pair_retro_path(@conn, :new, pair.id) %>">Retro</a>
+        </div>
       </div>
     </li>
   <% end %>
