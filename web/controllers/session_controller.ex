@@ -9,40 +9,34 @@ defmodule Pairmotron.SessionController do
     render conn, changeset: User.changeset(%User{})
   end
 
-  def create(conn, %{"user" => %{"email" => nil}}) do
-    conn |> bad_sign_in
+  def create(conn, %{"user" => user_params}) do
+    if is_nil(user_params["email"]) do
+      nil
+    else
+      Repo.get_by(User, email: user_params["email"])
+    end
+    |> sign_in(user_params["password"], conn)
   end
-
-  def create(conn, %{"user" => user_params = %{"email" => email}}) do
-    Repo.get_by(User, email: email)
-    |> sign_in(user_params, conn)
-  end
-
-  def create(conn, _params), do: bad_sign_in(conn)
 
   def delete(conn, _) do
-    Guardian.Plug.sign_out(conn)
+    delete_session(conn, :current_user_id)
     |> put_flash(:info, "You have been logged out")
     |> redirect(to: session_path(conn, :new))
   end
 
   @sign_in_error "Name and/or password are incorrect."
 
-  defp bad_sign_in(conn) do
+  defp sign_in(user, password, conn) when is_nil(user) or is_nil(password) do
     conn
     |> put_flash(:error, @sign_in_error)
     |> render("new.html", changeset: User.changeset(%User{}))
   end
 
-  defp sign_in(_user, %{"password" => nil}, conn) do
-    conn |> bad_sign_in
-  end
-
-  defp sign_in(user, %{"password" => password}, conn) do
+  defp sign_in(user, password, conn) when is_map(user) do
     if Comeonin.Bcrypt.checkpw(password, user.password_hash) do
       conn
+      |> put_session(:current_user_id, user.id)
       |> put_flash(:info, "You are now signed in.")
-      |> Guardian.Plug.sign_in(user)
       |> redirect(to: page_path(conn, :index))
     else
       conn
@@ -50,6 +44,4 @@ defmodule Pairmotron.SessionController do
       |> render("new.html", changeset: User.changeset(%User{}))
     end
   end
-
-  defp sign_in(_user, _params, conn), do: bad_sign_in(conn)
 end
