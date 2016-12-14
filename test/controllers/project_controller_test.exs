@@ -2,8 +2,8 @@ defmodule Pairmotron.ProjectControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.Project
-  @valid_attrs %{description: "some content", name: "some content", url: "some content"}
-  @invalid_attrs %{}
+  @valid_attrs %{description: "some content", name: "some content", url: "http://example.org"}
+  @invalid_attrs %{url: "nothing"}
 
   def log_in(conn, user) do
     conn |> Plug.Conn.assign(:current_user, user)
