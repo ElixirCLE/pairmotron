@@ -28,4 +28,5 @@ config :pairmotron, Pairmotron.Repo,
   ssl: true
 
 config :guardian, Guardian,
+  allowed_algos: ["HS512"],
   secret_key: System.get_env("GUARDIAN_JWK_KEY")
