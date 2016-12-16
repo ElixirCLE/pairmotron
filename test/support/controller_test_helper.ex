@@ -1,4 +1,7 @@
 defmodule Pairmotron.ControllerTestHelper do
+
+  alias Pairmotron.{Pair, PairRetro}
+
   def log_in(conn, user) do
     conn |> Plug.Conn.assign(:current_user, user)
   end
@@ -16,5 +19,10 @@ defmodule Pairmotron.ControllerTestHelper do
     |> List.flatten
     |> Enum.map(&(Pairmotron.Repo.insert! &1))
     pair
+  end
+
+  def create_retro(user, pair) do
+    retro_changeset = PairRetro.changeset(%PairRetro{}, %{comment: "comment", user_id: user.id, pair_id: pair.id})
+    Pairmotron.Repo.insert!(retro_changeset)
   end
 end

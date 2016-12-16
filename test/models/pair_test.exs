@@ -1,6 +1,5 @@
 defmodule Pairmotron.PairTest do
   use Pairmotron.ModelCase
-
   alias Pairmotron.Pair
 
   @valid_attrs %{pair_group: 42, week: 42, year: 42}

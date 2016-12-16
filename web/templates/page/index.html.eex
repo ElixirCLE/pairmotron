@@ -9,7 +9,13 @@
           </div>
         <% end %>
         <div class="col-sm-4">
-          <a href="<%= pair_retro_path(@conn, :new, pair.id) %>">Retro</a>
+          <%= if current_user_in_pair(@conn, pair) do %>
+            <%= if is_nil(user_retro(@conn)) do %>
+              <a href="<%= pair_retro_path(@conn, :new, pair.id) %>">Create Retrospective</a>
+            <%= else %>
+              <a href="<%= pair_retro_path(@conn, :edit, user_retro(@conn).id) %>">Retrospective</a>
+            <%= end %>
+          <% end %>
         </div>
       </div>
     </li>

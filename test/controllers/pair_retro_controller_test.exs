@@ -73,12 +73,5 @@ defmodule Pairmotron.PairRetroControllerTest do
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit pair retro"
     end
-
-    test "deletes chosen resource", %{conn: conn} do
-      pair_retro = Repo.insert! %PairRetro{}
-      conn = delete conn, pair_retro_path(conn, :delete, pair_retro)
-      assert redirected_to(conn) == pair_retro_path(conn, :index)
-      refute Repo.get(PairRetro, pair_retro.id)
-    end
   end
 end

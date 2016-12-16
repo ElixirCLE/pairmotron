@@ -22,6 +22,7 @@ defmodule Pairmotron.ModelCase do
       import Ecto.Changeset
       import Ecto.Query
       import Pairmotron.ModelCase
+      import Pairmotron.Factory
     end
   end
 

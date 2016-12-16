@@ -14,7 +14,16 @@ defmodule Pairmotron.PairRetro do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:comment])
+    |> cast(params, [:comment], [:user_id, :pair_id])
     |> validate_required([:comment])
+  end
+
+  def retro_for_user_and_week(user, year, week) do
+    from retro in Pairmotron.PairRetro,
+    join: u in assoc(retro, :user),
+    join: p in assoc(retro, :pair),
+    where: u.id == ^user.id,
+    where: p.year == ^year,
+    where: p.week == ^week
   end
 end
