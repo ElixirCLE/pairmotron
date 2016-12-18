@@ -10,7 +10,7 @@ defmodule Pairmotron.PairRetroController do
 
   def new(conn, params = %{"pair_id" => pair_id}) do
     current_user = conn.assigns[:current_user]
-    changeset = PairRetro.changeset(%PairRetro{})
+    changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id})
     render(conn, "new.html", changeset: changeset)
   end
 
