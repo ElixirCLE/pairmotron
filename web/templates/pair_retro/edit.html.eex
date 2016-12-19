@@ -1,4 +1,4 @@
-<h2>Edit pair retro</h2>
+<h2>Edit retrospective</h2>
 
 <%= render "form.html", changeset: @changeset,
                         action: pair_retro_path(@conn, :update, @pair_retro) %>

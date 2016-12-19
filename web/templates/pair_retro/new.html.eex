@@ -1,4 +1,4 @@
-<h2>New pair retro</h2>
+<h2>New retrospective</h2>
 
 <%= render "form.html", changeset: @changeset,
                         action: pair_retro_path(@conn, :create) %>

@@ -1,6 +1,6 @@
 defmodule Pairmotron.PageViewTest do
   use Pairmotron.ConnCase, async: true
-  import Pairmotron.ControllerTestHelper, only: [log_in: 2, create_pair: 1]
+  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1]
   alias Pairmotron.PageView
 
   describe ".current_user_in_pair" do

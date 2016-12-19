@@ -1,6 +1,6 @@
-defmodule Pairmotron.ControllerTestHelper do
+defmodule Pairmotron.TestHelper do
 
-  alias Pairmotron.{Pair, PairRetro}
+  alias Pairmotron.{Pair, PairRetro, Repo, UserPair}
 
   def log_in(conn, user) do
     conn |> Plug.Conn.assign(:current_user, user)
@@ -12,17 +12,17 @@ defmodule Pairmotron.ControllerTestHelper do
   end
 
   def create_pair(users, year, week) do
-    pair_changeset = Pairmotron.Pair.changeset(%Pairmotron.Pair{}, %{year: year, week: week})
+    pair_changeset = Pair.changeset(%Pair{}, %{year: year, week: week})
     pair = Pairmotron.Repo.insert!(pair_changeset)
     users
-    |> Enum.map(&(Pairmotron.UserPair.changeset(%Pairmotron.UserPair{}, %{pair_id: pair.id, user_id: &1.id})))
+    |> Enum.map(&(UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: &1.id})))
     |> List.flatten
-    |> Enum.map(&(Pairmotron.Repo.insert! &1))
+    |> Enum.map(&(Repo.insert! &1))
     pair
   end
 
   def create_retro(user, pair) do
     retro_changeset = PairRetro.changeset(%PairRetro{}, %{comment: "comment", user_id: user.id, pair_id: pair.id})
-    Pairmotron.Repo.insert!(retro_changeset)
+    Repo.insert!(retro_changeset)
   end
 end

@@ -20,10 +20,14 @@ defmodule Pairmotron.PairRetro do
 
   def retro_for_user_and_week(user, year, week) do
     from retro in Pairmotron.PairRetro,
-    join: u in assoc(retro, :user),
     join: p in assoc(retro, :pair),
-    where: u.id == ^user.id,
+    where: retro.user_id == ^user.id,
     where: p.year == ^year,
     where: p.week == ^week
+  end
+
+  def users_retros(user) do
+    from retro in Pairmotron.PairRetro,
+    where: retro.user_id == ^user.id
   end
 end

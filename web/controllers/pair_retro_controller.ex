@@ -4,11 +4,12 @@ defmodule Pairmotron.PairRetroController do
   alias Pairmotron.PairRetro
 
   def index(conn, _params) do
-    pair_retros = Repo.all(PairRetro)
+    current_user = conn.assigns[:current_user]
+    pair_retros = Repo.all(PairRetro.users_retros(current_user))
     render(conn, "index.html", pair_retros: pair_retros)
   end
 
-  def new(conn, params = %{"pair_id" => pair_id}) do
+  def new(conn, %{"pair_id" => pair_id}) do
     current_user = conn.assigns[:current_user]
     changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id})
     render(conn, "new.html", changeset: changeset)

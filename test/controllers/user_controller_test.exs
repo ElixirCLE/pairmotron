@@ -2,7 +2,7 @@ defmodule Pairmotron.UserControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.User
-  import Pairmotron.ControllerTestHelper, only: [log_in: 2]
+  import Pairmotron.TestHelper, only: [log_in: 2]
 
   @valid_attrs %{email: "some content", name: "some content", password_hash: "test"}
   @valid_reg_attrs %{email: "email", name: "name", password: "password", password_confirmation: "password"}

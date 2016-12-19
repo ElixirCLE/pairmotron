@@ -2,7 +2,7 @@ defmodule Pairmotron.ProjectControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.Project
-  import Pairmotron.ControllerTestHelper, only: [log_in: 2]
+  import Pairmotron.TestHelper, only: [log_in: 2]
 
   @valid_attrs %{description: "some content", name: "some content", url: "http://example.org"}
   @invalid_attrs %{url: "nothing"}

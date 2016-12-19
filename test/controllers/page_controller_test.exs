@@ -1,8 +1,8 @@
 defmodule Pairmotron.PageControllerTest do
   use Pairmotron.ConnCase
 
-  alias Pairmotron.{Pair, UserPair}
-  import Pairmotron.ControllerTestHelper, only: [log_in: 2, create_pair: 1]
+  alias Pairmotron.UserPair
+  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1]
 
   test "redirects to login when no user is logged in", %{conn: conn} do
     conn = get conn, "/pairs"
