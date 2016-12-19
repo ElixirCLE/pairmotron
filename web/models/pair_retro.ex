@@ -2,6 +2,7 @@ defmodule Pairmotron.PairRetro do
   use Pairmotron.Web, :model
 
   schema "pair_retros" do
+    field :pair_date, Ecto.Date
     field :comment, :string
     belongs_to :user, Pairmotron.User
     belongs_to :pair, Pairmotron.Pair
@@ -9,13 +10,15 @@ defmodule Pairmotron.PairRetro do
     timestamps()
   end
 
+  @required_fields ~w(comment pair_date)
+  @optional_fields ~w(user_id pair_id)
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:comment], [:user_id, :pair_id])
-    |> validate_required([:comment])
+    |> cast(params, @required_fields, @optional_fields)
   end
 
   def retro_for_user_and_week(user, year, week) do

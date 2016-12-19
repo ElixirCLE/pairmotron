@@ -22,7 +22,7 @@ defmodule Pairmotron.TestHelper do
   end
 
   def create_retro(user, pair) do
-    retro_changeset = PairRetro.changeset(%PairRetro{}, %{comment: "comment", user_id: user.id, pair_id: pair.id})
+    retro_changeset = PairRetro.changeset(%PairRetro{}, %{comment: "comment", pair_date: Timex.today, user_id: user.id, pair_id: pair.id})
     Repo.insert!(retro_changeset)
   end
 end

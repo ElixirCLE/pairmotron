@@ -52,4 +52,16 @@ defmodule Pairmotron.PairRetroController do
         render(conn, "edit.html", pair_retro: pair_retro, changeset: changeset)
     end
   end
+
+  def delete(conn, %{"id" => id}) do
+    pair_retro = Repo.get!(PairRetro, id)
+
+    # Here we use delete! (with a bang) because we expect
+    # it to always work (and if it does not, it will raise).
+    Repo.delete!(pair_retro)
+
+    conn
+    |> put_flash(:info, "Retrospective deleted successfully.")
+    |> redirect(to: pair_retro_path(conn, :index))
+  end
 end

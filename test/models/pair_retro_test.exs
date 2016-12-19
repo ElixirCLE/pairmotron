@@ -3,7 +3,7 @@ defmodule Pairmotron.PairRetroTest do
   import Pairmotron.TestHelper, only: [create_pair: 3, create_retro: 2]
   alias Pairmotron.PairRetro
 
-  @valid_attrs %{comment: "some content"}
+  @valid_attrs %{comment: "some content", pair_date: Timex.today}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

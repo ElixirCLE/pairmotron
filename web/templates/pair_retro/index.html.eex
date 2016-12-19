@@ -4,6 +4,7 @@
   <thead>
     <tr>
       <th>Comment</th>
+      <th>Pair Date</th>
 
       <th></th>
     </tr>
@@ -12,10 +13,12 @@
 <%= for pair_retro <- @pair_retros do %>
     <tr>
       <td><%= pair_retro.comment %></td>
+      <td><%= format_date(pair_retro.pair_date) %></td>
 
       <td class="text-right">
         <%= link "Show", to: pair_retro_path(@conn, :show, pair_retro), class: "btn btn-default btn-xs" %>
         <%= link "Edit", to: pair_retro_path(@conn, :edit, pair_retro), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: pair_retro_path(@conn, :delete, pair_retro), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
       </td>
     </tr>
 <% end %>

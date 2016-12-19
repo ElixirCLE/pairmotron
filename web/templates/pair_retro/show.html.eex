@@ -3,6 +3,11 @@
 <ul>
 
   <li>
+    <strong>Pair Date:</strong>
+    <%= format_date(@pair_retro.pair_date) %>
+  </li>
+
+  <li>
     <strong>Comment:</strong>
     <%= @pair_retro.comment %>
   </li>

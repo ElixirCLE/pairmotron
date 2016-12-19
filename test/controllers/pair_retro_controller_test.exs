@@ -4,7 +4,7 @@ defmodule Pairmotron.PairRetroControllerTest do
   alias Pairmotron.PairRetro
   import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1, create_retro: 2]
 
-  @valid_attrs %{comment: "some content"}
+  @valid_attrs %{comment: "some content", pair_date: Timex.today}
   @invalid_attrs %{}
 
   test "redirects to sign-in when not logged in", %{conn: conn} do
@@ -87,6 +87,13 @@ defmodule Pairmotron.PairRetroControllerTest do
       pair_retro = Repo.insert! %PairRetro{}
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit retrospective"
+    end
+
+    test "deletes chosen resource", %{conn: conn} do
+      pair_retro = Repo.insert! %PairRetro{}
+      conn = delete conn, pair_retro_path(conn, :delete, pair_retro)
+      assert redirected_to(conn) == pair_retro_path(conn, :index)
+      refute Repo.get(PairRetro, pair_retro.id)
     end
   end
 end
