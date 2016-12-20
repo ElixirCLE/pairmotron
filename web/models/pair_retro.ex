@@ -3,7 +3,8 @@ defmodule Pairmotron.PairRetro do
 
   schema "pair_retros" do
     field :pair_date, Ecto.Date
-    field :comment, :string
+    field :subject, :string
+    field :reflection, :string
     belongs_to :user, Pairmotron.User
     belongs_to :pair, Pairmotron.Pair
     belongs_to :project, Pairmotron.Project
@@ -11,8 +12,8 @@ defmodule Pairmotron.PairRetro do
     timestamps()
   end
 
-  @required_fields ~w(comment pair_date user_id pair_id)
-  @optional_fields ~w(project_id)
+  @required_fields ~w(pair_date user_id pair_id)
+  @optional_fields ~w(subject reflection project_id)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

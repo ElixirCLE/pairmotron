@@ -4,7 +4,7 @@ defmodule Pairmotron.PairRetroControllerTest do
   alias Pairmotron.PairRetro
   import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1, create_retro: 2]
 
-  @valid_attrs %{comment: "some content", pair_date: Timex.today}
+  @valid_attrs %{subject: "some content", reflection: "some content", pair_date: Timex.today}
   @invalid_attrs %{}
 
   test "redirects to sign-in when not logged in", %{conn: conn} do
@@ -29,7 +29,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       pair = create_pair([user])
       retro = create_retro(user, pair)
       conn = get conn, pair_retro_path(conn, :index)
-      assert html_response(conn, 200) =~ retro.comment
+      assert html_response(conn, 200) =~ Ecto.Date.to_string(retro.pair_date)
     end
 
     test "does not list a retrospective of a different user", %{conn: conn} do
@@ -37,7 +37,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       pair = create_pair([other_user])
       retro = create_retro(other_user, pair)
       conn = get conn, pair_retro_path(conn, :index)
-      refute html_response(conn, 200) =~ retro.comment
+      refute html_response(conn, 200) =~ Ecto.Date.to_string(retro.pair_date)
     end
 
     test "renders form for new resources", %{conn: conn, logged_in_user: user1} do

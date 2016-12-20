@@ -8,10 +8,14 @@
   </li>
 
   <li>
-    <strong>Comment:</strong>
-    <%= @pair_retro.comment %>
+    <strong>Subject:</strong>
+    <%= @pair_retro.subject %>
   </li>
 
+  <li>
+    <strong>Reflection:</strong>
+    <%= @pair_retro.reflection %>
+  </li>
 </ul>
 
 <%= link "Edit", to: pair_retro_path(@conn, :edit, @pair_retro) %>

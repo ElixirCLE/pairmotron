@@ -3,7 +3,8 @@ defmodule Pairmotron.Repo.Migrations.CreatePairRetro do
 
   def change do
     create table(:pair_retros) do
-      add :comment, :string
+      add :subject, :string
+      add :reflection, :string
       add :pair_date, :date
       add :pair_id, references(:pairs, on_delete: :delete_all)
       add :user_id, references(:users, on_delete: :delete_all)

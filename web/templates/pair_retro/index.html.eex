@@ -3,7 +3,6 @@
 <table class="table">
   <thead>
     <tr>
-      <th>Comment</th>
       <th>Pair Date</th>
 
       <th></th>
@@ -12,7 +11,6 @@
   <tbody>
 <%= for pair_retro <- @pair_retros do %>
     <tr>
-      <td><%= pair_retro.comment %></td>
       <td><%= format_date(pair_retro.pair_date) %></td>
 
       <td class="text-right">

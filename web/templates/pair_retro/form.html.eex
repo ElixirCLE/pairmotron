@@ -15,9 +15,15 @@
   </div>
 
   <div class="form-group">
-    <%= label f, :comment, class: "control-label" %>
-    <%= text_input f, :comment, class: "form-control" %>
-    <%= error_tag f, :comment %>
+    <%= label f, :subject, class: "control-label" %>
+    <%= text_input f, :subject, class: "form-control" %>
+    <%= error_tag f, :subject %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :reflection, class: "control-label" %>
+    <%= textarea f, :reflection, class: "form-control" %>
+    <%= error_tag f, :reflection %>
   </div>
 
   <div class="form-group">
