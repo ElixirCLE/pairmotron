@@ -2,7 +2,7 @@ defmodule Pairmotron.ProjectControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.Project
-  import Pairmotron.TestHelper, only: [log_in: 2]
+  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1, create_retro: 3]
 
   @valid_attrs %{description: "some content", name: "some content", url: "http://example.org"}
   @invalid_attrs %{url: "nothing"}
@@ -74,6 +74,15 @@ defmodule Pairmotron.ProjectControllerTest do
 
     test "deletes chosen resource", %{conn: conn} do
       project = Repo.insert! %Project{}
+      conn = delete conn, project_path(conn, :delete, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+      refute Repo.get(Project, project.id)
+    end
+
+    test "can delete project when a retro references it", %{conn: conn, logged_in_user: user} do
+      project = insert(:project)
+      pair = create_pair([user])
+      create_retro(user, pair, project)
       conn = delete conn, project_path(conn, :delete, project)
       assert redirected_to(conn) == project_path(conn, :index)
       refute Repo.get(Project, project.id)

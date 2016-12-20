@@ -1,6 +1,7 @@
 <h2>New retrospective</h2>
 
 <%= render "form.html", changeset: @changeset,
-                        action: pair_retro_path(@conn, :create) %>
+                        action: pair_retro_path(@conn, :create),
+                        projects: projects_for_select(@conn) %>
 
 <%= link "Back", to: pair_retro_path(@conn, :index) %>

@@ -47,10 +47,12 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "New retrospective"
     end
 
-    test "creates resource and redirects when data is valid", %{conn: conn} do
-      conn = post conn, pair_retro_path(conn, :create), pair_retro: @valid_attrs
+    test "creates resource and redirects when data is valid", %{conn: conn, logged_in_user: user} do
+      pair = create_pair([user])
+      attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
+      conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :index)
-      assert Repo.get_by(PairRetro, @valid_attrs)
+      assert Repo.get_by(PairRetro, attrs)
     end
 
     test "does not create resource and renders errors when data is invalid", %{conn: conn} do
@@ -76,11 +78,13 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "Edit retrospective"
     end
 
-    test "updates chosen resource and redirects when data is valid", %{conn: conn} do
+    test "updates chosen resource and redirects when data is valid", %{conn: conn, logged_in_user: user} do
+      pair = create_pair([user])
+      attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
       pair_retro = Repo.insert! %PairRetro{}
-      conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: @valid_attrs
+      conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :show, pair_retro)
-      assert Repo.get_by(PairRetro, @valid_attrs)
+      assert Repo.get_by(PairRetro, attrs)
     end
 
     test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do

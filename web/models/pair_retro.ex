@@ -6,12 +6,13 @@ defmodule Pairmotron.PairRetro do
     field :comment, :string
     belongs_to :user, Pairmotron.User
     belongs_to :pair, Pairmotron.Pair
+    belongs_to :project, Pairmotron.Project
 
     timestamps()
   end
 
-  @required_fields ~w(comment pair_date)
-  @optional_fields ~w(user_id pair_id)
+  @required_fields ~w(comment pair_date user_id pair_id)
+  @optional_fields ~w(project_id)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -19,6 +20,9 @@ defmodule Pairmotron.PairRetro do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
+    |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:pair_id)
+    |> foreign_key_constraint(:project_id)
   end
 
   def retro_for_user_and_week(user, year, week) do

@@ -1,7 +1,7 @@
 defmodule Pairmotron.PairRetroController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.PairRetro
+  alias Pairmotron.{PairRetro, Project}
 
   def index(conn, _params) do
     current_user = conn.assigns[:current_user]
@@ -10,6 +10,7 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def new(conn, %{"pair_id" => pair_id}) do
+    conn = assign(conn, :projects, Repo.all(Project))
     current_user = conn.assigns[:current_user]
     changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id})
     render(conn, "new.html", changeset: changeset)
@@ -34,6 +35,7 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def edit(conn, %{"id" => id}) do
+    conn = assign(conn, :projects, Repo.all(Project))
     pair_retro = Repo.get!(PairRetro, id)
     changeset = PairRetro.changeset(pair_retro)
     render(conn, "edit.html", pair_retro: pair_retro, changeset: changeset)

@@ -1,4 +1,4 @@
-<%= form_for @changeset, @action, fn f -> %>
+<%= form_for @changeset, @action, @projects, fn f -> %>
   <%= if @changeset.action do %>
     <div class="alert alert-danger">
       <p>Oops, something went wrong! Please check the errors below.</p>
@@ -18,6 +18,12 @@
     <%= label f, :comment, class: "control-label" %>
     <%= text_input f, :comment, class: "form-control" %>
     <%= error_tag f, :comment %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :project_id, "Project", class: "control-label" %>
+    <%= select f, :project_id, @projects, prompt: "Select Project", class: "form-control" %>
+    <%= error_tag f, :project_id %>
   </div>
 
   <div class="form-group">
