@@ -15,20 +15,20 @@
   </div>
 
   <div class="form-group">
-    <%= label f, :subject, class: "control-label" %>
+    <label>What did you work on?</label>
     <%= text_input f, :subject, class: "form-control" %>
     <%= error_tag f, :subject %>
   </div>
 
   <div class="form-group">
-    <%= label f, :reflection, class: "control-label" %>
+    <label>How did it go?</label>
     <%= textarea f, :reflection, class: "form-control" %>
     <%= error_tag f, :reflection %>
   </div>
 
   <div class="form-group">
     <%= label f, :project_id, "Project", class: "control-label" %>
-    <%= select f, :project_id, @projects, prompt: "Select Project", class: "form-control" %>
+    <%= select f, :project_id, @projects, prompt: "(none)", class: "form-control" %>
     <%= error_tag f, :project_id %>
   </div>
 

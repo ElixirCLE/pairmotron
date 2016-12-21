@@ -8,7 +8,7 @@ defmodule Pairmotron.PairRetroController do
 
   def index(conn, _params) do
     current_user = conn.assigns[:current_user]
-    pair_retros = Repo.all(PairRetro.users_retros(current_user))
+    pair_retros = Repo.all(PairRetro.users_retros(current_user)) |> Repo.preload(:project)
     render(conn, "index.html", pair_retros: pair_retros)
   end
 
@@ -42,7 +42,8 @@ defmodule Pairmotron.PairRetroController do
 
   def show(conn, %{"id" => _id}) do
     if conn.assigns.authorized do
-      render(conn, "show.html", pair_retro: conn.assigns.pair_retro)
+      pair_retro = Repo.preload(conn.assigns.pair_retro, :project)
+      render(conn, "show.html", pair_retro: pair_retro)
     else
       redirect_not_authorized(conn, pair_retro_path(conn, :index))
     end

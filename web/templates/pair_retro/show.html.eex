@@ -16,6 +16,11 @@
     <strong>Reflection:</strong>
     <%= @pair_retro.reflection %>
   </li>
+
+  <li>
+    <strong>Project:</strong>
+    <%= format_project(@pair_retro.project) %>
+  </li>
 </ul>
 
 <%= link "Edit", to: pair_retro_path(@conn, :edit, @pair_retro) %>
