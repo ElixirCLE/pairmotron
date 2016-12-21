@@ -36,6 +36,8 @@ defmodule Pairmotron.Web do
 
       import Pairmotron.Router.Helpers
       import Pairmotron.Gettext
+
+      import Canary.Plugs
     end
   end
 

@@ -47,7 +47,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "New retrospective"
     end
 
-    test "creates resource and redirects when data is valid", %{conn: conn, logged_in_user: user} do
+    test "creates retro and redirects when data is valid and user is logged in", %{conn: conn, logged_in_user: user} do
       pair = create_pair([user])
       attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
@@ -55,49 +55,99 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert Repo.get_by(PairRetro, attrs)
     end
 
+    test "does not create retro when the retros user is not the logged in user", %{conn: conn} do
+      user = insert(:user)
+      pair = create_pair([user])
+      attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
+      conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
+      assert redirected_to(conn) == pair_retro_path(conn, :index)
+      assert %{"error" => _} = conn.private.phoenix_flash
+    end
+
     test "does not create resource and renders errors when data is invalid", %{conn: conn} do
       conn = post conn, pair_retro_path(conn, :create), pair_retro: @invalid_attrs
       assert html_response(conn, 200) =~ "New retrospective"
     end
 
-    test "shows chosen resource", %{conn: conn} do
-      pair_retro = Repo.insert! %PairRetro{}
-      conn = get conn, pair_retro_path(conn, :show, pair_retro)
+    test "can show the logged in user's retrospective", %{conn: conn, logged_in_user: user} do
+      pair = create_pair([user])
+      retro = create_retro(user, pair)
+      conn = get conn, pair_retro_path(conn, :show, retro)
       assert html_response(conn, 200) =~ "Show retrospective"
     end
 
-    test "renders page not found when id is nonexistent", %{conn: conn} do
-      assert_error_sent 404, fn ->
-        get conn, pair_retro_path(conn, :show, -1)
-      end
+    test "cannot show other users' retrospective", %{conn: conn} do
+      user = insert(:user)
+      pair = create_pair([user])
+      retro = create_retro(user, pair)
+      conn = get conn, pair_retro_path(conn, :show, retro)
+      assert redirected_to(conn) == pair_retro_path(conn, :index)
+      assert %{"error" => _} = conn.private.phoenix_flash
     end
 
-    test "renders form for editing chosen resource", %{conn: conn} do
-      pair_retro = Repo.insert! %PairRetro{}
-      conn = get conn, pair_retro_path(conn, :edit, pair_retro)
+    test "renders page not found when id is nonexistent", %{conn: conn} do
+      conn = get conn, pair_retro_path(conn, :show, -1)
+      assert html_response(conn, 404) =~ "Page not found"
+    end
+
+    test "renders form for editing logged in user's own resource", %{conn: conn, logged_in_user: user} do
+      pair = create_pair([user])
+      retro = create_retro(user, pair)
+      conn = get conn, pair_retro_path(conn, :edit, retro)
       assert html_response(conn, 200) =~ "Edit retrospective"
     end
 
-    test "updates chosen resource and redirects when data is valid", %{conn: conn, logged_in_user: user} do
+    test "does not render form for editing different user's resource", %{conn: conn} do
+      user = insert(:user)
+      pair = create_pair([user])
+      retro = create_retro(user, pair)
+      conn = get conn, pair_retro_path(conn, :edit, retro)
+      assert redirected_to(conn) == pair_retro_path(conn, :index)
+      assert %{"error" => _} = conn.private.phoenix_flash
+    end
+
+    test "updates logged in users' retro and redirects when data is valid", %{conn: conn, logged_in_user: user} do
       pair = create_pair([user])
       attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
-      pair_retro = Repo.insert! %PairRetro{}
+      pair_retro = Repo.insert! %PairRetro{user_id: user.id}
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :show, pair_retro)
       assert Repo.get_by(PairRetro, attrs)
     end
 
-    test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
+    test "does not update retro of user who is not the logged in user", %{conn: conn} do
+      user = insert(:user)
+      pair = create_pair([user])
+      attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
       pair_retro = Repo.insert! %PairRetro{}
+      conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
+      assert redirected_to(conn) == pair_retro_path(conn, :index)
+      assert %{"error" => _} = conn.private.phoenix_flash
+      refute Repo.get_by(PairRetro, attrs)
+    end
+
+    test "does not update chosen resource and renders errors when data is invalid", %{conn: conn, logged_in_user: user} do
+      pair_retro = Repo.insert! %PairRetro{user_id: user.id}
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit retrospective"
     end
 
-    test "deletes chosen resource", %{conn: conn} do
-      pair_retro = Repo.insert! %PairRetro{}
-      conn = delete conn, pair_retro_path(conn, :delete, pair_retro)
+    test "deletes the logged in users' retro", %{conn: conn, logged_in_user: user} do
+      pair = create_pair([user])
+      retro = create_retro(user, pair)
+      conn = delete conn, pair_retro_path(conn, :delete, retro)
       assert redirected_to(conn) == pair_retro_path(conn, :index)
-      refute Repo.get(PairRetro, pair_retro.id)
+      refute Repo.get(PairRetro, retro.id)
+    end
+
+    test "does not delete retro of a user that is not logged in", %{conn: conn} do
+      user = insert(:user)
+      pair = create_pair([user])
+      retro = create_retro(user, pair)
+      conn = delete conn, pair_retro_path(conn, :delete, retro)
+      assert redirected_to(conn) == pair_retro_path(conn, :index)
+      assert %{"error" => _} = conn.private.phoenix_flash
+      assert Repo.get(PairRetro, retro.id)
     end
   end
 end

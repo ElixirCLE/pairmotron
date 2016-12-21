@@ -42,7 +42,9 @@ defmodule Pairmotron.Mixfile do
      {:mix_test_watch, "~> 0.2", only: :dev},
      {:comeonin, "~> 2.6"},
      {:ex_machina, "~> 1.0"},
-     {:guardian, "~> 0.13.0"}]
+     {:guardian, "~> 0.13.0"},
+     {:canada, "~> 1.0.1"},
+     {:canary, "~> 1.1.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
