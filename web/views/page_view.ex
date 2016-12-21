@@ -15,4 +15,8 @@ defmodule Pairmotron.PageView do
   def user_retro(conn) do
     conn.assigns[:current_user_retro_for_week]
   end
+
+  def past_week?(week, year) do
+    Pairmotron.Calendar.past_week?(week, year, Timex.today)
+  end
 end
