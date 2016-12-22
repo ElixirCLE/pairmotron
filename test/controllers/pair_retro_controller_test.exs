@@ -2,7 +2,7 @@ defmodule Pairmotron.PairRetroControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.PairRetro
-  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1, create_retro: 2]
+  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1, create_pair: 3, create_retro: 2]
 
   @valid_attrs %{subject: "some content", reflection: "some content", pair_date: Timex.today}
   @invalid_attrs %{}
@@ -49,16 +49,28 @@ defmodule Pairmotron.PairRetroControllerTest do
 
     test "creates retro and redirects when data is valid and user is logged in", %{conn: conn, logged_in_user: user} do
       pair = create_pair([user])
-      attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
+      attrs = Map.merge(@valid_attrs, %{pair_id: Integer.to_string(pair.id),
+                                        user_id: Integer.to_string(user.id)})
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :index)
       assert Repo.get_by(PairRetro, attrs)
     end
 
+    test "does not create retro with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
+      pair = create_pair([user], 2016, 1)
+      attrs = Map.merge(@valid_attrs, %{pair_date: ~D(1999-10-20),
+                                        pair_id: Integer.to_string(pair.id),
+                                        user_id: Integer.to_string(user.id)})
+      conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
+      assert html_response(conn, 200) =~ "New retrospective"
+      assert html_response(conn, 200) =~ "cannot be before the week of the pair"
+    end
+
     test "does not create retro when the retros user is not the logged in user", %{conn: conn} do
       user = insert(:user)
       pair = create_pair([user])
-      attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
+      attrs = Map.merge(@valid_attrs, %{pair_id: Integer.to_string(pair.id),
+                                        user_id: Integer.to_string(user.id)})
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :index)
       assert %{"error" => _} = conn.private.phoenix_flash
@@ -113,6 +125,17 @@ defmodule Pairmotron.PairRetroControllerTest do
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :show, pair_retro)
       assert Repo.get_by(PairRetro, attrs)
+    end
+
+    test "does not update retro with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
+      pair = create_pair([user], 2016, 1)
+      attrs = Map.merge(@valid_attrs, %{pair_date: ~D(1999-10-20),
+                                        pair_id: pair.id,
+                                        user_id: user.id})
+      pair_retro = Repo.insert! %PairRetro{user_id: user.id}
+      conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
+      assert html_response(conn, 200) =~ "Edit retrospective"
+      assert html_response(conn, 200) =~ "cannot be before the week of the pair"
     end
 
     test "does not update retro of user who is not the logged in user", %{conn: conn} do

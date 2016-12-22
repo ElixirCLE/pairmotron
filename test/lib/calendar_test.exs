@@ -38,4 +38,11 @@ defmodule Pairmotron.CalendarTest do
       assert Calendar.past_week?(2015, 50, ~D(2016-02-01))
     end
   end
+
+  describe "first_date_of_week" do
+    test "returns the date of the first day of the given week" do
+      assert Calendar.first_date_of_week(2016, 5) == ~D(2016-02-01)
+      assert Calendar.first_date_of_week(2015, 53) == ~D(2015-12-28)
+    end
+  end
 end

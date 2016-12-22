@@ -15,16 +15,21 @@ defmodule Pairmotron.PairRetroController do
   def new(conn, %{"pair_id" => pair_id}) do
     conn = assign(conn, :projects, Repo.all(Project))
     current_user = conn.assigns[:current_user]
-    changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id})
+    changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id}, nil)
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"pair_retro" => pair_retro_params}) do
-    changeset = PairRetro.changeset(%PairRetro{}, pair_retro_params)
-    user_id = case pair_retro_params do
-                %{"user_id" => user_id} -> user_id
-                _ -> 0
-              end
+    pair_id = parameter_as_integer(pair_retro_params, "pair_id")
+
+    earliest_pair_date = case Repo.get(Pairmotron.Pair, pair_id) do
+      nil -> nil
+      pair -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
+    end
+
+    changeset = PairRetro.changeset(%PairRetro{}, pair_retro_params, earliest_pair_date)
+
+    user_id = parameter_as_integer(pair_retro_params, "user_id")
     current_user = conn.assigns[:current_user]
     if current_user.id == user_id || user_id == 0 do
       case Repo.insert(changeset) do
@@ -52,8 +57,9 @@ defmodule Pairmotron.PairRetroController do
   def edit(conn, %{"id" => _id}) do
     if conn.assigns.authorized do
       conn = assign(conn, :projects, Repo.all(Project))
-      changeset = PairRetro.changeset(conn.assigns.pair_retro)
-      render(conn, "edit.html", pair_retro: conn.assigns.pair_retro, changeset: changeset)
+      retro = conn.assigns.pair_retro
+      changeset = PairRetro.changeset(retro, %{}, nil)
+      render(conn, "edit.html", pair_retro: retro, changeset: changeset)
     else
       redirect_not_authorized(conn, pair_retro_path(conn, :index))
     end
@@ -61,8 +67,16 @@ defmodule Pairmotron.PairRetroController do
 
   def update(conn, %{"id" => _id, "pair_retro" => pair_retro_params}) do
     if conn.assigns.authorized do
+      pair_id = parameter_as_integer(pair_retro_params, "pair_id")
+
+      earliest_pair_date = case Repo.get(Pairmotron.Pair, pair_id) do
+        nil -> nil
+        pair -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
+      end
+
       pair_retro = conn.assigns.pair_retro
-      changeset = PairRetro.changeset(pair_retro, pair_retro_params)
+
+      changeset = PairRetro.changeset(pair_retro, pair_retro_params, earliest_pair_date)
 
       case Repo.update(changeset) do
         {:ok, pair_retro} ->

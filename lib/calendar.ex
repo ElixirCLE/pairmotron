@@ -18,4 +18,8 @@ defmodule Pairmotron.Calendar do
       year < curr_year
     end
   end
+
+  def first_date_of_week(year, week) do
+    Timex.from_iso_triplet({year, week, 1})
+  end
 end

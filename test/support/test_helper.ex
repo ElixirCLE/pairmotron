@@ -22,12 +22,25 @@ defmodule Pairmotron.TestHelper do
   end
 
   def create_retro(user, pair) do
-    retro_changeset = PairRetro.changeset(%PairRetro{}, %{subject: "subject", reflection: "reflection", pair_date: Timex.today, user_id: user.id, pair_id: pair.id})
+    retro_changeset = PairRetro.changeset(%PairRetro{},
+                                          %{subject:    "subject",
+                                            reflection: "reflection",
+                                            pair_date:  Timex.today,
+                                            user_id:    user.id,
+                                            pair_id:    pair.id},
+                                          Timex.today)
     Repo.insert!(retro_changeset)
   end
 
   def create_retro(user, pair, project) do
-    retro_changeset = PairRetro.changeset(%PairRetro{}, %{subject: "subject", reflection: "reflection", pair_date: Timex.today, user_id: user.id, pair_id: pair.id, project_id: project.id})
+    retro_changeset = PairRetro.changeset(%PairRetro{},
+                                          %{subject: "subject",
+                                            reflection: "reflection",
+                                            pair_date: Timex.today,
+                                            user_id: user.id,
+                                            pair_id: pair.id,
+                                            project_id: project.id},
+                                          Timex.today)
     Repo.insert!(retro_changeset)
   end
 end

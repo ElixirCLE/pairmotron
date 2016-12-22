@@ -25,4 +25,23 @@ defmodule Pairmotron.ControllerHelpers do
     |> put_flash(:error, "You do not have access to that!")
     |> redirect(to: path)
   end
+
+  @doc """
+  Given a field, and params passed to :create or :update actions,
+  this looks for the field specified and returns it as an integer
+  if possible. If not possible, it returns 0. This is intended
+  to be used on association IDs so that they can easily be retrieved
+  from Ecto if necessary.
+  """
+  def parameter_as_integer(params, field) do
+    case Map.get(params, field, 0) do
+      id when is_binary(id) ->
+        case Integer.parse(id) do
+          {int, _} -> int
+          _ -> 0
+        end
+      id when is_integer(id) -> id
+      _ -> 0
+    end
+  end
 end

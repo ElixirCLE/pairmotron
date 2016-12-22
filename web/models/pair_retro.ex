@@ -17,13 +17,30 @@ defmodule Pairmotron.PairRetro do
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
+
+  pair_start_date should be a date which is the first day
+  of the week and year on the associated pair. It is used
+  to validate that the pair_date of this pair_retro is after
+  that date, since the actual pairing could not have occurred
+  before the actual pair was assigned.
   """
-  def changeset(struct, params \\ %{}) do
+  def changeset(struct, params \\ %{}, pair_start_date) do
     struct
     |> cast(params, @required_fields, @optional_fields)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:pair_id)
     |> foreign_key_constraint(:project_id)
+    |> validate_field_is_not_before_date(:pair_date, pair_start_date)
+  end
+
+  defp validate_field_is_not_before_date(changeset, field, pair_start_date) do
+    validate_change changeset, field, fn field, field_date ->
+      if Timex.before?(Ecto.Date.to_erl(field_date), pair_start_date) do
+        [{field, "cannot be before the week of the pair"}]
+      else
+        []
+      end
+    end
   end
 
   def retro_for_user_and_week(user, year, week) do

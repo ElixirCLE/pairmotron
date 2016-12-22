@@ -9,8 +9,8 @@
   <%= hidden_input f, :user_id, value: value_from_changeset(@changeset, :user_id) %>
 
   <div class="form-group">
-    <%= label f, :pair_date, class: "control-abel" %>
-    <%= date_select f, :pair_date %>
+    <%= label f, :pair_date, class: "control-label" %>
+    <%= date_select f, :pair_date, default: Timex.today %>
     <%= error_tag f, :pair_date %>
   </div>
 

@@ -3,19 +3,27 @@ defmodule Pairmotron.PairRetroTest do
   import Pairmotron.TestHelper, only: [create_pair: 1, create_pair: 3, create_retro: 2]
   alias Pairmotron.PairRetro
 
-  @valid_attrs %{comment: "some content", pair_date: Timex.today}
+  @valid_attrs %{subject: "subject", reflection: "reflection", pair_date: Timex.today}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
     user = insert(:user)
     pair = create_pair([user])
     attrs = Map.merge(@valid_attrs, %{user_id: user.id, pair_id: pair.id})
-    changeset = PairRetro.changeset(%PairRetro{}, attrs)
+    changeset = PairRetro.changeset(%PairRetro{}, attrs, Timex.today)
     assert changeset.valid?
   end
 
+  test "changeset with a pair that occurred after the pair_date" do
+    user = insert(:user)
+    pair = create_pair([user], 2016, 1)
+    attrs = Map.merge(@valid_attrs, %{pair_date: ~D(2011-01-01), user_id: user.id, pair_id: pair.id})
+    changeset = PairRetro.changeset(%PairRetro{}, attrs, ~D(2016-01-04))
+    refute changeset.valid?
+  end
+
   test "changeset with invalid attributes" do
-    changeset = PairRetro.changeset(%PairRetro{}, @invalid_attrs)
+    changeset = PairRetro.changeset(%PairRetro{}, @invalid_attrs, nil)
     refute changeset.valid?
   end
 
