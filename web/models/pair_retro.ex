@@ -31,14 +31,26 @@ defmodule Pairmotron.PairRetro do
     |> foreign_key_constraint(:pair_id)
     |> foreign_key_constraint(:project_id)
     |> validate_field_is_not_before_date(:pair_date, pair_start_date)
+    |> validate_field_is_not_in_future(:pair_date)
   end
 
   defp validate_field_is_not_before_date(changeset, field, pair_start_date) do
     validate_change changeset, field, fn field, field_date ->
-      if Timex.before?(Ecto.Date.to_erl(field_date), pair_start_date) do
-        [{field, "cannot be before the week of the pair"}]
-      else
-        []
+      cond do
+        is_nil(pair_start_date) -> []
+        Timex.before?(Ecto.Date.to_erl(field_date), pair_start_date) ->
+          [{field, "cannot be before the week of the pair"}]
+        true -> []
+      end
+    end
+  end
+
+  defp validate_field_is_not_in_future(changeset, field) do
+    validate_change changeset, field, fn field, field_date ->
+      cond do
+        Timex.after?(Ecto.Date.to_erl(field_date), Timex.today) ->
+          [{field, "cannot be in the future"}]
+        true -> []
       end
     end
   end

@@ -17,8 +17,20 @@ defmodule Pairmotron.PairRetroTest do
   test "changeset with a pair that occurred after the pair_date" do
     user = insert(:user)
     pair = create_pair([user], 2016, 1)
-    attrs = Map.merge(@valid_attrs, %{pair_date: ~D(2011-01-01), user_id: user.id, pair_id: pair.id})
+    attrs = Map.merge(@valid_attrs, %{pair_date: ~D(2011-01-01),
+                                      user_id: user.id,
+                                      pair_id: pair.id})
     changeset = PairRetro.changeset(%PairRetro{}, attrs, ~D(2016-01-04))
+    refute changeset.valid?
+  end
+
+  test "changeset with a pair_date in the future is invalid" do
+    user = insert(:user)
+    pair = create_pair([user])
+    attrs = Map.merge(@valid_attrs, %{pair_date: Timex.shift(Timex.today, days: 1),
+                                      user_id: user.id,
+                                      pair_id: pair.id})
+    changeset = PairRetro.changeset(%PairRetro{}, attrs, nil)
     refute changeset.valid?
   end
 
