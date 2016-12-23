@@ -9,12 +9,13 @@ defmodule Pairmotron.PairRetroTest do
   test "changeset with valid attributes" do
     user = insert(:user)
     pair = create_pair([user])
-    attrs = Map.merge(@valid_attrs, %{user_id: user.id, pair_id: pair.id})
+    attrs = Map.merge(@valid_attrs, %{user_id: user.id,
+                                      pair_id: pair.id})
     changeset = PairRetro.changeset(%PairRetro{}, attrs, Timex.today)
     assert changeset.valid?
   end
 
-  test "changeset with a pair that occurred after the pair_date" do
+  test "changeset with a pair that occurred after the pair_date is invalid" do
     user = insert(:user)
     pair = create_pair([user], 2016, 1)
     attrs = Map.merge(@valid_attrs, %{pair_date: ~D(2011-01-01),
@@ -81,7 +82,7 @@ defmodule Pairmotron.PairRetroTest do
 
     test "returns the retro that is assigned to the passed in user" do
       user = insert(:user)
-      pair = create_pair([user], 2016, 25)
+      pair = create_pair([user])
       retro = create_retro(user, pair)
       returned_retro = Repo.one(PairRetro.users_retros(user))
       assert returned_retro.id == retro.id
@@ -89,7 +90,7 @@ defmodule Pairmotron.PairRetroTest do
 
     test "does not return a retro for a different user" do
       [retro_user, other_user] = insert_pair(:user)
-      pair = create_pair([retro_user], 2016, 25)
+      pair = create_pair([retro_user])
       create_retro(retro_user, pair)
       refute Repo.one(PairRetro.users_retros(other_user))
     end

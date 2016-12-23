@@ -20,18 +20,11 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def create(conn, %{"pair_retro" => pair_retro_params}) do
-    pair_id = parameter_as_integer(pair_retro_params, "pair_id")
-
-    earliest_pair_date = case Repo.get(Pairmotron.Pair, pair_id) do
-      nil -> nil
-      pair -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
-    end
-
-    changeset = PairRetro.changeset(%PairRetro{}, pair_retro_params, earliest_pair_date)
-
     user_id = parameter_as_integer(pair_retro_params, "user_id")
     current_user = conn.assigns[:current_user]
     if current_user.id == user_id || user_id == 0 do
+      earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
+      changeset = PairRetro.changeset(%PairRetro{}, pair_retro_params, earliest_pair_date)
       case Repo.insert(changeset) do
         {:ok, _pair_retro} ->
           conn
@@ -67,15 +60,8 @@ defmodule Pairmotron.PairRetroController do
 
   def update(conn, %{"id" => _id, "pair_retro" => pair_retro_params}) do
     if conn.assigns.authorized do
-      pair_id = parameter_as_integer(pair_retro_params, "pair_id")
-
-      earliest_pair_date = case Repo.get(Pairmotron.Pair, pair_id) do
-        nil -> nil
-        pair -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
-      end
-
+      earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
       pair_retro = conn.assigns.pair_retro
-
       changeset = PairRetro.changeset(pair_retro, pair_retro_params, earliest_pair_date)
 
       case Repo.update(changeset) do
@@ -100,6 +86,14 @@ defmodule Pairmotron.PairRetroController do
       |> redirect(to: pair_retro_path(conn, :index))
     else
       redirect_not_authorized(conn, pair_retro_path(conn, :index))
+    end
+  end
+
+  defp earliest_pair_date_from_params(params) do
+    pair_id = parameter_as_integer(params, "pair_id")
+    case Repo.get(Pairmotron.Pair, pair_id) do
+      nil -> nil
+      pair -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
     end
   end
 end

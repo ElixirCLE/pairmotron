@@ -2,7 +2,7 @@ defmodule Pairmotron.Factory do
   # with Ecto
   use ExMachina.Ecto, repo: Pairmotron.Repo
 
-  alias Pairmotron.{PairRetro, Project, User}
+  alias Pairmotron.{Project, User}
 
   def user_factory do
     %User{
