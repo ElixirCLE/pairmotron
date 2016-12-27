@@ -34,10 +34,8 @@ defmodule Pairmotron.SessionController do
     |> render("new.html", changeset: User.changeset(%User{}))
   end
 
-  defp sign_in(_user, %{"password" => nil}, conn) do
-    conn |> bad_sign_in
-  end
-
+  defp sign_in(nil, _, conn), do: bad_sign_in(conn)
+  defp sign_in(_, %{"password" => nil}, conn), do: bad_sign_in(conn)
   defp sign_in(user, %{"password" => password}, conn) do
     if Comeonin.Bcrypt.checkpw(password, user.password_hash) do
       conn
