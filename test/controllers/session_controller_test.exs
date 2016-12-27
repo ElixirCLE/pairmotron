@@ -32,8 +32,7 @@ defmodule Pairmotron.SessionControllerTest do
   end
 
   test "logging in with an email that doesn't exist fails with error message", %{conn: conn} do
-    %User{email: _user_email, password: user_pw} = insert(:user)
-    params = %{"user" => %{email: "unknown email", password: user_pw}}
+    params = %{"user" => %{email: "unknown email", password: "password"}}
     conn = post conn, session_path(conn, :create), params
     assert html_response(conn, 200) =~ "Login"
     assert html_response(conn, 200) =~ "Name and/or password are incorrect"
