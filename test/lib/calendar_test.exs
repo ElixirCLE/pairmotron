@@ -20,4 +20,30 @@ defmodule Pairmotron.CalendarTest do
       refute Calendar.same_week?(2016, 1, ~D(2015-01-01))
     end
   end
+
+  describe "past_week?" do
+    test "same week returns false" do
+      refute Calendar.past_week?(2015, 53, ~D(2016-01-01))
+    end
+
+    test "future week returns false" do
+      refute Calendar.past_week?(2016, 10, ~D(2016-01-01))
+    end
+
+    test "past week in same year returns true" do
+      assert Calendar.past_week?(2016, 1, ~D(2016-10-01))
+    end
+
+    test "past week in past year returns true" do
+      assert Calendar.past_week?(2015, 50, ~D(2016-02-01))
+    end
+  end
+
+  describe "first_date_of_week" do
+    test "returns the date of the first day of the given week" do
+      assert Calendar.first_date_of_week(2016, 5) == ~D(2016-02-01)
+      assert Calendar.first_date_of_week(2015, 53) == ~D(2015-12-28)
+      assert Calendar.first_date_of_week(2004, 1) == ~D(2003-12-29)
+    end
+  end
 end

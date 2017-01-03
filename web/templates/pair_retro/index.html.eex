@@ -1,0 +1,28 @@
+<h2>Listing your retrospectives</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Subject</th>
+      <th>Pair Date</th>
+      <th>Project</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for pair_retro <- @pair_retros do %>
+    <tr>
+      <td><%= pair_retro.subject %></td>
+      <td><%= format_date(pair_retro.pair_date) %></td>
+      <td><%= format_project(pair_retro.project) %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: pair_retro_path(@conn, :show, pair_retro), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: pair_retro_path(@conn, :edit, pair_retro), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: pair_retro_path(@conn, :delete, pair_retro), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>

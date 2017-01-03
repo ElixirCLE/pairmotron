@@ -6,6 +6,8 @@ defmodule Pairmotron.Project do
     field :description, :string
     field :url, :string
 
+    has_many :pair_retros, Pairmotron.PairRetro
+
     timestamps()
   end
 

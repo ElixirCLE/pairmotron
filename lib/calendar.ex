@@ -9,4 +9,17 @@ defmodule Pairmotron.Calendar do
     {curr_year, curr_week} = Timex.iso_week(current_date)
     curr_year == year && curr_week == week
   end
+
+  def past_week?(year, week, current_date) do
+    {curr_year, curr_week} = Timex.iso_week(current_date)
+    if curr_year == year do
+      week < curr_week
+    else
+      year < curr_year
+    end
+  end
+
+  def first_date_of_week(year, week) do
+    Timex.from_iso_triplet({year, week, 1})
+  end
 end

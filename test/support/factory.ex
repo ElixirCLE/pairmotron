@@ -2,7 +2,7 @@ defmodule Pairmotron.Factory do
   # with Ecto
   use ExMachina.Ecto, repo: Pairmotron.Repo
 
-  alias Pairmotron.User
+  alias Pairmotron.{Project, User}
 
   def user_factory do
     %User{
@@ -23,4 +23,13 @@ defmodule Pairmotron.Factory do
       password_hash: Comeonin.Bcrypt.hashpwsalt("12345678")
     }
   end
+
+  def project_factory do
+    %Project{
+      name: sequence(:name, &"project #{&1}"),
+      description: sequence(:description, &"description #{&1}"),
+      url: sequence(:url, &"http://example-#{&1}.com")
+    }
+  end
+
 end

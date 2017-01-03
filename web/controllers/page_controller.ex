@@ -2,6 +2,7 @@ defmodule Pairmotron.PageController do
   use Pairmotron.Web, :controller
 
   alias Pairmotron.Pair
+  alias Pairmotron.PairRetro
   alias Pairmotron.User
   alias Pairmotron.UserPair
   alias Pairmotron.Mixer
@@ -10,6 +11,7 @@ defmodule Pairmotron.PageController do
   def index(conn, _params) do
     {year, week} = Timex.iso_week(Timex.today)
     pairs = fetch_or_gen(year, week)
+    conn = assign_current_user_pair_retro_for_week(conn, year, week)
     render conn, "index.html", pairs: pairs, year: year, week: week
   end
 
@@ -74,5 +76,11 @@ defmodule Pairmotron.PageController do
     pair = Repo.insert! Pair.changeset(%Pair{}, %{year: year, week: week})
     users
       |> Enum.map(fn(user) -> UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: user.id}) end)
+  end
+
+  defp assign_current_user_pair_retro_for_week(conn, year, week) do
+    current_user = conn.assigns[:current_user]
+    retro = Repo.one(PairRetro.retro_for_user_and_week(current_user, year, week))
+    Plug.Conn.assign(conn, :current_user_retro_for_week, retro)
   end
 end

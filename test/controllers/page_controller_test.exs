@@ -1,24 +1,8 @@
 defmodule Pairmotron.PageControllerTest do
   use Pairmotron.ConnCase
-  alias Pairmotron.{Pair, UserPair}
 
-  def log_in(conn, user) do
-    conn |> Plug.Conn.assign(:current_user, user)
-  end
-
-  def create_pair(users) do
-    {year, week} = Timex.iso_week(Timex.today)
-    create_pair(users, year, week)
-  end
-
-  def create_pair(users, year, week) do
-    pair_changeset = Pair.changeset(%Pair{}, %{year: year, week: week})
-    pair = Pairmotron.Repo.insert!(pair_changeset)
-    users
-    |> Enum.map(&(UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: &1.id})))
-    |> List.flatten
-    |> Enum.map(&(Repo.insert! &1))
-  end
+  alias Pairmotron.UserPair
+  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1]
 
   test "redirects to login when no user is logged in", %{conn: conn} do
     conn = get conn, "/pairs"

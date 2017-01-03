@@ -1,0 +1,27 @@
+<h2>Show retrospective</h2>
+
+<ul>
+
+  <li>
+    <strong>Pair Date:</strong>
+    <%= format_date(@pair_retro.pair_date) %>
+  </li>
+
+  <li>
+    <strong>Subject:</strong>
+    <%= @pair_retro.subject %>
+  </li>
+
+  <li>
+    <strong>Reflection:</strong>
+    <%= @pair_retro.reflection %>
+  </li>
+
+  <li>
+    <strong>Project:</strong>
+    <%= format_project(@pair_retro.project) %>
+  </li>
+</ul>
+
+<%= link "Edit", to: pair_retro_path(@conn, :edit, @pair_retro) %>
+<%= link "Back", to: pair_retro_path(@conn, :index) %>

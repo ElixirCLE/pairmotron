@@ -1,0 +1,38 @@
+<%= form_for @changeset, @action, @projects, fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <%= hidden_input f, :pair_id, value: value_from_changeset(@changeset, :pair_id) %>
+  <%= hidden_input f, :user_id, value: value_from_changeset(@changeset, :user_id) %>
+
+  <div class="form-group">
+    <%= label f, :pair_date, class: "control-label" %>
+    <%= date_select f, :pair_date, default: Timex.today %>
+    <%= error_tag f, :pair_date %>
+  </div>
+
+  <div class="form-group">
+    <label>What did you work on?</label>
+    <%= text_input f, :subject, class: "form-control" %>
+    <%= error_tag f, :subject %>
+  </div>
+
+  <div class="form-group">
+    <label>How did it go?</label>
+    <%= textarea f, :reflection, class: "form-control" %>
+    <%= error_tag f, :reflection %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :project_id, "Project", class: "control-label" %>
+    <%= select f, :project_id, @projects, prompt: "(none)", class: "form-control" %>
+    <%= error_tag f, :project_id %>
+  </div>
+
+  <div class="form-group">
+    <%= submit "Submit", class: "btn btn-primary" %>
+  </div>
+<% end %>

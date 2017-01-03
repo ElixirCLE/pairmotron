@@ -2,13 +2,11 @@ defmodule Pairmotron.UserControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.User
+  import Pairmotron.TestHelper, only: [log_in: 2]
+
   @valid_attrs %{email: "some content", name: "some content", password_hash: "test"}
   @valid_reg_attrs %{email: "email", name: "name", password: "password", password_confirmation: "password"}
   @invalid_attrs %{}
-
-  def log_in(conn, user) do
-    conn |> Plug.Conn.assign(:current_user, user)
-  end
 
   test "redirects to sign-in when not logged in", %{conn: conn} do
     conn = get conn, user_path(conn, :index)

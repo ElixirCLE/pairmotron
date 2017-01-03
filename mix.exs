@@ -38,11 +38,13 @@ defmodule Pairmotron.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:timex, "~> 3.0"},
+     {:timex, github: "bitwalker/timex", ref: "6e52085c9b3ec6ef01261b95d6bf91629985617b"},
      {:mix_test_watch, "~> 0.2", only: :dev},
      {:comeonin, "~> 2.6"},
      {:ex_machina, "~> 1.0"},
-     {:guardian, "~> 0.13.0"}]
+     {:guardian, "~> 0.13.0"},
+     {:canada, "~> 1.0.1"},
+     {:canary, "~> 1.1.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
