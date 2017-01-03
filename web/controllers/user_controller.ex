@@ -2,6 +2,9 @@ defmodule Pairmotron.UserController do
   use Pairmotron.Web, :controller
 
   alias Pairmotron.User
+  import Pairmotron.ControllerHelpers
+
+  plug :load_and_authorize_resource, model: User, only: [:delete]
 
   def index(conn, _params) do
     users = Repo.all(User)
@@ -61,16 +64,16 @@ defmodule Pairmotron.UserController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
+  def delete(conn, _params) do
+    if conn.assigns.authorized do
+      Repo.delete!(conn.assigns.user)
 
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
-    Repo.delete!(user)
-
-    conn
-    |> put_flash(:info, "User deleted successfully.")
-    |> redirect(to: user_path(conn, :index))
+      conn
+      |> put_flash(:info, "User deleted successfully.")
+      |> redirect(to: user_path(conn, :index))
+    else
+      redirect_not_authorized(conn, user_path(conn, :index))
+    end
   end
 
   defp current_assigned_user_id(conn) do

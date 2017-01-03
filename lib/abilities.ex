@@ -4,5 +4,7 @@ defimpl Canada.Can, for: Pairmotron.User do
   def can?(%User{id: user_id}, action, %PairRetro{user_id: user_id})
     when action in [:edit, :update, :show, :delete], do: true
 
+  def can?(%User{id: user_id}, :delete, %User{id: user_id}), do: true
+
   def can?(%User{}, _, _), do: false
 end

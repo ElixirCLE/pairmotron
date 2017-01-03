@@ -88,11 +88,17 @@ defmodule Pairmotron.UserControllerTest do
       assert html_response(conn, 200) =~ "Edit user"
     end
 
-    test "deletes chosen resource", %{conn: conn} do
-      user = insert(:user)
+    test "deletes the logged in user", %{conn: conn, logged_in_user: user} do
       conn = delete conn, user_path(conn, :delete, user)
       assert redirected_to(conn) == user_path(conn, :index)
       refute Repo.get(User, user.id)
+    end
+
+    test "does not delete a non-logged in user", %{conn: conn} do
+      user = insert(:user)
+      conn = delete conn, user_path(conn, :delete, user)
+      assert redirected_to(conn) == user_path(conn, :index)
+      assert Repo.get(User, user.id)
     end
   end
 end
