@@ -6,7 +6,11 @@ defmodule Pairmotron.SessionController do
   plug :scrub_params, "user" when action in [:create]
 
   def new(conn, _params) do
-    render conn, changeset: User.changeset(%User{})
+    if Guardian.Plug.current_resource(conn) do
+      conn |> redirect(to: page_path(conn, :index))
+    else
+      render conn, changeset: User.changeset(%User{})
+    end
   end
 
   def create(conn, %{"user" => %{"email" => nil}}) do

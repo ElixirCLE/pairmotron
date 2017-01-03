@@ -2,10 +2,17 @@ defmodule Pairmotron.SessionControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.User
+  import Pairmotron.TestHelper, only: [guardian_log_in: 2]
 
   test "renders form for new resources", %{conn: conn} do
     conn = get conn, session_path(conn, :new)
     assert html_response(conn, 200) =~ "Login"
+  end
+
+  test "redirects to /pairs when user is logged in", %{conn: conn} do
+    conn = conn |> guardian_log_in(insert(:user))
+    conn = get conn, session_path(conn, :new)
+    assert redirected_to(conn) == page_path(conn, :index)
   end
 
   test "logging in with proper credentials redirects to /pairs", %{conn: conn} do
