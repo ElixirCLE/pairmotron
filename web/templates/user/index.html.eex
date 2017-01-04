@@ -4,7 +4,6 @@
   <thead>
     <tr>
       <th>Name</th>
-      <th>Email</th>
       <th></th>
       <th></th>
     </tr>
@@ -13,7 +12,6 @@
 <%= for user <- @users do %>
     <tr>
       <td><%= user.name %></td>
-      <td><%= user.email %></td>
       <td><%= active_text(user) %></td>
 
       <td class="text-right">
