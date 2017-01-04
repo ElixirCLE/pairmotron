@@ -1,9 +1,20 @@
 defmodule Pairmotron.TestHelper do
 
   alias Pairmotron.{Pair, PairRetro, Repo, UserPair}
+  require Phoenix.ConnTest
+  @endpoint Pairmotron.Endpoint
 
   def log_in(conn, user) do
     conn |> Plug.Conn.assign(:current_user, user)
+  end
+
+  def guardian_log_in(conn, user) do
+    conn
+    |> Phoenix.ConnTest.bypass_through(Pairmotron.Router, [:browser])
+    |> Phoenix.ConnTest.get("/")
+    |> Guardian.Plug.sign_in(user, :token)
+    |> Plug.Conn.send_resp(200, "Session Flushed")
+    |> Phoenix.ConnTest.recycle()
   end
 
   def create_pair(users) do
