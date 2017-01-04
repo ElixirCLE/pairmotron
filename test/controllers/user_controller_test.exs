@@ -4,8 +4,7 @@ defmodule Pairmotron.UserControllerTest do
   alias Pairmotron.User
   import Pairmotron.TestHelper, only: [log_in: 2]
 
-  @valid_attrs %{email: "some content", name: "some content", password_hash: "test"}
-  @valid_reg_attrs %{email: "email", name: "name", password: "password", password_confirmation: "password"}
+  @valid_attrs %{email: "email", name: "name", password: "password", password_confirmation: "password"}
   @invalid_attrs %{}
 
   test "redirects to sign-in when not logged in", %{conn: conn} do
@@ -32,7 +31,7 @@ defmodule Pairmotron.UserControllerTest do
     end
 
     test "creates resource and redirects when data is valid", %{conn: conn} do
-      conn = post conn, user_path(conn, :create), user: @valid_reg_attrs
+      conn = post conn, user_path(conn, :create), user: @valid_attrs
       assert redirected_to(conn) == user_path(conn, :index)
       assert Repo.get_by(User, %{email: "email", name: "name"})
     end
@@ -54,45 +53,50 @@ defmodule Pairmotron.UserControllerTest do
       end
     end
 
-    test "renders form for editing chosen resource", %{conn: conn} do
-      user = insert(:user)
+    test "renders form for editing own resource", %{conn: conn, logged_in_user: user} do
       conn = get conn, user_path(conn, :edit, user)
       assert html_response(conn, 200) =~ "Edit user"
     end
 
-    test "updates chosen resource and redirects when data is valid", %{conn: conn} do
+    test "redirects when editing other users resource", %{conn: conn} do
       user = insert(:user)
-      updated_attr = %{name: "new_name", email: "new_email"}
-      conn = put conn, user_path(conn, :update, user), user: updated_attr
+      conn = get conn, user_path(conn, :edit, user)
+      assert redirected_to(conn) == user_path(conn, :index)
+    end
+
+    test "updates user and redirects if user is logged in user", %{conn: conn, logged_in_user: user} do
+      conn = put conn, user_path(conn, :update, user), user: @valid_attrs
       assert redirected_to(conn) == user_path(conn, :show, user)
-      assert Repo.get_by(User, updated_attr)
+      expected_attrs = Map.drop(@valid_attrs, [:password, :password_confirmation])
+      assert Repo.get_by(User, expected_attrs)
     end
 
-    test "updates password if that user is the logged in user", %{conn: conn, logged_in_user: user} do
-      updated_attr = %{password: "new_password", password_confirmation: "new_password"}
-      conn = put conn, user_path(conn, :update, user), user: updated_attr
-      assert redirected_to(conn) == user_path(conn, :show, user)
-    end
-
-    test "does not update password of a user that is not logged in", %{conn: conn} do
-      other_user = insert(:user)
-      updated_attr = %{password: "new_password", password_confirmation: "new_password"}
-      conn = put conn, user_path(conn, :update, other_user), user: updated_attr
-      assert html_response(conn, 200) =~ "Edit user"
-    end
-
-    test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
+    test "does not update user if user is not logged in user", %{conn: conn} do
       user = insert(:user)
+      conn = put conn, user_path(conn, :update, user), user: @valid_attrs
+      assert redirected_to(conn) == user_path(conn, :index)
+      expected_attrs = Map.drop(@valid_attrs, [:password, :password_confirmation])
+      refute Repo.get_by(User, expected_attrs)
+    end
+
+    test "does not update chosen resource and renders errors when data is invalid", 
+      %{conn: conn, logged_in_user: user} do
       conn = log_in(conn, user)
       conn = put conn, user_path(conn, :update, user), user: %{name: ""}
       assert html_response(conn, 200) =~ "Edit user"
     end
 
-    test "deletes chosen resource", %{conn: conn} do
-      user = insert(:user)
+    test "deletes the logged in user", %{conn: conn, logged_in_user: user} do
       conn = delete conn, user_path(conn, :delete, user)
       assert redirected_to(conn) == user_path(conn, :index)
       refute Repo.get(User, user.id)
+    end
+
+    test "does not delete a non-logged in user", %{conn: conn} do
+      user = insert(:user)
+      conn = delete conn, user_path(conn, :delete, user)
+      assert redirected_to(conn) == user_path(conn, :index)
+      assert Repo.get(User, user.id)
     end
   end
 end
