@@ -19,7 +19,7 @@ defmodule Pairmotron.User do
   @minimum_password_length 8
 
   @required_params ~w(name email)
-  @optional_params ~w(password password_confirmation active)
+  @optional_params ~w(password password_confirmation active role_id)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
