@@ -99,4 +99,34 @@ defmodule Pairmotron.UserControllerTest do
       assert Repo.get(User, user.id)
     end
   end
+
+  describe "as admin" do
+    setup do
+      user = insert(:user_admin)
+      conn = build_conn
+        |> log_in(user)
+      {:ok, [conn: conn, logged_in_user: user]}
+    end
+
+    test "renders form for editing other user", %{conn: conn} do
+      user = insert(:user)
+      conn = get conn, user_path(conn, :edit, user)
+      assert html_response(conn, 200) =~ "Edit user"
+    end
+
+    test "updates other user and redirects", %{conn: conn} do
+      user = insert(:user)
+      conn = put conn, user_path(conn, :update, user), user: @valid_attrs
+      assert redirected_to(conn) == user_path(conn, :show, user)
+      expected_attrs = Map.drop(@valid_attrs, [:password, :password_confirmation])
+      assert Repo.get_by(User, expected_attrs)
+    end
+
+    test "deletes other user", %{conn: conn} do
+      user = insert(:user)
+      conn = delete conn, user_path(conn, :delete, user)
+      assert redirected_to(conn) == user_path(conn, :index)
+      refute Repo.get(User, user.id)
+    end
+  end
 end

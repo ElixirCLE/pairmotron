@@ -44,4 +44,18 @@ defmodule Pairmotron.ControllerHelpers do
       _ -> 0
     end
   end
+
+  @doc """
+  Given a user, returns true if that user has a role and that role's
+  is_admin property is true. Otherwise, returns false.
+  """
+  def is_admin?(user) do
+    cond do
+      is_nil(user.role_id) -> false
+      Ecto.assoc_loaded?(user.role) ->
+        user.role.is_admin
+      true ->
+        Pairmotron.Repo.get!(Pairmotron.Role, user.role_id).is_admin
+    end
+  end
 end

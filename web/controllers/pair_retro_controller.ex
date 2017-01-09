@@ -22,7 +22,7 @@ defmodule Pairmotron.PairRetroController do
   def create(conn, %{"pair_retro" => pair_retro_params}) do
     user_id = parameter_as_integer(pair_retro_params, "user_id")
     current_user = conn.assigns[:current_user]
-    if current_user.id == user_id || user_id == 0 do
+    if current_user.id == user_id || user_id == 0 || is_admin?(current_user) do
       earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
       changeset = PairRetro.changeset(%PairRetro{}, pair_retro_params, earliest_pair_date)
       case Repo.insert(changeset) do
