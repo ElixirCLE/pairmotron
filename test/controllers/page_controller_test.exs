@@ -2,7 +2,8 @@ defmodule Pairmotron.PageControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.UserPair
-  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1]
+  import Pairmotron.TestHelper,
+    only: [log_in: 2, create_pair: 1, create_pair: 3, create_retro: 2, create_pair_and_retro: 1]
 
   test "redirects to login when no user is logged in", %{conn: conn} do
     conn = get conn, "/pairs"
@@ -35,7 +36,36 @@ defmodule Pairmotron.PageControllerTest do
       assert html_response(conn, 200) =~ user2.name
     end
 
-    test "displays link to retro :create for a pair that has no retrospective" do
+    test "displays link to retro :create for a pair and current user with no retrospective",
+      %{conn: conn, logged_in_user: user} do
+      pair = create_pair([user])
+      conn = get(conn, "/pairs")
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :new, pair.id)
+    end
+
+    test "displays link to retro :create when the other user in pair has retro but current_user doesn't",
+      %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      pair = create_pair([user, other_user])
+      create_retro(other_user, pair)
+      conn = get(conn, "/pairs")
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :new, pair.id)
+    end
+
+    test "displays link to retro :show for pair and current user with retrospective",
+      %{conn: conn, logged_in_user: user} do
+      {_pair, retro} = create_pair_and_retro(user)
+      conn = get(conn, "/pairs")
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
+    end
+
+    test "displays link to retro :show for pair and current user with retrospective for :show",
+      %{conn: conn, logged_in_user: user} do
+      {year, week} = Timex.iso_week(Timex.today)
+      pair = create_pair([user], year, week)
+      retro = create_retro(user, pair) # create_retro function defines pair_date as Timex.today
+      conn = get conn, page_path(conn, :show, year, week)
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
 
     test "does not re-pair after the first pair has been made", %{conn: conn, logged_in_user: user} do
