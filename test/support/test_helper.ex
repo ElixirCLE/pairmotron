@@ -54,4 +54,10 @@ defmodule Pairmotron.TestHelper do
                                           Timex.today)
     Repo.insert!(retro_changeset)
   end
+
+  def create_pair_and_retro(user) do
+    pair = create_pair([user])
+    retro = create_retro(user, pair)
+    {pair, retro}
+  end
 end

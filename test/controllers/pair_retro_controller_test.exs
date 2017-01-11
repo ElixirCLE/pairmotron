@@ -2,7 +2,8 @@ defmodule Pairmotron.PairRetroControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.PairRetro
-  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1, create_pair: 3, create_retro: 2]
+  import Pairmotron.TestHelper,
+    only: [log_in: 2, create_pair: 1, create_pair: 3, create_retro: 2, create_pair_and_retro: 1]
 
   @valid_attrs %{subject: "some content", reflection: "some content", pair_date: Timex.today}
   @invalid_attrs %{}
@@ -10,12 +11,6 @@ defmodule Pairmotron.PairRetroControllerTest do
   test "redirects to sign-in when not logged in", %{conn: conn} do
     conn = get conn, user_path(conn, :index)
     assert redirected_to(conn) == session_path(conn, :new)
-  end
-
-  defp create_pair_and_retro(user) do
-    pair = create_pair([user])
-    retro = create_retro(user, pair)
-    {pair, retro}
   end
 
   defp create_user_and_pair_and_retro() do

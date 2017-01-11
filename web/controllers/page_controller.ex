@@ -19,6 +19,7 @@ defmodule Pairmotron.PageController do
     {year, _} = y |> Integer.parse
     {week, _} = w |> Integer.parse
     pairs = fetch_or_gen(year, week)
+    conn = assign_current_user_pair_retro_for_week(conn, year, week)
     render conn, "index.html", pairs: pairs, year: year, week: week
   end
 
