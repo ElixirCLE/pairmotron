@@ -54,6 +54,8 @@ defmodule Pairmotron.Web do
       import Pairmotron.Router.Helpers
       import Pairmotron.ErrorHelpers
       import Pairmotron.Gettext
+
+      import Pairmotron.ViewHelpers
     end
   end
 
