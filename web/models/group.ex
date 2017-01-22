@@ -4,7 +4,6 @@ defmodule Pairmotron.Group do
   schema "groups" do
     field :name, :string
     belongs_to :owner, Pairmotron.User
-    has_many :groups, Pairmotron.Group
     many_to_many :users, Pairmotron.User, join_through: "users_groups"
 
     timestamps()
@@ -15,7 +14,7 @@ defmodule Pairmotron.Group do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name])
+    |> cast(params, [:name, :owner_id])
     |> validate_required([:name])
   end
 end

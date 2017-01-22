@@ -5,6 +5,8 @@
     </div>
   <% end %>
 
+  <%= hidden_input f, :user_id, value: value_from_changeset(@changeset, :owner_id) %>
+
   <div class="form-group">
     <%= label f, :name, class: "control-label" %>
     <%= text_input f, :name, class: "form-control" %>

@@ -8,4 +8,12 @@ defmodule Pairmotron.ViewHelpers do
   def is_admin?(user) do
     user.is_admin
   end
+
+  @doc """
+  Given a changeset and a field that whose value is needed, returns
+  that value and only that value. Useful for hidden fields in forms.
+  """
+  def value_from_changeset(changeset, field) do
+    elem(Ecto.Changeset.fetch_field(changeset, field), 1)
+  end
 end
