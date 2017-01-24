@@ -2,7 +2,7 @@ defmodule Pairmotron.Factory do
   # with Ecto
   use ExMachina.Ecto, repo: Pairmotron.Repo
 
-  alias Pairmotron.{Project, User}
+  alias Pairmotron.{Group, Project, User}
 
   def user_factory do
     %User{
@@ -42,4 +42,10 @@ defmodule Pairmotron.Factory do
     }
   end
 
+  def group_factory do
+    %Group{
+      name: sequence(:name, &"name #{&1}"),
+      owner: build(:user)
+    }
+  end
 end
