@@ -2,7 +2,7 @@ defmodule Pairmotron.Factory do
   # with Ecto
   use ExMachina.Ecto, repo: Pairmotron.Repo
 
-  alias Pairmotron.{Project, Role, User}
+  alias Pairmotron.{Project, User}
 
   def user_factory do
     %User{
@@ -19,7 +19,7 @@ defmodule Pairmotron.Factory do
       email: sequence(:email, &"email-#{&1}@example.com"),
       active: true,
       password_hash: "12345678",
-      role: build(:role, is_admin: true)
+      is_admin: true
     }
   end
 
@@ -31,13 +31,6 @@ defmodule Pairmotron.Factory do
       password: "12345678",
       password_confirmation: "12345678",
       password_hash: Comeonin.Bcrypt.hashpwsalt("12345678")
-    }
-  end
-
-  def role_factory do
-    %Role{
-      name: sequence(:role_name, &"role #{&1}"),
-      is_admin: false
     }
   end
 

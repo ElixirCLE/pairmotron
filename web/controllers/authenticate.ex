@@ -3,7 +3,6 @@ defmodule Pairmotron.Plug.Authenticate do
   import Plug.Conn
 
   alias Pairmotron.User
-  alias Pairmotron.Repo
 
   def init(opts) do
     opts
@@ -18,7 +17,7 @@ defmodule Pairmotron.Plug.Authenticate do
     assign_current_user(conn, current_user)
   end
   defp assign_current_user(conn, user = %User{}) do
-    assign(conn, :current_user, user |> Repo.preload(:role))
+    assign(conn, :current_user, user)
   end
   defp assign_current_user(conn, _), do: redirect_to_sign_in(conn)
 

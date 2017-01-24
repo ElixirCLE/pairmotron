@@ -5,12 +5,12 @@ defmodule Pairmotron.User do
     field :name, :string
     field :email, :string
     field :active, :boolean
+    field :is_admin, :boolean
 
     field :password, :string, virtual: true
     field :password_confirmation, :string, virtual: true
     field :password_hash, :string
 
-    belongs_to :role, Pairmotron.Role
     has_many :pair_retros, Pairmotron.PairRetro
 
     timestamps()
@@ -19,7 +19,7 @@ defmodule Pairmotron.User do
   @minimum_password_length 8
 
   @required_params ~w(name email)
-  @optional_params ~w(password password_confirmation active role_id)
+  @optional_params ~w(password password_confirmation active)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
