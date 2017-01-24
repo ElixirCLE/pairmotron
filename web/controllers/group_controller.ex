@@ -12,7 +12,7 @@ defmodule Pairmotron.GroupController do
   end
 
   def new(conn, _params) do
-    changeset = Group.changeset(%Group{})
+    changeset = Group.changeset(%Group{}, %{owner_id: conn.assigns.current_user.id})
     render(conn, "new.html", changeset: changeset)
   end
 
