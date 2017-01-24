@@ -41,6 +41,18 @@ config :canary,
   repo: Pairmotron.Repo,
   not_found_handler: {Pairmotron.ControllerHelpers, :handle_resource_not_found}
 
+config :ex_admin,
+  repo: Pairmotron.Repo,
+  module: Pairmotron,
+  modules: [
+    Pairmotron.ExAdmin.Dashboard,
+    Pairmotron.ExAdmin.Project,
+    Pairmotron.ExAdmin.User
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
+
+config :xain, :after_callback, {Phoenix.HTML, :raw}
+

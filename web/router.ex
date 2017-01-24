@@ -1,5 +1,6 @@
 defmodule Pairmotron.Router do
   use Pairmotron.Web, :router
+	use ExAdmin.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -29,7 +30,13 @@ defmodule Pairmotron.Router do
     get "/", SessionController, :new
     post "/login", SessionController, :create
     get "/logout", SessionController, :delete
+    delete "/logout", SessionController, :delete
   end
+
+	scope "/admin", ExAdmin do
+		pipe_through [:browser, :authenticate]
+		admin_routes
+	end
 
   scope "/", Pairmotron do
     pipe_through [:browser, :authenticate] # Use the default browser stack
