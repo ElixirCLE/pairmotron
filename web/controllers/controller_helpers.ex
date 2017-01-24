@@ -31,7 +31,7 @@ defmodule Pairmotron.ControllerHelpers do
   this looks for the field specified and returns it as an integer
   if possible. If not possible, it returns 0. This is intended
   to be used on association IDs so that they can easily be retrieved
-  from Ecto if necessary.
+  from Ecto if necessary. The field argument should be a binary.
   """
   def parameter_as_integer(params, field) do
     case Map.get(params, field, 0) do

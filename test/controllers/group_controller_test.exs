@@ -37,6 +37,14 @@ defmodule Pairmotron.GroupControllerTest do
       assert Repo.get_by(Group, attrs)
     end
 
+    test "created group's owner is in the group's users", %{conn: conn, logged_in_user: user} do
+      attrs = Map.merge(@valid_attrs, %{owner_id: Integer.to_string(user.id)})
+      post conn, group_path(conn, :create), group: attrs
+      group = Repo.get_by(Group, attrs) |> Repo.preload(:users)
+      assert [only_user | [] ] = group.users
+      assert only_user.id == user.id
+    end
+
     test "does not create resource and renders errors when data is invalid", %{conn: conn} do
       conn = post conn, group_path(conn, :create), group: @invalid_attrs
       assert html_response(conn, 200) =~ "New group"

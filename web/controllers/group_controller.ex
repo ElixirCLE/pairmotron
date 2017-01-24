@@ -17,7 +17,10 @@ defmodule Pairmotron.GroupController do
   end
 
   def create(conn, %{"group" => group_params}) do
-    changeset = Group.changeset(%Group{}, group_params)
+    owner_id = parameter_as_integer(group_params, "owner_id")
+    owner = Repo.get(Pairmotron.User, owner_id)
+
+    changeset = Group.changeset_for_create(%Group{}, group_params, [owner])
 
     case Repo.insert(changeset) do
       {:ok, _group} ->
