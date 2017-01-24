@@ -6,6 +6,6 @@ defmodule Pairmotron.ViewHelpers do
   a view.
   """
   def is_admin?(user) do
-    user.role_id && user.role.is_admin
+    user.is_admin
   end
 end
