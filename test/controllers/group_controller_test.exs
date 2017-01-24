@@ -51,7 +51,7 @@ defmodule Pairmotron.GroupControllerTest do
     end
 
     test "shows chosen resource", %{conn: conn} do
-      group = Repo.insert! %Group{}
+      group = insert(:group)
       conn = get conn, group_path(conn, :show, group)
       assert html_response(conn, 200) =~ "Show group"
     end

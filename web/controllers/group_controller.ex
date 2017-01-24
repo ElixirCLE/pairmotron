@@ -33,7 +33,7 @@ defmodule Pairmotron.GroupController do
   end
 
   def show(conn, %{"id" => id}) do
-    group = Repo.get!(Group, id)
+    group = Repo.get!(Group, id) |> Repo.preload(:owner)
     render(conn, "show.html", group: group)
   end
 

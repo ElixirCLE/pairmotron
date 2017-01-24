@@ -7,6 +7,11 @@
     <%= @group.name %>
   </li>
 
+  <li>
+    <strong>Owner:</strong>
+    <%= @group.owner.name %>
+  </li>
+
 </ul>
 
 <%= link "Edit", to: group_path(@conn, :edit, @group) %>
