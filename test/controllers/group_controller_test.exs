@@ -41,7 +41,7 @@ defmodule Pairmotron.GroupControllerTest do
       attrs = Map.merge(@valid_attrs, %{owner_id: Integer.to_string(user.id)})
       post conn, group_path(conn, :create), group: attrs
       group = Repo.get_by(Group, attrs) |> Repo.preload(:users)
-      assert [only_user | [] ] = group.users
+      assert [only_user] = group.users
       assert only_user.id == user.id
     end
 

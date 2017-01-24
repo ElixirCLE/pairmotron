@@ -6,6 +6,7 @@
   <% end %>
 
   <%= hidden_input f, :owner_id, value: value_from_changeset(@changeset, :owner_id) %>
+  <%= error_tag f, :owner_id %>
 
   <div class="form-group">
     <%= label f, :name, class: "control-label" %>
