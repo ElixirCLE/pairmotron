@@ -1,6 +1,6 @@
 defmodule Pairmotron.Router do
   use Pairmotron.Web, :router
-	use ExAdmin.Router
+  use ExAdmin.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -14,6 +14,10 @@ defmodule Pairmotron.Router do
 
   pipeline :authenticate do
     plug Pairmotron.Plug.Authenticate
+  end
+
+  pipeline :admin do
+    plug Pairmotron.RequireAdmin
   end
 
   pipeline :api do
@@ -30,12 +34,12 @@ defmodule Pairmotron.Router do
     get "/", SessionController, :new
     post "/login", SessionController, :create
     get "/logout", SessionController, :delete
-    delete "/logout", SessionController, :delete
+    delete "/logout", SessionController, :delete # Exadmin logout needs this
   end
 
 	scope "/admin", ExAdmin do
-		pipe_through [:browser, :authenticate]
-		admin_routes
+    pipe_through [:browser, :authenticate, :admin]
+    admin_routes
 	end
 
   scope "/", Pairmotron do
@@ -50,8 +54,4 @@ defmodule Pairmotron.Router do
     delete "/:year/:week", PageController, :delete
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", Pairmotron do
-  #   pipe_through :api
-  # end
 end
