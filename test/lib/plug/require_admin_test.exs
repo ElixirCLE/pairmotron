@@ -1,4 +1,4 @@
-defmodule Pairmotron.RequireAdminTest do
+defmodule Pairmotron.Plug.RequireAdminTest do
   use Pairmotron.ConnCase
 
   import Pairmotron.TestHelper, only: [log_in: 2]
@@ -11,7 +11,7 @@ defmodule Pairmotron.RequireAdminTest do
       {:ok, [conn: conn, logged_in_user: user]}
     end
     test "redirects when user is not an admin ", %{conn: conn, logged_in_user: user} do
-      conn = conn |> Pairmotron.RequireAdmin.call(user)
+      conn = conn |> Pairmotron.Plug.RequireAdmin.call(user)
       assert redirected_to(conn) == "/pairs"
     end
   end
@@ -24,7 +24,7 @@ defmodule Pairmotron.RequireAdminTest do
       {:ok, [conn: conn, logged_in_user: user]}
     end
     test "passes through when user is an admin", %{conn: conn, logged_in_user: user} do
-      res_conn = conn |> Pairmotron.RequireAdmin.call(user)
+      res_conn = conn |> Pairmotron.Plug.RequireAdmin.call(user)
       assert res_conn == conn
     end
   end

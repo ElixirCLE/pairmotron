@@ -1,8 +1,8 @@
-defmodule Pairmotron.RequireAdmin do
+defmodule Pairmotron.Plug.RequireAdmin do
   import Plug.Conn
 
   alias Pairmotron.Router.Helpers, as: Routes
-  alias Pairmotron.Plug.Authenticate, as: Auth
+  alias Pairmotron.Authentication, as: Auth
 
   def init(opts), do: opts
 

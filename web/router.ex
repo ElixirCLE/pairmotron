@@ -13,11 +13,11 @@ defmodule Pairmotron.Router do
   end
 
   pipeline :authenticate do
-    plug Pairmotron.Plug.Authenticate
+    plug Pairmotron.Plug.RequireAuthentication
   end
 
   pipeline :admin do
-    plug Pairmotron.RequireAdmin
+    plug Pairmotron.Plug.RequireAdmin
   end
 
   pipeline :api do
@@ -37,10 +37,10 @@ defmodule Pairmotron.Router do
     delete "/logout", SessionController, :delete # Exadmin logout needs this
   end
 
-	scope "/admin", ExAdmin do
+  scope "/admin", ExAdmin do
     pipe_through [:browser, :authenticate, :admin]
     admin_routes
-	end
+  end
 
   scope "/", Pairmotron do
     pipe_through [:browser, :authenticate] # Use the default browser stack
