@@ -6,11 +6,11 @@ defmodule Pairmotron.RegistrationController do
   plug :scrub_params, "user" when action in [:create]
 
   def new(conn, _params) do
-    render conn, changeset: User.registration_changeset(%User{})
+    render conn, changeset: User.profile_changeset(%User{})
   end
 
   def create(conn, %{"user" => user_params}) do
-    changeset = User.registration_changeset(%User{}, user_params)
+    changeset = User.profile_changeset(%User{}, user_params)
 
     case Repo.insert(changeset) do
       {:ok, user} ->

@@ -22,6 +22,7 @@
             <li><%= link "Groups", to: group_path(@conn, :index) %></li>
             <li><%= link "Projects", to: project_path(@conn, :index) %></li>
             <li><%= link "My Retros", to: pair_retro_path(@conn, :index) %></li>
+            <li><%= link "Profile", to: profile_path(@conn, :show) %></li>
             <li>
               <%= case @conn.assigns[:current_user] do %>
                 <% nil -> %>

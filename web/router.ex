@@ -46,6 +46,9 @@ defmodule Pairmotron.Router do
     pipe_through [:browser, :authenticate] # Use the default browser stack
 
     get "/pairs", PageController, :index
+    get "/profile", ProfileController, :show
+    get "/profile/edit", ProfileController, :edit
+    put "profile/update/:id", ProfileController, :update
     resources "/users", UserController
     resources "/projects", ProjectController
     resources "/groups", GroupController

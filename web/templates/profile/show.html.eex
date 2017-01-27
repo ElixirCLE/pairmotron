@@ -1,0 +1,15 @@
+<h2>User Profile</h2>
+
+<ul>
+  <li>
+    <strong>Name:</strong>
+    <%= @user.name %>
+  </li>
+
+  <li>
+    <strong>Active:</strong>
+    <%= @user.active %>
+  </li>
+</ul>
+
+<%= link "Edit", to: profile_path(@conn, :edit), class: "padded-link" %>
