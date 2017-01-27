@@ -1,4 +1,4 @@
-defmodule Pairmotron.Plug.Authenticate do
+defmodule Pairmotron.Plug.RequireAuthentication do
   alias Pairmotron.Router.Helpers, as: Routes
   import Plug.Conn
 
@@ -30,4 +30,5 @@ defmodule Pairmotron.Plug.Authenticate do
     |> Phoenix.Controller.redirect(to: Routes.session_path(conn, :new))
     |> halt
   end
+
 end
