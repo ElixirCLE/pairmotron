@@ -9,7 +9,7 @@ defmodule Pairmotron.PairRetroControllerTest do
   @invalid_attrs %{}
 
   test "redirects to sign-in when not logged in", %{conn: conn} do
-    conn = get conn, user_path(conn, :index)
+    conn = get conn, pair_retro_path(conn, :index)
     assert redirected_to(conn) == session_path(conn, :new)
   end
 
