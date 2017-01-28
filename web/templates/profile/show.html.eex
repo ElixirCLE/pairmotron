@@ -17,4 +17,24 @@
   </li>
 </ul>
 
+<h3>Groups</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Group Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for group <- @user.groups do %>
+      <tr>
+        <td>
+          <a href=<%= group_path(@conn, :show, group)%>>
+            <%= group.name %>
+          </a>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
 <%= link "Edit", to: profile_path(@conn, :edit), class: "padded-link" %>

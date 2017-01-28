@@ -48,7 +48,7 @@ defmodule Pairmotron.Router do
     get "/pairs", PageController, :index
     get "/profile", ProfileController, :show
     get "/profile/edit", ProfileController, :edit
-    put "profile/update/:id", ProfileController, :update
+    put "/profile/update/:id", ProfileController, :update
     resources "/users", UserController
     resources "/projects", ProjectController
     resources "/groups", GroupController
