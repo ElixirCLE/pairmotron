@@ -81,7 +81,6 @@ defmodule Pairmotron.UserControllerTest do
 
     test "does not update chosen resource and renders errors when data is invalid", 
       %{conn: conn, logged_in_user: user} do
-      conn = log_in(conn, user)
       conn = put conn, user_path(conn, :update, user), user: %{name: ""}
       assert html_response(conn, 200) =~ "Edit user"
     end

@@ -9,13 +9,13 @@ defmodule Pairmotron.ProfileController do
 
   def edit(conn, _params) do
     user = conn.assigns.current_user
-    changeset = User.changeset(user)
+    changeset = User.profile_changeset(user)
     render(conn, "edit.html", user: user, changeset: changeset)
   end
 
   def update(conn, %{"user" => user_params}) do
     user = conn.assigns.current_user
-    changeset = User.changeset(user, user_params)
+    changeset = User.profile_changeset(user, user_params)
     case Repo.update(changeset) do
       {:ok, user} ->
         conn
