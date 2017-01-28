@@ -22,6 +22,7 @@
   <thead>
     <tr>
       <th>Group Name</th>
+      <th/>
     </tr>
   </thead>
   <tbody>
@@ -31,6 +32,11 @@
           <a href=<%= group_path(@conn, :show, group)%>>
             <%= group.name %>
           </a>
+        </td>
+        <td>
+          <%= if group.owner_id == @user.id do %>
+            <a href=<%= group_path(@conn, :edit, group)%>>Manage</a>
+          <% end %>
         </td>
       </tr>
     <% end %>

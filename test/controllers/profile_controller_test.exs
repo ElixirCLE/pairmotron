@@ -35,6 +35,19 @@ defmodule Pairmotron.ProfileControllerTest do
       assert html_response(conn, 200) =~ group_path(conn, :show, group2)
     end
 
+    test "links to group edit if current user is owner", %{conn: conn, logged_in_user: user} do
+      group1 = insert(:group, %{owner: user, users: [user]})
+      conn = get conn, profile_path(conn, :show)
+      assert html_response(conn, 200) =~ "Manage"
+      assert html_response(conn, 200) =~ group_path(conn, :edit, group1)
+    end
+
+    test "doesn't link to group edit if current user is not owner", %{conn: conn, logged_in_user: user} do
+      group1 = insert(:group, %{users: [user]})
+      conn = get conn, profile_path(conn, :show)
+      refute html_response(conn, 200) =~ group_path(conn, :edit, group1)
+    end
+
     test "renders form for editing the current user", %{conn: conn} do
       conn = get conn, profile_path(conn, :edit)
       assert html_response(conn, 200) =~ "Edit Profile"

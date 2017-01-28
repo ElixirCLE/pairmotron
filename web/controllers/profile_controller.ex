@@ -18,7 +18,7 @@ defmodule Pairmotron.ProfileController do
     user = conn.assigns.current_user
     changeset = User.profile_changeset(user, user_params)
     case Repo.update(changeset) do
-      {:ok, user} ->
+      {:ok, _user} ->
         conn
         |> put_flash(:info, "Profile updated successfully.")
         |> redirect(to: profile_path(conn, :show))
