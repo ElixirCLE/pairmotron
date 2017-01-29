@@ -38,55 +38,51 @@ defmodule Pairmotron.PairRetroController do
     end
   end
 
-  def show(conn, %{"id" => _id}) do
-    if conn.assigns.authorized do
+  def show(conn = @authorized_conn, _params) do
       pair_retro = Repo.preload(conn.assigns.pair_retro, :project)
       render(conn, "show.html", pair_retro: pair_retro)
-    else
-      redirect_not_authorized(conn, pair_retro_path(conn, :index))
-    end
+  end
+  def show(conn, _params) do
+    redirect_not_authorized(conn, pair_retro_path(conn, :index))
   end
 
-  def edit(conn, %{"id" => _id}) do
-    if conn.assigns.authorized do
-      conn = assign(conn, :projects, Repo.all(Project))
-      retro = conn.assigns.pair_retro
-      changeset = PairRetro.changeset(retro, %{}, nil)
-      render(conn, "edit.html", pair_retro: retro, changeset: changeset)
-    else
-      redirect_not_authorized(conn, pair_retro_path(conn, :index))
-    end
+  def edit(conn = @authorized_conn, _params) do
+    conn = assign(conn, :projects, Repo.all(Project))
+    retro = conn.assigns.pair_retro
+    changeset = PairRetro.changeset(retro, %{}, nil)
+    render(conn, "edit.html", pair_retro: retro, changeset: changeset)
+  end
+  def edit(conn, _params) do
+    redirect_not_authorized(conn, pair_retro_path(conn, :index))
   end
 
-  def update(conn, %{"id" => _id, "pair_retro" => pair_retro_params}) do
-    if conn.assigns.authorized do
-      earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
-      pair_retro = conn.assigns.pair_retro
-      changeset = PairRetro.changeset(pair_retro, pair_retro_params, earliest_pair_date)
+  def update(conn = @authorized_conn, %{"pair_retro" => pair_retro_params}) do
+    earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
+    pair_retro = conn.assigns.pair_retro
+    changeset = PairRetro.changeset(pair_retro, pair_retro_params, earliest_pair_date)
 
-      case Repo.update(changeset) do
-        {:ok, pair_retro} ->
-          conn
-          |> put_flash(:info, "Pair retro updated successfully.")
-          |> redirect(to: pair_retro_path(conn, :show, pair_retro))
-        {:error, changeset} ->
-          render(conn, "edit.html", pair_retro: pair_retro, changeset: changeset)
-      end
-    else
-      redirect_not_authorized(conn, pair_retro_path(conn, :index))
+    case Repo.update(changeset) do
+      {:ok, pair_retro} ->
+        conn
+        |> put_flash(:info, "Pair retro updated successfully.")
+        |> redirect(to: pair_retro_path(conn, :show, pair_retro))
+      {:error, changeset} ->
+        render(conn, "edit.html", pair_retro: pair_retro, changeset: changeset)
     end
   end
+  def update(conn, _params) do
+    redirect_not_authorized(conn, pair_retro_path(conn, :index))
+  end
 
-  def delete(conn, %{"id" => _id}) do
-    if conn.assigns.authorized do
+  def delete(conn = @authorized_conn, _params) do
       Repo.delete!(conn.assigns.pair_retro)
 
       conn
       |> put_flash(:info, "Retrospective deleted successfully.")
       |> redirect(to: pair_retro_path(conn, :index))
-    else
-      redirect_not_authorized(conn, pair_retro_path(conn, :index))
-    end
+  end
+  def delete(conn, _params) do
+    redirect_not_authorized(conn, pair_retro_path(conn, :index))
   end
 
   defp earliest_pair_date_from_params(params) do
