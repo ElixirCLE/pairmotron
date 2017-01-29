@@ -10,7 +10,6 @@
 
 /* Space out content a bit */
 body, form, table {
-  margin-top: 20px;
   margin-bottom: 20px;
 }
 
@@ -31,15 +30,8 @@ form.link, form.button {
 .header {
 }
 .logo {
-  width: 400px;
-  height: 71px;
-  display: inline-block;
   font-family: 'Indie Flower', cursive;
-  font-size: 60pt;
-  /* background-image: url("/images/phoenix.png"); */
-  background-size: 400px 71px;
-}
-.logo a {
+  font-size: 30pt;
   color: black;
   text-decoration: none;
 }
@@ -51,12 +43,6 @@ form.link, form.button {
   padding-left: 15px;
 }
 
-/* Customize container */
-@media (min-width: 768px) {
-  .container {
-    max-width: 730px;
-  }
-}
 .container-narrow > hr {
   margin: 30px 0;
 }
