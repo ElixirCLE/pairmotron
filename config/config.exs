@@ -46,8 +46,10 @@ config :ex_admin,
   module: Pairmotron,
   modules: [
     Pairmotron.ExAdmin.Dashboard,
+    Pairmotron.ExAdmin.Group,
     Pairmotron.ExAdmin.Project,
-    Pairmotron.ExAdmin.User
+    Pairmotron.ExAdmin.User,
+    Pairmotron.ExAdmin.UserGroup
   ]
 
 # Import environment specific config. This must remain at the bottom
