@@ -6,8 +6,6 @@ defmodule Pairmotron.GroupController do
 
   plug :load_and_authorize_resource, model: Group, only: [:edit, :update, :delete]
 
-  @authorized_conn %{assigns: %{authorized: true}}
-
   def index(conn, _params) do
     groups = Repo.all(Group)
     render(conn, "index.html", groups: groups)

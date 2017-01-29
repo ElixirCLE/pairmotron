@@ -38,6 +38,8 @@ defmodule Pairmotron.Web do
       import Pairmotron.Gettext
 
       import Canary.Plugs
+
+      @authorized_conn %{assigns: %{authorized: true}}
     end
   end
 
