@@ -31,12 +31,18 @@ defmodule Pairmotron.User do
     |> common_changeset
   end
 
-  @required_registration_params ~w(name email password password_confirmation)
-  @optional_registration_params ~w(active)
+  @required_profile_params ~w(name email password password_confirmation)
+  @optional_profile_params ~w(active)
 
   def registration_changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_registration_params, @optional_registration_params)
+    |> cast(params, @required_profile_params, @optional_profile_params)
+    |> common_changeset
+  end
+
+  def profile_changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @required_profile_params, @optional_profile_params)
     |> common_changeset
   end
 

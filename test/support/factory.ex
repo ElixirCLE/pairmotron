@@ -44,8 +44,9 @@ defmodule Pairmotron.Factory do
 
   def group_factory do
     %Group{
-      name: sequence(:name, &"name #{&1}"),
-      owner: build(:user)
+      name: sequence(:name, &"group #{&1}"),
+      owner: build(:user),
+      users: []
     }
   end
 end

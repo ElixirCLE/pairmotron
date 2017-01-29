@@ -1,0 +1,46 @@
+<h2>User Profile</h2>
+
+<ul>
+  <li>
+    <strong>Name:</strong>
+    <%= @user.name %>
+  </li>
+
+  <li>
+    <strong>Email:</strong>
+    <%= @user.email %>
+  </li>
+
+  <li>
+    <strong>Active:</strong>
+    <%= @user.active %>
+  </li>
+</ul>
+
+<h3>Groups</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Group Name</th>
+      <th/>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for group <- @user.groups do %>
+      <tr>
+        <td>
+          <a href=<%= group_path(@conn, :show, group)%>>
+            <%= group.name %>
+          </a>
+        </td>
+        <td>
+          <%= if group.owner_id == @user.id do %>
+            <a href=<%= group_path(@conn, :edit, group)%>>Manage</a>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link "Edit", to: profile_path(@conn, :edit), class: "padded-link" %>
