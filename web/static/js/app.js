@@ -19,3 +19,9 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 // import socket from "./socket"
+import $ from "jquery"
+import "jquery"
+import "bootstrap-select"
+
+global.jQuery = require("jquery")
+global.bootstrap = require("bootstrap")
