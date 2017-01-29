@@ -42,8 +42,9 @@ defmodule Pairmotron.GroupController do
     changeset = Group.changeset(group)
     render(conn, "edit.html", group: group, changeset: changeset)
   end
-  def edit(conn, _params), do:
+  def edit(conn, _params) do
     redirect_not_authorized(conn, group_path(conn, :index))
+  end
 
   def update(conn = @authorized_conn, %{"group" => group_params}) do
     group = conn.assigns.group
@@ -58,8 +59,9 @@ defmodule Pairmotron.GroupController do
         render(conn, "edit.html", group: group, changeset: changeset)
     end
   end
-  def update(conn, _params), do:
+  def update(conn, _params) do
     redirect_not_authorized(conn, group_path(conn, :index))
+  end
 
   def delete(conn = @authorized_conn, _params) do
     Repo.delete!(conn.assigns.group)
@@ -68,6 +70,7 @@ defmodule Pairmotron.GroupController do
     |> put_flash(:info, "Group deleted successfully.")
     |> redirect(to: group_path(conn, :index))
   end
-  def delete(conn, _params), do: 
+  def delete(conn, _params) do 
     redirect_not_authorized(conn, group_path(conn, :index))
+  end
 end
