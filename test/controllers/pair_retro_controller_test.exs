@@ -23,8 +23,7 @@ defmodule Pairmotron.PairRetroControllerTest do
   describe "while authenticated" do
     setup do
       user = insert(:user)
-      conn = build_conn
-        |> log_in(user)
+      conn = build_conn() |> log_in(user)
       {:ok, [conn: conn, logged_in_user: user]}
     end
 
@@ -40,7 +39,7 @@ defmodule Pairmotron.PairRetroControllerTest do
     end
 
     test "does not list a retrospective of a different user", %{conn: conn} do
-      {_other_user, _pair, retro} = create_user_and_pair_and_retro
+      {_other_user, _pair, retro} = create_user_and_pair_and_retro()
       conn = get conn, pair_retro_path(conn, :index)
       refute html_response(conn, 200) =~ Ecto.Date.to_string(retro.pair_date)
     end
@@ -182,8 +181,7 @@ defmodule Pairmotron.PairRetroControllerTest do
   describe "as admin" do
     setup do
       user = insert(:user_admin)
-      conn = build_conn
-        |> log_in(user)
+      conn = build_conn() |> log_in(user)
       {:ok, [conn: conn, logged_in_user: user]}
     end
 

@@ -6,8 +6,7 @@ defmodule Pairmotron.Plug.RequireAdminTest do
   describe "while authenticated" do
     setup do
       user = insert(:user)
-      conn = build_conn
-        |> log_in(user)
+      conn = build_conn() |> log_in(user)
       {:ok, [conn: conn, logged_in_user: user]}
     end
     test "redirects when user is not an admin ", %{conn: conn, logged_in_user: user} do
@@ -19,8 +18,7 @@ defmodule Pairmotron.Plug.RequireAdminTest do
   describe "as admin" do
     setup do
       user = insert(:user_admin)
-      conn = build_conn
-        |> log_in(user)
+      conn = build_conn() |> log_in(user)
       {:ok, [conn: conn, logged_in_user: user]}
     end
     test "passes through when user is an admin", %{conn: conn, logged_in_user: user} do

@@ -39,7 +39,7 @@ defmodule Pairmotron.Router do
 
   scope "/admin", ExAdmin do
     pipe_through [:browser, :authenticate, :admin]
-    admin_routes
+    admin_routes()
   end
 
   scope "/", Pairmotron do
@@ -55,8 +55,8 @@ defmodule Pairmotron.Router do
     get "/pair_retros/new/:pair_id", PairRetroController, :new
     resources "/pair_retros", PairRetroController, except: [:new]
 
-    get "/:year/:week", PairController, :show
-    delete "/:year/:week", PairController, :delete
+    get "/pairs/:year/:week", PairController, :show
+    delete "/pairs/:year/:week", PairController, :delete
   end
 
 end
