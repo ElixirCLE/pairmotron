@@ -8,21 +8,21 @@ defmodule Pairmotron.PairViewTest do
       logged_in_user = insert(:user)
       other_user = insert(:user)
       pair = create_pair([other_user]) |> Pairmotron.Repo.preload([:users])
-      conn = build_conn |> log_in(logged_in_user)
+      conn = build_conn() |> log_in(logged_in_user)
       refute PairView.current_user_in_pair(conn, pair)
     end
 
     test "is true when the logged in user is in the pair" do
       user = insert(:user)
       pair = create_pair([user]) |> Pairmotron.Repo.preload([:users])
-      conn = build_conn |> log_in(user)
+      conn = build_conn() |> log_in(user)
       assert PairView.current_user_in_pair(conn, pair)
     end
 
     test "is false when no user is logged in" do
       user = insert(:user)
       pair = create_pair([user])
-      conn = build_conn
+      conn = build_conn()
       refute PairView.current_user_in_pair(conn, pair)
     end
   end

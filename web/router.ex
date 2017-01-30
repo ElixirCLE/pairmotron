@@ -39,7 +39,7 @@ defmodule Pairmotron.Router do
 
   scope "/admin", ExAdmin do
     pipe_through [:browser, :authenticate, :admin]
-    admin_routes
+    admin_routes()
   end
 
   scope "/", Pairmotron do

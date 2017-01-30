@@ -13,8 +13,7 @@ defmodule Pairmotron.PairControllerTest do
   describe "while authenticated" do
     setup do
       user = insert(:user)
-      conn = build_conn
-        |> log_in(user)
+      conn = build_conn() |> log_in(user)
       {:ok, [conn: conn, logged_in_user: user]}
     end
 
