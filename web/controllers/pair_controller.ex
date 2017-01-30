@@ -1,4 +1,4 @@
-defmodule Pairmotron.PageController do
+defmodule Pairmotron.PairController do
   use Pairmotron.Web, :controller
 
   alias Pairmotron.Pair
@@ -30,7 +30,7 @@ defmodule Pairmotron.PageController do
       |> Enum.map(fn(p) -> Repo.delete! p end)
     conn
       |> put_flash(:info, "Repairified")
-      |> redirect(to: page_path(conn, :show, year, week))
+      |> redirect(to: pair_path(conn, :show, year, week))
   end
 
   defp fetch_or_gen(year, week) do

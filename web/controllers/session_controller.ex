@@ -7,7 +7,7 @@ defmodule Pairmotron.SessionController do
 
   def new(conn, _params) do
     if Guardian.Plug.current_resource(conn) do
-      conn |> redirect(to: page_path(conn, :index))
+      conn |> redirect(to: pair_path(conn, :index))
     else
       render conn, changeset: User.changeset(%User{})
     end
@@ -45,7 +45,7 @@ defmodule Pairmotron.SessionController do
       conn
       |> put_flash(:info, "You are now signed in.")
       |> Guardian.Plug.sign_in(user)
-      |> redirect(to: page_path(conn, :index))
+      |> redirect(to: pair_path(conn, :index))
     else
       conn
       |> put_flash(:error, @sign_in_error)

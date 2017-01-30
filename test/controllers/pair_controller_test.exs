@@ -1,4 +1,4 @@
-defmodule Pairmotron.PageControllerTest do
+defmodule Pairmotron.PairControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.UserPair
@@ -64,7 +64,7 @@ defmodule Pairmotron.PageControllerTest do
       {year, week} = Timex.iso_week(Timex.today)
       pair = create_pair([user], year, week)
       retro = create_retro(user, pair) # create_retro function defines pair_date as Timex.today
-      conn = get conn, page_path(conn, :show, year, week)
+      conn = get conn, pair_path(conn, :show, year, week)
       assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
 
@@ -77,15 +77,15 @@ defmodule Pairmotron.PageControllerTest do
     end
 
     test "does not pairify for a week that is not current", %{conn: conn, logged_in_user: user} do
-      conn = get conn, page_path(conn, :show, 1999, 1)
+      conn = get conn, pair_path(conn, :show, 1999, 1)
       refute html_response(conn, 200) =~ user.name
     end
 
     test "repairifying deletes current pairs and redirects to show", %{conn: conn, logged_in_user: user} do
       {year, week} = Timex.iso_week(Timex.today)
       create_pair([user])
-      conn = delete conn, page_path(conn, :delete, year, week)
-      assert redirected_to(conn) == page_path(conn, :show, year, week)
+      conn = delete conn, pair_path(conn, :delete, year, week)
+      assert redirected_to(conn) == pair_path(conn, :show, year, week)
       refute Repo.get_by(UserPair, %{user_id: user.id})
     end
 

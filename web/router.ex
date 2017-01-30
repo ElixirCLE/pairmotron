@@ -45,7 +45,7 @@ defmodule Pairmotron.Router do
   scope "/", Pairmotron do
     pipe_through [:browser, :authenticate] # Use the default browser stack
 
-    get "/pairs", PageController, :index
+    get "/pairs", PairController, :index
     get "/profile", ProfileController, :show
     get "/profile/edit", ProfileController, :edit
     put "/profile/update/:id", ProfileController, :update
@@ -55,8 +55,8 @@ defmodule Pairmotron.Router do
     get "/pair_retros/new/:pair_id", PairRetroController, :new
     resources "/pair_retros", PairRetroController, except: [:new]
 
-    get "/:year/:week", PageController, :show
-    delete "/:year/:week", PageController, :delete
+    get "/:year/:week", PairController, :show
+    delete "/:year/:week", PairController, :delete
   end
 
 end

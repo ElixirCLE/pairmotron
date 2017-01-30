@@ -1,4 +1,4 @@
-defmodule Pairmotron.PageView do
+defmodule Pairmotron.PairView do
   use Pairmotron.Web, :view
 
   def current_user_in_pair(conn, pair) do
