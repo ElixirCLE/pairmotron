@@ -3,6 +3,6 @@ defmodule Pairmotron.ExAdmin.UserGroup do
 
   register_resource Pairmotron.UserGroup do
     filter [:user, :group]
-    action_items only: [:new, :delete]
+    action_items only: [:new, :delete, :show]
   end
 end
