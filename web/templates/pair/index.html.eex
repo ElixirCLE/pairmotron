@@ -22,7 +22,7 @@
   <% end %>
 </ul>
 <%= if !past_week?(@year, @week) do %>
-  <%= form_for @conn, page_path(@conn, :delete, @year, @week), [as: :repairify, method: "delete"], fn _ -> %>
+  <%= form_for @conn, pair_path(@conn, :delete, @year, @week), [as: :repairify, method: "delete"], fn _ -> %>
     <div class="form-group">
       <%= submit "Repairify", class: "btn btn-danger" %>
     </div>

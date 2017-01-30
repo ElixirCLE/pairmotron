@@ -13,7 +13,7 @@ defmodule Pairmotron.RegistrationControllerTest do
 
   test "creates resource and redirects when data is valid", %{conn: conn} do
     conn = post conn, registration_path(conn, :create), user: @valid_reg_attrs
-    assert redirected_to(conn) == page_path(conn, :index)
+    assert redirected_to(conn) == pair_path(conn, :index)
     assert Repo.get_by(User, %{email: "email", name: "name"})
   end
 

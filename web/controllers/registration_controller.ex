@@ -17,7 +17,7 @@ defmodule Pairmotron.RegistrationController do
         conn
         |> put_flash(:info, "Successfully registered and logged in")
         |> put_session(:current_user_id, user.id)
-        |> redirect(to: page_path(conn, :index))
+        |> redirect(to: pair_path(conn, :index))
       {:error, changeset} ->
         render conn, "new.html", changeset: changeset
     end
