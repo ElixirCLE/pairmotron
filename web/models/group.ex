@@ -5,6 +5,7 @@ defmodule Pairmotron.Group do
     field :name, :string
     belongs_to :owner, Pairmotron.User
     many_to_many :users, Pairmotron.User, join_through: Pairmotron.UserGroup
+    has_many :projects, Pairmotron.Project
 
     timestamps()
   end

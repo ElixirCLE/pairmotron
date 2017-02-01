@@ -7,6 +7,7 @@ defmodule Pairmotron.Project do
     field :url, :string
 
     has_many :pair_retros, Pairmotron.PairRetro
+    belongs_to :group, Pairmotron.Group
 
     timestamps()
   end
