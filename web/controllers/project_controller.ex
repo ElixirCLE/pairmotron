@@ -4,7 +4,8 @@ defmodule Pairmotron.ProjectController do
   alias Pairmotron.Project
 
   def index(conn, _params) do
-    projects = Repo.all(Project)
+    projects = Repo.all(Project.projects_for_user(conn.assigns.current_user))
+               |> Repo.preload(:group)
     render(conn, "index.html", projects: projects)
   end
 

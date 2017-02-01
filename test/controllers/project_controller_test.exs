@@ -24,6 +24,41 @@ defmodule Pairmotron.ProjectControllerTest do
       assert html_response(conn, 200) =~ "Listing projects"
     end
 
+    test "lists group name associated with a project", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      insert(:project, %{group: group})
+      conn = get conn, project_path(conn, :index)
+      assert html_response(conn, 200) =~ group.name
+    end
+
+    test "links to edit of project if project has no group", %{conn: conn} do
+      project = insert(:project)
+      conn = get conn, project_path(conn, :index)
+      assert html_response(conn, 200) =~ project_path(conn, :edit, project)
+    end
+
+    test "links to edit of project if user is owner project's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      project = insert(:project, %{group: group})
+      conn = get conn, project_path(conn, :index)
+      assert html_response(conn, 200) =~ project_path(conn, :edit, project)
+    end
+
+    test "does not link to edit of project if user is not owner of project's group",
+      %{conn: conn, logged_in_user: user} do
+      group = insert(:group, users: [user])
+      project = insert(:project, %{group: group})
+      conn = get conn, project_path(conn, :index)
+      refute html_response(conn, 200) =~ project_path(conn, :edit, project)
+    end
+
+    test "does not list project associated with group user is not member of", %{conn: conn} do
+      group = insert(:group)
+      project = insert(:project, %{group: group})
+      conn = get conn, project_path(conn, :index)
+      refute html_response(conn, 200) =~ project.name
+    end
+
     test "renders form for new resources", %{conn: conn} do
       conn = get conn, project_path(conn, :new)
       assert html_response(conn, 200) =~ "New project"

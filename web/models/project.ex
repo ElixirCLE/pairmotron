@@ -13,7 +13,7 @@ defmodule Pairmotron.Project do
   end
 
   @required_params ~w(name)
-  @optional_params ~w(description url)
+  @optional_params ~w(description url group_id)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -32,5 +32,12 @@ defmodule Pairmotron.Project do
         _ -> []
       end
     end
+  end
+
+  def projects_for_user(user) do
+    from project in Pairmotron.Project,
+    join: group in assoc(project, :group),
+    join: u in assoc(group, :users),
+    where: u.id == ^user.id
   end
 end

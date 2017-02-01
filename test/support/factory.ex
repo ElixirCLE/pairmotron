@@ -38,7 +38,7 @@ defmodule Pairmotron.Factory do
     %Project{
       name: sequence(:name, &"project #{&1}"),
       description: sequence(:description, &"description #{&1}"),
-      url: sequence(:url, &"http://example-#{&1}.com")
+      url: sequence(:url, &"http://example-#{&1}.com"),
     }
   end
 
