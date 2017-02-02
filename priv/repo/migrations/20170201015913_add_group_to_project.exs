@@ -4,7 +4,7 @@ defmodule Pairmotron.Repo.Migrations.AddGroupToProject do
   def change do
 
     alter table(:projects) do
-      add :group_id, references(:groups, on_delete: :delete_all)
+      add :group_id, references(:groups, on_delete: :nilify_all)
     end
 
   end

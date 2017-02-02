@@ -31,12 +31,6 @@ defmodule Pairmotron.ProjectControllerTest do
       assert html_response(conn, 200) =~ group.name
     end
 
-    test "links to edit of project if project has no group", %{conn: conn} do
-      project = insert(:project)
-      conn = get conn, project_path(conn, :index)
-      assert html_response(conn, 200) =~ project_path(conn, :edit, project)
-    end
-
     test "links to edit of project if user is owner project's group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       project = insert(:project, %{group: group})
