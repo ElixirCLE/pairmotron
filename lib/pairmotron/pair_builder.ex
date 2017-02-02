@@ -1,3 +1,7 @@
+defmodule Determination do
+  defstruct dead_pairs: [], dead_user_pairs: [], available_users: []
+end
+
 defmodule Pairmotron.PairBuilder do
   @moduledoc """
   Provides ways of determining what has changed between an existing set of %UserPair{}s and a new
@@ -7,8 +11,22 @@ defmodule Pairmotron.PairBuilder do
   This module will only spell out what needs to be changed between how users have already been
   paired and what users are now able to be paired.
   %Pair{}s and %UserPair{}s may either not change or be deleted.
-  %Users{}s will be free to find a new pair or keep their existing pair.
+  %Users{}s will be free to find a new pair.
   """
+
+
+  @doc """
+  Find the dead pairs, dead user pairs, and available users given the previous %UserPair{} records
+  and the new list of %User{}s.
+  """
+  def determify(user_pairs, users) do
+    dead_user_pairs = find_dead_user_pairs(user_pairs, users)
+    %Determination{
+      dead_pairs: dead_user_pairs |> find_dead_pairs,
+      dead_user_pairs: dead_user_pairs,
+      available_users: dead_user_pairs |> find_users_to_pair(user_pairs, users)
+    }
+  end
 
   @doc """
   Finds the previous %UserPair{}s that will no longer be needed with the new user set.
@@ -31,32 +49,13 @@ defmodule Pairmotron.PairBuilder do
   end
 
   @doc """
-  Finds the previously paired %User{}s that will not keep their previous pair.
-  """
-  def find_freed_users(_, []), do: []
-  def find_freed_users([], users), do: users
-  def find_freed_users(user_pairs, users) do
-    dead_user_pairs = find_dead_user_pairs(user_pairs, users)
-    u = users |> MapSet.new
-    matched_users = dead_user_pairs |> pair_users |> MapSet.new
-    MapSet.intersection(u, matched_users) |> MapSet.to_list
-  end
-
-  @doc """
   Finds the %Users{}s that will need to be paired because either their previous pair is no longer
   valid or the were not previously paired.
   """
   def find_users_to_pair(_, []), do: []
   def find_users_to_pair([], users), do: users
   def find_users_to_pair(user_pairs, users) do
-    unchanged_users = user_pairs
-      |> MapSet.new
-      |> MapSet.difference(find_dead_user_pairs(user_pairs, users) |> MapSet.new)
-      |> MapSet.to_list
-      |> pair_users
-      |> MapSet.new
-    u = users |> MapSet.new
-    MapSet.difference(u, unchanged_users) |> MapSet.to_list
+    find_users_to_pair(find_dead_user_pairs(user_pairs, users), user_pairs, users)
   end
 
   @doc """
@@ -65,7 +64,24 @@ defmodule Pairmotron.PairBuilder do
   def find_dead_pairs([], _), do: []
   def find_dead_pairs(user_pairs, []), do: user_pairs |> unique_pairs
   def find_dead_pairs(user_pairs, users) do
-    find_dead_user_pairs(user_pairs, users) |> unique_pairs
+    find_dead_user_pairs(user_pairs, users) |> find_dead_pairs
+  end
+
+  defp find_dead_pairs(dead_user_pairs) do
+    dead_user_pairs |> unique_pairs
+  end
+
+  defp find_users_to_pair(dead_user_pairs, user_pairs, users) do
+    unchanged_users = user_pairs
+      |> MapSet.new
+      |> MapSet.difference(dead_user_pairs |> MapSet.new)
+      |> MapSet.to_list
+      |> pair_users
+      |> MapSet.new
+    users
+      |> MapSet.new
+      |> MapSet.difference(unchanged_users)
+      |> MapSet.to_list
   end
 
   defp unique_pairs(user_pairs), do: user_pairs |> Enum.map(fn(up) -> up.pair end) |> Enum.uniq

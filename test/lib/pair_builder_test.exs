@@ -17,6 +17,19 @@ defmodule Pairmotron.PairBuilderTest do
   @user_pair_3 %UserPair{id: 3, pair: @pair_2, user: @user_3}
   @user_pair_4 %UserPair{id: 4, pair: @pair_2, user: @user_4}
 
+  describe ".determify/2" do
+    test "empty user pairs and users" do
+      assert %Determination{dead_pairs: [], dead_user_pairs: [], available_users: []} = PairBuilder.determify([], [])
+    end
+
+    test "empty user pairs and some users" do
+      determination = PairBuilder.determify([], [@user_1, @user_3])
+      assert determination.dead_pairs == []
+      assert determination.dead_user_pairs == []
+      assert determination.available_users |> Enum.sort == [@user_1, @user_3]
+    end
+  end
+
   describe ".find_dead_user_pairs/2" do
     test "empty user pairs and users" do
       assert [] = PairBuilder.find_dead_user_pairs([], [])
@@ -43,42 +56,6 @@ defmodule Pairmotron.PairBuilderTest do
     test "some users are now inactive" do
       user_pairs = PairBuilder.find_dead_user_pairs([@user_pair_1, @user_pair_2, @user_pair_3, @user_pair_4], [@user_1, @user_3])
       assert Enum.sort(user_pairs) == [@user_pair_1, @user_pair_2, @user_pair_3, @user_pair_4]
-    end
-  end
-
-  describe ".find_freed_users/2" do
-    test "empty user pairs and users" do
-      assert [] = PairBuilder.find_freed_users([], [])
-    end
-
-    test "empty user pairs and some users" do
-      users = PairBuilder.find_freed_users([], [@user_1, @user_2])
-      assert Enum.sort(users) == [@user_1, @user_2]
-    end
-
-    test "matching user pairs and users" do
-      assert [] = PairBuilder.find_freed_users([@user_pair_1, @user_pair_2], [@user_1, @user_2])
-    end
-
-    test "new available user" do
-      assert [] = PairBuilder.find_freed_users([@user_pair_1, @user_pair_2], [@user_1, @user_2, @user_3])
-    end
-
-    test "1 user is now inactive" do
-      assert [@user_1] = PairBuilder.find_freed_users([@user_pair_1, @user_pair_2], [@user_1])
-    end
-
-    test "both users are now inactive" do
-      assert [] = PairBuilder.find_freed_users([@user_pair_1, @user_pair_2], [])
-    end
-
-    test "some users are now inactive" do
-      users = PairBuilder.find_freed_users([@user_pair_1, @user_pair_2, @user_pair_3, @user_pair_4], [@user_1, @user_3, @user_4])
-      assert Enum.sort(users) == [@user_1]
-    end
-
-    test "some new users are available" do
-      assert [] = PairBuilder.find_freed_users([@user_pair_1, @user_pair_2], [@user_1, @user_2, @user_3, @user_4])
     end
   end
 
