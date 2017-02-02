@@ -53,7 +53,7 @@ defmodule Pairmotron.ProjectController do
 
   def update(conn = @authorized_conn, %{"project" => project_params}) do
     project = conn.assigns.project
-    changeset = Project.changeset(project, project_params)
+    changeset = Project.changeset_for_update(project, project_params)
 
     case Repo.update(changeset) do
       {:ok, project} ->

@@ -116,6 +116,15 @@ defmodule Pairmotron.ProjectControllerTest do
       assert Repo.get_by(Project, @valid_attrs)
     end
 
+    test "cannot update project to have new group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      project = insert(:project, %{group: group})
+      other_group = insert(:group, %{owner: user, users: [user]})
+      put conn, project_path(conn, :update, project), project: %{group_id: other_group.id}
+      updated_project = Repo.get(Project, project.id)
+      assert updated_project.group_id == group.id
+    end
+
     test "does not update project if user is in associated group but not owner", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{users: [user]})
       project = insert(:project, %{group: group})
