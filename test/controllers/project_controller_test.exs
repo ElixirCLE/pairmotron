@@ -81,34 +81,105 @@ defmodule Pairmotron.ProjectControllerTest do
       end
     end
 
-    test "renders form for editing chosen resource", %{conn: conn} do
-      project = Repo.insert! %Project{}
+    test "allows edit of project if user is owner of associated group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      project = insert(:project, %{group: group})
       conn = get conn, project_path(conn, :edit, project)
       assert html_response(conn, 200) =~ "Edit project"
     end
 
-    test "updates chosen resource and redirects when data is valid", %{conn: conn} do
-      project = Repo.insert! %Project{}
+    test "does not allow edit of project if user is in associated group but not owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      project = insert(:project, %{group: group})
+      conn = get conn, project_path(conn, :edit, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+    end
+
+    test "does not allow edit of project if user is not associated with project group", %{conn: conn} do
+      group = insert(:group)
+      project = insert(:project, %{group: group})
+      conn = get conn, project_path(conn, :edit, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+    end
+
+    test "does not allow edit of project if it has no group", %{conn: conn} do
+      project = insert(:project)
+      conn = get conn, project_path(conn, :edit, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+    end
+
+    test "updates project if user is owner of associated group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      project = insert(:project, %{group: group})
       conn = put conn, project_path(conn, :update, project), project: @valid_attrs
       assert redirected_to(conn) == project_path(conn, :show, project)
       assert Repo.get_by(Project, @valid_attrs)
     end
 
-    test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
-      project = Repo.insert! %Project{}
+    test "does not update project if user is in associated group but not owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      project = insert(:project, %{group: group})
+      conn = put conn, project_path(conn, :update, project), project: @valid_attrs
+      assert redirected_to(conn) == project_path(conn, :index)
+      refute Repo.get_by(Project, @valid_attrs)
+    end
+
+    test "does not update project if user is not associated with project group", %{conn: conn} do
+      group = insert(:group)
+      project = insert(:project, %{group: group})
+      conn = put conn, project_path(conn, :update, project), project: @valid_attrs
+      assert redirected_to(conn) == project_path(conn, :index)
+      refute Repo.get_by(Project, @valid_attrs)
+    end
+
+    test "does not update project if it has no group", %{conn: conn} do
+      project = insert(:project)
+      conn = put conn, project_path(conn, :update, project), project: @valid_attrs
+      assert redirected_to(conn) == project_path(conn, :index)
+      refute Repo.get_by(Project, @valid_attrs)
+    end
+
+    test "does not update chosen resource and renders errors when data is invalid", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      project = insert(:project, %{group: group})
       conn = put conn, project_path(conn, :update, project), project: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit project"
     end
 
-    test "deletes chosen resource", %{conn: conn} do
-      project = Repo.insert! %Project{}
+    test "deletes project if user is owner of associated group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      project = insert(:project, %{group: group})
       conn = delete conn, project_path(conn, :delete, project)
       assert redirected_to(conn) == project_path(conn, :index)
       refute Repo.get(Project, project.id)
     end
 
-    test "can delete project when a retro references it", %{conn: conn, logged_in_user: user} do
+    test "does not delete project if user is in associated group but not owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      project = insert(:project, %{group: group})
+      conn = delete conn, project_path(conn, :delete, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+      assert Repo.get(Project, project.id)
+    end
+
+    test "does not delete project if user is not associated with project group", %{conn: conn} do
+      group = insert(:group)
+      project = insert(:project, %{group: group})
+      conn = delete conn, project_path(conn, :delete, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+      assert Repo.get(Project, project.id)
+    end
+
+    test "does not delete project if it has no group", %{conn: conn} do
       project = insert(:project)
+      conn = delete conn, project_path(conn, :delete, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+      assert Repo.get(Project, project.id)
+    end
+
+    test "can delete project when a retro references it", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      project = insert(:project, %{group: group})
       pair = create_pair([user])
       create_retro(user, pair, project)
       conn = delete conn, project_path(conn, :delete, project)

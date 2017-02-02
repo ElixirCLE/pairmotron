@@ -2,6 +2,9 @@ defmodule Pairmotron.ProjectController do
   use Pairmotron.Web, :controller
 
   alias Pairmotron.Project
+  import Pairmotron.ControllerHelpers
+
+  plug :load_and_authorize_resource, model: Project, only: [:edit, :update, :delete]
 
   def index(conn, _params) do
     projects = Repo.all(Project.projects_for_user(conn.assigns.current_user))
@@ -32,14 +35,17 @@ defmodule Pairmotron.ProjectController do
     render(conn, "show.html", project: project)
   end
 
-  def edit(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id)
+  def edit(conn = @authorized_conn, _params) do
+    project = conn.assigns.project
     changeset = Project.changeset(project)
     render(conn, "edit.html", project: project, changeset: changeset)
   end
+  def edit(conn, _params) do
+    redirect_not_authorized(conn, project_path(conn, :index))
+  end
 
-  def update(conn, %{"id" => id, "project" => project_params}) do
-    project = Repo.get!(Project, id)
+  def update(conn = @authorized_conn, %{"project" => project_params}) do
+    project = conn.assigns.project
     changeset = Project.changeset(project, project_params)
 
     case Repo.update(changeset) do
@@ -51,9 +57,12 @@ defmodule Pairmotron.ProjectController do
         render(conn, "edit.html", project: project, changeset: changeset)
     end
   end
+  def update(conn, _params) do
+    redirect_not_authorized(conn, project_path(conn, :index))
+  end
 
-  def delete(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id)
+  def delete(conn = @authorized_conn, _params) do
+    project = conn.assigns.project
 
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
@@ -62,5 +71,8 @@ defmodule Pairmotron.ProjectController do
     conn
     |> put_flash(:info, "Project deleted successfully.")
     |> redirect(to: project_path(conn, :index))
+  end
+  def delete(conn, _params) do
+    redirect_not_authorized(conn, project_path(conn, :index))
   end
 end
