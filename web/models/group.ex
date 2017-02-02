@@ -32,4 +32,10 @@ defmodule Pairmotron.Group do
     |> foreign_key_constraint(:owner_id)
     |> put_assoc(:users, users)
   end
+
+  def groups_for_user(user) do
+    from group in Pairmotron.Group,
+    join: u in assoc(group, :users),
+    where: u.id == ^user.id
+  end
 end

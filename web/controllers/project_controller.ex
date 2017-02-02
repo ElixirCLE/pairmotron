@@ -1,18 +1,22 @@
 defmodule Pairmotron.ProjectController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.Project
+  alias Pairmotron.{Group, Project}
   import Pairmotron.ControllerHelpers
 
   plug :load_and_authorize_resource, model: Project, only: [:edit, :update, :delete]
 
   def index(conn, _params) do
-    projects = Repo.all(Project.projects_for_user(conn.assigns.current_user))
+    projects = Project.projects_for_user(conn.assigns.current_user)
+               |> Repo.all
                |> Repo.preload(:group)
     render(conn, "index.html", projects: projects)
   end
 
   def new(conn, _params) do
+    groups = Group.groups_for_user(conn.assigns.current_user)
+             |> Repo.all
+    conn = assign(conn, :groups, groups)
     changeset = Project.changeset(%Project{})
     render(conn, "new.html", changeset: changeset)
   end
@@ -31,11 +35,14 @@ defmodule Pairmotron.ProjectController do
   end
 
   def show(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id)
+    project = Repo.get!(Project, id) |> Repo.preload(:group)
     render(conn, "show.html", project: project)
   end
 
   def edit(conn = @authorized_conn, _params) do
+    groups = Group.groups_for_user(conn.assigns.current_user)
+             |> Repo.all
+    conn = assign(conn, :groups, groups)
     project = conn.assigns.project
     changeset = Project.changeset(project)
     render(conn, "edit.html", project: project, changeset: changeset)

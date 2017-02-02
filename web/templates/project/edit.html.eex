@@ -1,6 +1,7 @@
 <h2>Edit project</h2>
 
 <%= render "form.html", changeset: @changeset,
-                        action: project_path(@conn, :update, @project) %>
+                        action: project_path(@conn, :update, @project),
+                        groups: groups_for_select(@conn) %>
 
 <%= link "Back", to: project_path(@conn, :index) %>
