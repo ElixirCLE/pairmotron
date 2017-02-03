@@ -73,6 +73,14 @@ defmodule Pairmotron.ProjectControllerTest do
       assert Repo.get_by(Project, valid_attrs)
     end
 
+    test "creates resource with logged in user in created_by", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      valid_attrs = Map.put(@valid_attrs, :group_id, group.id)
+      post conn, project_path(conn, :create), project: valid_attrs
+      created_project = Repo.get_by(Project, valid_attrs)
+      assert created_project.created_by_id == user.id
+    end
+
     test "does not create project if user is not in project's group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: []})
       attrs = Map.put(@valid_attrs, :group_id, group.id)
@@ -199,6 +207,15 @@ defmodule Pairmotron.ProjectControllerTest do
       put conn, project_path(conn, :update, project), project: %{group_id: other_group.id}
       updated_project = Repo.get(Project, project.id)
       assert updated_project.group_id == group.id
+    end
+
+    test "cannot update project to have new created_by", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      project = insert(:project, %{group: group, created_by: user})
+      other_user = insert(:user)
+      put conn, project_path(conn, :update, project), project: %{created_by_id: other_user.id}
+      updated_project = Repo.get(Project, project.id)
+      assert updated_project.created_by_id == user.id
     end
 
     test "does not update project if user is in associated group but not owner", %{conn: conn, logged_in_user: user} do
