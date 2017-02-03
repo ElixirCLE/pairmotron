@@ -8,6 +8,7 @@ defmodule Pairmotron.Project do
 
     has_many :pair_retros, Pairmotron.PairRetro
     belongs_to :group, Pairmotron.Group
+    belongs_to :created_by, Pairmotron.User
 
     timestamps()
   end
