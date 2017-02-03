@@ -29,6 +29,7 @@ defimpl Canada.Can, for: Pairmotron.User do
     project = project |> Pairmotron.Repo.preload([{:group, :users}])
     cond do
       project.group.owner_id == user_id -> true
+      !Enum.any?(project.group.users, &(&1.id == user_id)) -> false
       project.created_by_id == user_id -> true
       true -> false
     end
