@@ -1,5 +1,5 @@
 defmodule Determination do
-  defstruct dead_pairs: [], dead_user_pairs: [], available_users: []
+  defstruct dead_pairs: [], remaining_user_pairs: [], available_users: []
 end
 
 defmodule Pairmotron.PairBuilder do
@@ -8,22 +8,22 @@ defmodule Pairmotron.PairBuilder do
   set of %Users{}s that need to be paired.
   %UserPair{}s are, for the intent of this module,  records of how users were paired previously.
 
-  This module will only spell out what needs to be changed between how users have already been
-  paired and what users are now able to be paired.
+  This module will only spell out the difference  between how users have already been paired and
+  what users are now able to be paired.
   %Pair{}s and %UserPair{}s may either not change or be deleted.
   %Users{}s will be free to find a new pair.
   """
 
 
   @doc """
-  Find the dead pairs, dead user pairs, and available users given the previous %UserPair{} records
+  Find the dead pairs, remaining user pairs, and available users given the previous %UserPair{} records
   and the new list of %User{}s.
   """
   def determify(user_pairs, users) do
     dead_user_pairs = find_dead_user_pairs(user_pairs, users)
     %Determination{
       dead_pairs: dead_user_pairs |> find_dead_pairs,
-      dead_user_pairs: dead_user_pairs,
+      remaining_user_pairs: dead_user_pairs |> find_remaining_user_pairs(user_pairs),
       available_users: dead_user_pairs |> find_users_to_pair(user_pairs, users)
     }
   end
@@ -72,15 +72,19 @@ defmodule Pairmotron.PairBuilder do
   end
 
   defp find_users_to_pair(dead_user_pairs, user_pairs, users) do
-    unchanged_users = user_pairs
-      |> MapSet.new
-      |> MapSet.difference(dead_user_pairs |> MapSet.new)
-      |> MapSet.to_list
+    unchanged_users = find_remaining_user_pairs(dead_user_pairs, user_pairs)
       |> pair_users
       |> MapSet.new
     users
       |> MapSet.new
       |> MapSet.difference(unchanged_users)
+      |> MapSet.to_list
+  end
+
+  defp find_remaining_user_pairs(dead_user_pairs, user_pairs) do
+    user_pairs
+      |> MapSet.new
+      |> MapSet.difference(dead_user_pairs |> MapSet.new)
       |> MapSet.to_list
   end
 

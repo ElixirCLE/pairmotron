@@ -19,13 +19,13 @@ defmodule Pairmotron.PairBuilderTest do
 
   describe ".determify/2" do
     test "empty user pairs and users" do
-      assert %Determination{dead_pairs: [], dead_user_pairs: [], available_users: []} = PairBuilder.determify([], [])
+      assert %Determination{dead_pairs: [], remaining_user_pairs: [], available_users: []} = PairBuilder.determify([], [])
     end
 
     test "empty user pairs and some users" do
       determination = PairBuilder.determify([], [@user_1, @user_3])
       assert determination.dead_pairs == []
-      assert determination.dead_user_pairs == []
+      assert determination.remaining_user_pairs == []
       assert determination.available_users |> Enum.sort == [@user_1, @user_3]
     end
   end
