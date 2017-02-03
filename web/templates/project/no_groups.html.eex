@@ -1,0 +1,14 @@
+<p>
+  <strong>
+    Projects have to be associated with groups. It looks like you aren't in a group. Find a group to join or create your own!
+  </strong>
+</p>
+
+<p>
+  <a href=<%= group_path(@conn, :index) %>>
+    <button class="btn btn-primary">Find Group</button>
+  </a>
+  <a href=<%= group_path(@conn, :new) %>>
+    <button class="btn btn-primary">Create Group</button>
+  </a>
+</p>

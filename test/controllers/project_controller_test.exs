@@ -53,7 +53,14 @@ defmodule Pairmotron.ProjectControllerTest do
       refute html_response(conn, 200) =~ project.name
     end
 
-    test "renders form for new resources", %{conn: conn} do
+    test "renders links to create and edit group if user is not in a group", %{conn: conn} do
+      conn = get conn, project_path(conn, :new)
+      assert html_response(conn, 200) =~ group_path(conn, :new)
+      assert html_response(conn, 200) =~ group_path(conn, :index)
+    end
+
+    test "renders form for new resource if user is in any group", %{conn: conn, logged_in_user: user} do
+      insert(:group, %{owner: user, users: [user]})
       conn = get conn, project_path(conn, :new)
       assert html_response(conn, 200) =~ "New project"
     end
