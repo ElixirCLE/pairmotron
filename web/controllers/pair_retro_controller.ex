@@ -39,8 +39,8 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def show(conn = @authorized_conn, _params) do
-      pair_retro = Repo.preload(conn.assigns.pair_retro, :project)
-      render(conn, "show.html", pair_retro: pair_retro)
+    pair_retro = Repo.preload(conn.assigns.pair_retro, :project)
+    render(conn, "show.html", pair_retro: pair_retro)
   end
   def show(conn, _params) do
     redirect_not_authorized(conn, pair_retro_path(conn, :index))

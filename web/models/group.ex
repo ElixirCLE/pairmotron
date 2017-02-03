@@ -5,6 +5,7 @@ defmodule Pairmotron.Group do
     field :name, :string
     belongs_to :owner, Pairmotron.User
     many_to_many :users, Pairmotron.User, join_through: Pairmotron.UserGroup
+    has_many :projects, Pairmotron.Project
 
     timestamps()
   end
@@ -30,5 +31,11 @@ defmodule Pairmotron.Group do
     |> cast(params, @required_fields, @optional_fields)
     |> foreign_key_constraint(:owner_id)
     |> put_assoc(:users, users)
+  end
+
+  def groups_for_user(user) do
+    from group in Pairmotron.Group,
+    join: u in assoc(group, :users),
+    where: u.id == ^user.id
   end
 end
