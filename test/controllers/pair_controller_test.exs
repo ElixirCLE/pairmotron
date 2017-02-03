@@ -1,7 +1,7 @@
 defmodule Pairmotron.PairControllerTest do
   use Pairmotron.ConnCase
 
-  alias Pairmotron.UserPair
+  alias Pairmotron.{UserPair, User}
   import Pairmotron.TestHelper,
     only: [log_in: 2, create_pair: 1, create_pair: 3, create_retro: 2, create_pair_and_retro: 1]
 
@@ -82,10 +82,12 @@ defmodule Pairmotron.PairControllerTest do
 
     test "repairifying deletes current pairs and redirects to show", %{conn: conn, logged_in_user: user} do
       {year, week} = Timex.iso_week(Timex.today)
-      create_pair([user])
+      user2 = insert(:user)
+      create_pair([user, user2])
+      Repo.update! User.changeset(user2, %{active: false})
       conn = delete conn, pair_path(conn, :delete, year, week)
       assert redirected_to(conn) == pair_path(conn, :show, year, week)
-      refute Repo.get_by(UserPair, %{user_id: user.id})
+      refute Repo.get_by(UserPair, %{user_id: user2.id})
     end
 
   end

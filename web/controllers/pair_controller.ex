@@ -1,12 +1,7 @@
 defmodule Pairmotron.PairController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.Pair
-  alias Pairmotron.PairRetro
-  alias Pairmotron.User
-  alias Pairmotron.UserPair
-  alias Pairmotron.Mixer
-  alias Pairmotron.Pairer
+  alias Pairmotron.{Pair, PairRetro, User, UserPair, Mixer, Pairer, PairBuilder}
 
   def index(conn, _params) do
     {year, week} = Timex.iso_week(Timex.today)
@@ -26,8 +21,7 @@ defmodule Pairmotron.PairController do
   def delete(conn, %{"year" => y, "week" => w}) do
     {year, _} = y |> Integer.parse
     {week, _} = w |> Integer.parse
-    fetch_pairs(year, week)
-      |> Enum.map(fn(p) -> Repo.delete! p end)
+    generate_pairs(year, week)
     conn
       |> put_flash(:info, "Repairified")
       |> redirect(to: pair_path(conn, :show, year, week))
@@ -63,14 +57,41 @@ defmodule Pairmotron.PairController do
   end
 
   defp generate_pairs(year, week) do
-    User.active_users
+    users = User.active_users
       |> order_by(:id)
       |> Repo.all
+
+    pair_ids = fetch_pairs(year, week)
+      |> Enum.map(fn(p) -> p.id end)
+
+    query = from up in UserPair,
+            select: up,
+            where: up.pair_id in ^pair_ids,
+            preload: [:pair],
+            preload: [:user]
+
+    user_pairs = query
+      |> Repo.all
+
+    determination = PairBuilder.determify(user_pairs, users)
+
+    determination.dead_pairs
+      |> Enum.map(fn(p) -> Repo.delete! p end)
+
+    results = determination.available_users
       |> Mixer.mixify(week)
-      |> Pairer.generate_pairs
+      |> Pairer.generate_pairs(determination.remaining_user_pairs)
+    results.pairs
       |> Enum.map(fn(users) -> make_pairs(users, year, week) end)
       |> List.flatten
       |> Enum.map(fn(p) -> Repo.insert! p end)
+
+    insert_user_pair(results.user_pair)
+  end
+
+  defp insert_user_pair(nil), do: nil
+  defp insert_user_pair(user_pair) do
+    Repo.insert! user_pair
   end
 
   defp make_pairs(users, year, week) do
