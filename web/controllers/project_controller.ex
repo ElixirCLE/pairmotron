@@ -17,12 +17,12 @@ defmodule Pairmotron.ProjectController do
     groups = Group.groups_for_user(conn.assigns.current_user)
              |> Repo.all
     conn = assign(conn, :groups, groups)
-    changeset = Project.changeset(%Project{})
+    changeset = Project.changeset_for_create(%Project{})
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"project" => project_params}) do
-    changeset = Project.changeset(%Project{}, project_params)
+    changeset = Project.changeset_for_create(%Project{}, project_params)
 
     case Repo.insert(changeset) do
       {:ok, _project} ->

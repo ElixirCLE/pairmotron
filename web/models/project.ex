@@ -14,7 +14,6 @@ defmodule Pairmotron.Project do
 
   @required_params ~w(name)
   @optional_params ~w(description url group_id)
-  @optional_params_for_update ~w(description url)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -25,9 +24,19 @@ defmodule Pairmotron.Project do
     |> validate_url(:url)
   end
 
+  @required_create_params ~w(name group_id)
+  @optional_change_params ~w(description url)
+
+  def changeset_for_create(struct, params \\ %{}) do
+    struct
+    |> cast(params, @required_create_params, @optional_change_params)
+    |> validate_url(:url)
+  end
+
+
   def changeset_for_update(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_params, @optional_params_for_update)
+    |> cast(params, @required_params, @optional_change_params)
     |> validate_url(:url)
   end
 
