@@ -11,7 +11,9 @@ defimpl Canada.Can, for: Pairmotron.User do
 
   def can?(%User{id: user_id}, :show, project = %Project{}) do
     if is_nil(project.group_id) do
-      false
+      project = project |> Pairmotron.Repo.preload([{:pair_retros, :user}])
+      project.pair_retros
+      |> Enum.any?(fn retro -> retro.user.id == user_id end)
     else
       project = project |> Pairmotron.Repo.preload([{:group, :users}])
       project.group.users
