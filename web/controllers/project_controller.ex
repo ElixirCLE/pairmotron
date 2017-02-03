@@ -4,7 +4,7 @@ defmodule Pairmotron.ProjectController do
   alias Pairmotron.{Group, Project}
   import Pairmotron.ControllerHelpers
 
-  plug :load_and_authorize_resource, model: Project, only: [:edit, :update, :delete]
+  plug :load_and_authorize_resource, model: Project, only: [:show, :edit, :update, :delete]
 
   def index(conn, _params) do
     projects = Project.projects_for_user(conn.assigns.current_user)
@@ -42,9 +42,12 @@ defmodule Pairmotron.ProjectController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn = @authorized_conn, %{"id" => id}) do
     project = Repo.get!(Project, id) |> Repo.preload(:group)
     render(conn, "show.html", project: project)
+  end
+  def show(conn, _params) do
+    redirect_not_authorized(conn, project_path(conn, :index))
   end
 
   def edit(conn = @authorized_conn, _params) do

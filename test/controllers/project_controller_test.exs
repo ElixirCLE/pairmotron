@@ -86,16 +86,22 @@ defmodule Pairmotron.ProjectControllerTest do
       assert html_response(conn, 200) =~ "New project"
     end
 
-    test "shows chosen resource", %{conn: conn} do
-      project = Repo.insert! %Project{}
+    test "shows project if user is in associated group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]}) # user is not owner
+      project = insert(:project, %{group: group})
       conn = get conn, project_path(conn, :show, project)
       assert html_response(conn, 200) =~ "Show project"
     end
 
+    test "does not show project if user not in associated group", %{conn: conn} do
+      project = insert(:project)
+      conn = get conn, project_path(conn, :show, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+    end
+
     test "renders page not found when id is nonexistent", %{conn: conn} do
-      assert_error_sent 404, fn ->
-        get conn, project_path(conn, :show, -1)
-      end
+      conn = get conn, project_path(conn, :show, -1)
+      assert html_response(conn, 404) =~ "Page not found"
     end
 
     test "allows edit of project if user is owner of associated group", %{conn: conn, logged_in_user: user} do
