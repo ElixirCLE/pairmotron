@@ -32,6 +32,7 @@ defmodule Pairmotron.ProjectController do
         |> put_flash(:info, "Project created successfully.")
         |> redirect(to: project_path(conn, :index))
       {:error, changeset} ->
+        conn = assign(conn, :groups, groups)
         render(conn, "new.html", changeset: changeset)
     end
   end
