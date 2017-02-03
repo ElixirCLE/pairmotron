@@ -130,6 +130,14 @@ defmodule Pairmotron.ProjectControllerTest do
       assert html_response(conn, 200) =~ "Edit project"
     end
 
+    test "allows edit of project if user created project and is still in associated group but is not owner",
+      %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      project = insert(:project, %{group: group, created_by: user})
+      conn = get conn, project_path(conn, :edit, project)
+      assert html_response(conn, 200) =~ "Edit project"
+    end
+
     test "does not allow edit of project if user is in associated group but not owner", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{users: [user]})
       project = insert(:project, %{group: group})
@@ -153,6 +161,15 @@ defmodule Pairmotron.ProjectControllerTest do
     test "updates project if user is owner of associated group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       project = insert(:project, %{group: group})
+      conn = put conn, project_path(conn, :update, project), project: @valid_attrs
+      assert redirected_to(conn) == project_path(conn, :show, project)
+      assert Repo.get_by(Project, @valid_attrs)
+    end
+
+    test "updates project if user created project and is still in associated group but is not owner",
+      %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      project = insert(:project, %{group: group, created_by: user})
       conn = put conn, project_path(conn, :update, project), project: @valid_attrs
       assert redirected_to(conn) == project_path(conn, :show, project)
       assert Repo.get_by(Project, @valid_attrs)
@@ -200,6 +217,15 @@ defmodule Pairmotron.ProjectControllerTest do
     test "deletes project if user is owner of associated group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       project = insert(:project, %{group: group})
+      conn = delete conn, project_path(conn, :delete, project)
+      assert redirected_to(conn) == project_path(conn, :index)
+      refute Repo.get(Project, project.id)
+    end
+
+    test "deletes project if user created project and is still in associated group but is not owner",
+      %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      project = insert(:project, %{group: group, created_by: user})
       conn = delete conn, project_path(conn, :delete, project)
       assert redirected_to(conn) == project_path(conn, :index)
       refute Repo.get(Project, project.id)
