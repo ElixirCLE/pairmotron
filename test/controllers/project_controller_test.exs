@@ -58,10 +58,20 @@ defmodule Pairmotron.ProjectControllerTest do
       assert html_response(conn, 200) =~ "New project"
     end
 
-    test "creates resource and redirects when data is valid", %{conn: conn} do
-      conn = post conn, project_path(conn, :create), project: @valid_attrs
+    test "creates resource and redirects when data is valid", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      valid_attrs = Map.put(@valid_attrs, :group_id, group.id)
+      conn = post conn, project_path(conn, :create), project: valid_attrs
       assert redirected_to(conn) == project_path(conn, :index)
-      assert Repo.get_by(Project, @valid_attrs)
+      assert Repo.get_by(Project, valid_attrs)
+    end
+
+    test "does not create project if user is not in project's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: []})
+      attrs = Map.put(@valid_attrs, :group_id, group.id)
+      conn = post conn, project_path(conn, :create), project: attrs
+      assert html_response(conn, 200) =~ "New project"
+      refute Repo.get_by(Project, attrs)
     end
 
     test "does not create resource and renders errors when data is invalid", %{conn: conn} do

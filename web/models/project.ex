@@ -27,10 +27,11 @@ defmodule Pairmotron.Project do
   @required_create_params ~w(name group_id)
   @optional_change_params ~w(description url)
 
-  def changeset_for_create(struct, params \\ %{}) do
+  def changeset_for_create(struct, params \\ %{}, users_groups) do
     struct
     |> cast(params, @required_create_params, @optional_change_params)
     |> validate_url(:url)
+    |> validate_user_is_in_group(:group_id, users_groups)
   end
 
 
@@ -46,6 +47,16 @@ defmodule Pairmotron.Project do
         %URI{scheme: nil} -> [{field, "URL is missing the scheme. Include 'http://' or 'https://'."}]
         %URI{host: nil} -> [{field, "URL is not valid."}]
         _ -> []
+      end
+    end
+  end
+
+  def validate_user_is_in_group(changeset, field, users_groups) do
+    validate_change changeset, field, fn _, selected_group_id ->
+      if users_groups |> Enum.any?(fn group -> group.id == selected_group_id end) do
+        []
+      else
+        [{field, "Must be member of group"}]
       end
     end
   end
