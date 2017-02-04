@@ -58,6 +58,7 @@ defmodule Pairmotron.Web do
       import Pairmotron.Gettext
 
       import Pairmotron.ViewHelpers
+      alias Pairmotron.Gravatar
     end
   end
 

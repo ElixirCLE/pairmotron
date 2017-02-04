@@ -20,7 +20,6 @@ defmodule Pairmotron.ProfileControllerTest do
 
     test "shows the current user", %{conn: conn, logged_in_user: user} do
       conn = get conn, profile_path(conn, :show)
-      assert html_response(conn, 200) =~ "User Profile"
       assert html_response(conn, 200) =~ user.name
       assert html_response(conn, 200) =~ user.email
     end
