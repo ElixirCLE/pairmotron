@@ -1,5 +1,5 @@
 defmodule Determination do
-  defstruct dead_pairs: [], remaining_user_pairs: [], available_users: []
+  defstruct dead_pairs: [], remaining_pairs: [], available_users: []
 end
 
 defmodule Pairmotron.PairBuilder do
@@ -23,7 +23,7 @@ defmodule Pairmotron.PairBuilder do
     dead_user_pairs = find_dead_user_pairs(user_pairs, users)
     %Determination{
       dead_pairs: dead_user_pairs |> find_dead_pairs,
-      remaining_user_pairs: dead_user_pairs |> find_remaining_user_pairs(user_pairs),
+      remaining_pairs: dead_user_pairs |> find_remaining_user_pairs(user_pairs) |> unique_pairs,
       available_users: dead_user_pairs |> find_users_to_pair(user_pairs, users)
     }
   end

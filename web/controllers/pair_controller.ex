@@ -80,7 +80,7 @@ defmodule Pairmotron.PairController do
 
     results = determination.available_users
       |> Mixer.mixify(week)
-      |> Pairer.generate_pairs(determination.remaining_user_pairs)
+      |> Pairer.generate_pairs(determination.remaining_pairs |> Repo.preload([:users]))
     results.pairs
       |> Enum.map(fn(users) -> make_pairs(users, year, week) end)
       |> List.flatten

@@ -4,13 +4,16 @@ end
 
 defmodule Pairmotron.Pairer do
 
-  alias Pairmotron.UserPair
+  alias Pairmotron.{UserPair, Pair}
 
   def generate_pairs(users, []), do: generate_pairs(users)
-  def generate_pairs(users, user_pairs) do
+  def generate_pairs(users, pairs) do
     users
       |> chunk
-      |> unlonelify(user_pairs)
+      |> Enum.reverse
+      |> friendify
+      |> Enum.reverse
+      |> unlonelify(pairs |> Enum.sort_by(fn(p) -> length(p.users) end) |> Enum.reverse)
   end
 
   def generate_pairs(users) do
@@ -33,10 +36,22 @@ defmodule Pairmotron.Pairer do
   end
 
   defp unlonelify([], _), do: %PairerResult{}
-  defp unlonelify(pairs = [[ _f, _s]], _), do: %PairerResult{pairs: pairs}
-  defp unlonelify([[single]], [user_pair | _user_pairs]) do
-    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: user_pair.pair_id, user_id: single.id})}
+  defp unlonelify(users = [[ _1, _2]], _), do: %PairerResult{pairs: users}
+  defp unlonelify(users = [[ _1, _2, _3]], _), do: %PairerResult{pairs: users}
+  defp unlonelify(users = [[ _1, _2] | _], _), do: %PairerResult{pairs: users}
+  defp unlonelify(users = [[_]], [%Pair{users: [_1, _2, _3]}]), do: %PairerResult{pairs: users}
+  defp unlonelify([[single]], [pair = %Pair{users: [_1, _2]}]) do
+    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
   end
+  defp unlonelify([[single]], [pair = %Pair{users: [_1]}]) do
+    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
+  end
+  defp unlonelify([[single]], [pair = %Pair{users: [_1]} | _]) do
+    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
+  end
+  defp unlonelify([[single]], [%Pair{users: [_1, _2]} | pairs]), do: unlonelify([[single]], pairs)
+  defp unlonelify([[single]], [%Pair{users: [_1, _2, _3]} | pairs]), do: unlonelify([[single]], pairs)
+
 
   defp friendify(pairs = [ [_first, _second] | _rest]), do: pairs
   defp friendify([[single] | [pair | rest]]) do
