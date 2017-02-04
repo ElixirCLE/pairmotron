@@ -67,8 +67,7 @@ defmodule Pairmotron.PairController do
     query = from up in UserPair,
             select: up,
             where: up.pair_id in ^pair_ids,
-            preload: [:pair],
-            preload: [:user]
+            preload: [:pair, :user]
 
     user_pairs = query
       |> Repo.all
@@ -78,9 +77,14 @@ defmodule Pairmotron.PairController do
     determination.dead_pairs
       |> Enum.map(fn(p) -> Repo.delete! p end)
 
+    pairs = determination.remaining_pairs
+      |> Repo.preload([:users, :pair_retros])
+      |> Enum.filter(fn(p) -> length(p.pair_retros) == 0 end)
+
     results = determination.available_users
       |> Mixer.mixify(week)
-      |> Pairer.generate_pairs(determination.remaining_pairs |> Repo.preload([:users]))
+      |> Pairer.generate_pairs(pairs)
+
     results.pairs
       |> Enum.map(fn(users) -> make_pairs(users, year, week) end)
       |> List.flatten

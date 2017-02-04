@@ -14,10 +14,6 @@ defmodule Pairmotron.PairerTest do
   @pair2 %Pair{id: 2, users: [@user_1, @user_2, @user_3]}
   @pair3 %Pair{id: 3, users: [@user_1]}
 
-  @user_pair_1 %UserPair{pair_id: 1, user_id: 1}
-  @user_pair_2 %UserPair{pair_id: 1, user_id: 2}
-  @user_pair_3 %UserPair{pair_id: 1, user_id: 3}
-
   @user_pair_changeset UserPair.changeset(%UserPair{}, %{pair_id: 1, user_id: 5})
   @user_pair_changeset2 UserPair.changeset(%UserPair{}, %{pair_id: 3, user_id: 5})
 
