@@ -80,14 +80,12 @@ defmodule Pairmotron.PairControllerTest do
       refute html_response(conn, 200) =~ user.name
     end
 
-    test "repairifying deletes invalid pairs and redirects to show", %{conn: conn, logged_in_user: user} do
+    test "cannot repairfy because user is not admin", %{conn: conn, logged_in_user: user} do
       {year, week} = Timex.iso_week(Timex.today)
-      user2 = insert(:user)
-      create_pair([user, user2])
-      Repo.update! User.changeset(user2, %{active: false})
+      create_pair([user])
       conn = delete conn, pair_path(conn, :delete, year, week)
-      assert redirected_to(conn) == pair_path(conn, :show, year, week)
-      refute Repo.get_by(UserPair, %{user_id: user2.id})
+      assert redirected_to(conn) == pair_path(conn, :index)
+      assert Repo.get_by(UserPair, %{user_id: user.id})
     end
 
     test "repairifying does not affect retro'd pairs", %{conn: conn, logged_in_user: user} do
@@ -106,6 +104,24 @@ defmodule Pairmotron.PairControllerTest do
       pair = create_pair([user, user2])
       delete conn, pair_path(conn, :delete, year, week)
       assert Repo.get(Pair, pair.id)
+    end
+  end
+
+  describe "while authenticated as admin" do
+    setup do
+      user = insert(:user, %{is_admin: true})
+      conn = build_conn() |> log_in(user)
+      {:ok, [conn: conn, logged_in_user: user]}
+    end
+
+    test "can repairify", %{conn: conn, logged_in_user: user} do
+      {year, week} = Timex.iso_week(Timex.today)
+      user2 = insert(:user)
+      create_pair([user, user2])
+      Repo.update! User.changeset(user2, %{active: false})
+      conn = delete conn, pair_path(conn, :delete, year, week)
+      assert redirected_to(conn) == pair_path(conn, :show, year, week)
+      refute Repo.get_by(UserPair, %{user_id: user2.id})
     end
   end
 end

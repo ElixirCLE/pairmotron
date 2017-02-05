@@ -1,6 +1,7 @@
 defmodule Pairmotron.PairController do
   use Pairmotron.Web, :controller
 
+  import Pairmotron.ControllerHelpers
   alias Pairmotron.{Pair, PairRetro, User, UserPair, Mixer, Pairer, PairBuilder}
 
   def index(conn, _params) do
@@ -19,12 +20,16 @@ defmodule Pairmotron.PairController do
   end
 
   def delete(conn, %{"year" => y, "week" => w}) do
-    {year, _} = y |> Integer.parse
-    {week, _} = w |> Integer.parse
-    generate_pairs(year, week)
-    conn
-      |> put_flash(:info, "Repairified")
-      |> redirect(to: pair_path(conn, :show, year, week))
+    if conn.assigns.current_user.is_admin do
+      {year, _} = y |> Integer.parse
+      {week, _} = w |> Integer.parse
+      generate_pairs(year, week)
+      conn
+        |> put_flash(:info, "Repairified")
+        |> redirect(to: pair_path(conn, :show, year, week))
+    else
+      redirect_not_authorized(conn, pair_path(conn, :index))
+    end
   end
 
   defp fetch_or_gen(year, week) do
