@@ -24,8 +24,10 @@
 
 <%= if !past_week?(@year, @week) do %>
   <%= form_for @conn, pair_path(@conn, :delete, @year, @week), [as: :repairify, method: "delete"], fn _ -> %>
-    <div class="form-group">
-      <%= submit "Repairify", class: "btn btn-danger" %>
-    </div>
+    <%= if @conn.assigns.current_user.is_admin do %>
+      <div class="form-group">
+        <%= submit "Repairify", class: "btn btn-danger" %>
+      </div>
+    <% end %>
   <% end %>
 <%= end %>
