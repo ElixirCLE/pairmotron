@@ -61,18 +61,10 @@ defmodule Pairmotron.PairController do
       |> order_by(:id)
       |> Repo.all
 
-    pair_ids = fetch_pairs(year, week)
-      |> Enum.map(fn(p) -> p.id end)
+    pairs = fetch_pairs(year, week)
+      |> Repo.preload(:users)
 
-    query = from up in UserPair,
-            select: up,
-            where: up.pair_id in ^pair_ids,
-            preload: [:pair, :user]
-
-    user_pairs = query
-      |> Repo.all
-
-    determination = PairBuilder.determify(user_pairs, users)
+    determination = PairBuilder.determify(pairs, users)
 
     determination.dead_pairs
       |> Enum.map(fn(p) -> Repo.delete! p end)
