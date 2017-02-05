@@ -14,7 +14,7 @@ defmodule Pairmotron.Plug.RequireAdmin do
   def require_admin(%{is_admin: true}, conn), do: conn
   def require_admin(_, conn) do
     conn
-    |> Phoenix.Controller.redirect(to: Routes.pair_path(conn, :index))
+    |> Phoenix.Controller.redirect(to: Routes.profile_path(conn, :show))
     |> halt
   end
 end

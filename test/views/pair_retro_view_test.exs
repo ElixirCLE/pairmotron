@@ -12,6 +12,6 @@ defmodule Pairmotron.PairRetroViewTest do
     project = insert(:project)
     conn = Plug.Conn.assign(conn, :projects, [project])
     expected_projects = ["#{project.name}": project.id]
-    assert PairRetroView.projects_for_select(conn) == expected_projects 
+    assert PairRetroView.projects_for_select(conn) == expected_projects
   end
 end

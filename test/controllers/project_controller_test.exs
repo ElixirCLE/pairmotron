@@ -2,7 +2,7 @@ defmodule Pairmotron.ProjectControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.Project
-  import Pairmotron.TestHelper, only: [log_in: 2, create_pair: 1, create_retro: 3]
+  import Pairmotron.TestHelper, only: [log_in: 2, create_retro: 3]
 
   @valid_attrs %{description: "some content", name: "some content", url: "http://example.org"}
   @invalid_attrs %{url: "nothing"}
@@ -15,8 +15,9 @@ defmodule Pairmotron.ProjectControllerTest do
   describe "while authenticated" do
     setup do
       user = insert(:user)
+      group = insert(:group, %{owner: user})
       conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      {:ok, [conn: conn, logged_in_user: user, group: group]}
     end
 
     test "lists all entries on index", %{conn: conn} do
@@ -94,10 +95,10 @@ defmodule Pairmotron.ProjectControllerTest do
     end
 
     test "shows project if user has created a retro associated with project and project not associated with group",
-      %{conn: conn, logged_in_user: user} do
-      project = insert(:project)                  # project not associated with any group
-      pair = create_pair([user])                  # pair the user is in
-      create_retro(user, pair, project)           # that has a retrospective using that project
+      %{conn: conn, logged_in_user: user, group: group} do
+      project = insert(:project)                                 # project not associated with any group
+      pair = Pairmotron.TestHelper.create_pair([user], group)    # pair the user is in
+      create_retro(user, pair, project)                          # that has a retrospective using that project
       conn = get conn, project_path(conn, :show, project)
       assert html_response(conn, 200) =~ "Show project"
     end
@@ -109,11 +110,11 @@ defmodule Pairmotron.ProjectControllerTest do
     end
 
     test "does not show project if user has created a project retro and project is associated with group user is not in",
-      %{conn: conn, logged_in_user: user} do
-      group = insert(:group)                      # group user is not in
-      project = insert(:project, %{group: group}) # project associated with that group
-      pair = create_pair([user])                  # pair the user is in
-      create_retro(user, pair, project)           # that has a retrospective using that project
+      %{conn: conn, logged_in_user: user, group: users_group} do
+      group = insert(:group)                                             # group user is not in
+      project = insert(:project, %{group: group})                        # project associated with that group
+      pair = Pairmotron.TestHelper.create_pair([user], users_group)      # pair the user is in
+      create_retro(user, pair, project)                                  # that has a retrospective using that project
       conn = get conn, project_path(conn, :show, project)
       assert redirected_to(conn) == project_path(conn, :index)
     end
@@ -228,10 +229,9 @@ defmodule Pairmotron.ProjectControllerTest do
       assert Repo.get(Project, project.id)
     end
 
-    test "can delete project when a retro references it", %{conn: conn, logged_in_user: user} do
-      group = insert(:group, %{owner: user, users: [user]})
+    test "can delete project when a retro references it", %{conn: conn, logged_in_user: user, group: group} do
       project = insert(:project, %{group: group})
-      pair = create_pair([user])
+      pair = Pairmotron.TestHelper.create_pair([user], group)
       create_retro(user, pair, project)
       conn = delete conn, project_path(conn, :delete, project)
       assert redirected_to(conn) == project_path(conn, :index)

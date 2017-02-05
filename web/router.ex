@@ -45,18 +45,18 @@ defmodule Pairmotron.Router do
   scope "/", Pairmotron do
     pipe_through [:browser, :authenticate] # Use the default browser stack
 
-    get "/pairs", PairController, :index
     get "/profile", ProfileController, :show
     get "/profile/edit", ProfileController, :edit
     put "/profile/update/:id", ProfileController, :update
     resources "/projects", ProjectController
+
     resources "/groups", GroupController
+    get "/groups/:group_id/pairs", PairController, :index
+    get "/groups/:group_id/pairs/:year/:week", PairController, :show
+    delete "/groups/:group_id/pairs/:year/:week", PairController, :delete
 
     get "/pair_retros/new/:pair_id", PairRetroController, :new
     resources "/pair_retros", PairRetroController, except: [:new]
-
-    get "/pairs/:year/:week", PairController, :show
-    delete "/pairs/:year/:week", PairController, :delete
   end
 
 end

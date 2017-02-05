@@ -17,13 +17,13 @@ defmodule Pairmotron.TestHelper do
     |> Phoenix.ConnTest.recycle()
   end
 
-  def create_pair(users) do
+  def create_pair(users, group) do
     {year, week} = Timex.iso_week(Timex.today)
-    create_pair(users, year, week)
+    create_pair(users, group, year, week)
   end
 
-  def create_pair(users, year, week) do
-    pair_changeset = Pair.changeset(%Pair{}, %{year: year, week: week})
+  def create_pair(users, group, year, week) do
+    pair_changeset = Pair.changeset(%Pair{}, %{year: year, week: week, group_id: group.id})
     pair = Pairmotron.Repo.insert!(pair_changeset)
     users
     |> Enum.map(&(UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: &1.id})))
@@ -55,8 +55,8 @@ defmodule Pairmotron.TestHelper do
     Repo.insert!(retro_changeset)
   end
 
-  def create_pair_and_retro(user) do
-    pair = create_pair([user])
+  def create_pair_and_retro(user, group) do
+    pair = create_pair([user], group)
     retro = create_retro(user, pair)
     {pair, retro}
   end

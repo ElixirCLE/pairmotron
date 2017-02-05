@@ -2,56 +2,59 @@ defmodule Pairmotron.PairController do
   use Pairmotron.Web, :controller
 
   import Pairmotron.ControllerHelpers
-  alias Pairmotron.{Pair, PairRetro, User, UserPair, Mixer, Pairer, PairBuilder}
+  alias Pairmotron.{Group, Pair, PairRetro, UserPair, Mixer, Pairer, PairBuilder}
 
-  def index(conn, _params) do
+  def index(conn, %{"group_id" => g}) do
     {year, week} = Timex.iso_week(Timex.today)
-    pairs = fetch_or_gen(year, week)
+    {group_id, _} = g |> Integer.parse
+    pairs = fetch_or_gen(year, week, group_id)
     conn = assign_current_user_pair_retro_for_week(conn, year, week)
-    render conn, "index.html", pairs: pairs, year: year, week: week
+    render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
   end
 
-  def show(conn, %{"year" => y, "week" => w}) do
+  def show(conn, %{"year" => y, "week" => w, "group_id" => g}) do
     {year, _} = y |> Integer.parse
     {week, _} = w |> Integer.parse
-    pairs = fetch_or_gen(year, week)
+    {group_id, _} = g |> Integer.parse
+    pairs = fetch_or_gen(year, week, group_id)
     conn = assign_current_user_pair_retro_for_week(conn, year, week)
-    render conn, "index.html", pairs: pairs, year: year, week: week
+    render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
   end
 
-  def delete(conn, %{"year" => y, "week" => w}) do
+  def delete(conn, %{"year" => y, "week" => w, "group_id" => g}) do
     if conn.assigns.current_user.is_admin do
       {year, _} = y |> Integer.parse
       {week, _} = w |> Integer.parse
-      generate_pairs(year, week)
+      {group_id, _} = g |> Integer.parse
+      generate_pairs(year, week, group_id)
       conn
         |> put_flash(:info, "Repairified")
-        |> redirect(to: pair_path(conn, :show, year, week))
+        |> redirect(to: pair_path(conn, :show, group_id, year, week))
     else
-      redirect_not_authorized(conn, pair_path(conn, :index))
+      redirect_not_authorized(conn, profile_path(conn, :show))
     end
   end
 
-  defp fetch_or_gen(year, week) do
-    case fetch_pairs(year, week) do
-      []    -> generate_and_fetch_if_current_week(year, week)
+  defp fetch_or_gen(year, week, group_id) do
+    case fetch_pairs(year, week, group_id) do
+      []    -> generate_and_fetch_if_current_week(year, week, group_id)
       pairs -> pairs
     end
       |> fetch_users_from_pairs
   end
 
-  defp generate_and_fetch_if_current_week(year, week) do
+  defp generate_and_fetch_if_current_week(year, week, group_id) do
     case Pairmotron.Calendar.same_week?(year, week, Timex.today) do
       true ->
-        generate_pairs(year, week)
-        fetch_pairs(year, week)
+        generate_pairs(year, week, group_id)
+        fetch_pairs(year, week, group_id)
       false -> []
     end
   end
 
-  defp fetch_pairs(year, week) do
+  defp fetch_pairs(year, week, group_id) do
     Pair
-      |> where(year: ^year, week: ^week)
+      |> where(year: ^year, week: ^week, group_id: ^group_id)
       |> order_by(:id)
       |> Repo.all
   end
@@ -61,12 +64,18 @@ defmodule Pairmotron.PairController do
       |> Repo.preload([:users])
   end
 
-  defp generate_pairs(year, week) do
-    users = User.active_users
-      |> order_by(:id)
-      |> Repo.all
+  defp generate_pairs(year, week, group_id) do
+    group = Group
+      |> select([g], g)
+      |> where([g], g.id == ^group_id)
+      |> preload(:users)
+      |> Repo.one
 
-    pairs = fetch_pairs(year, week)
+    users = group.users
+      |> Enum.filter(fn(u) -> u.active end)
+      |> Enum.sort
+
+    pairs = fetch_pairs(year, week, group_id)
       |> Repo.preload(:users)
 
     determination = PairBuilder.determify(pairs, users)
@@ -83,7 +92,7 @@ defmodule Pairmotron.PairController do
       |> Pairer.generate_pairs(pairs)
 
     results.pairs
-      |> Enum.map(fn(users) -> make_pairs(users, year, week) end)
+      |> Enum.map(fn(users) -> make_pairs(users, year, week, group_id) end)
       |> List.flatten
       |> Enum.map(fn(p) -> Repo.insert! p end)
 
@@ -95,8 +104,8 @@ defmodule Pairmotron.PairController do
     Repo.insert! user_pair
   end
 
-  defp make_pairs(users, year, week) do
-    pair = Repo.insert! Pair.changeset(%Pair{}, %{year: year, week: week})
+  defp make_pairs(users, year, week, group_id) do
+    pair = Repo.insert! Pair.changeset(%Pair{}, %{year: year, week: week, group_id: group_id})
     users
       |> Enum.map(fn(user) -> UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: user.id}) end)
   end
