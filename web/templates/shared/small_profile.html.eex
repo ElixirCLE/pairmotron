@@ -1,12 +1,18 @@
-<div class="col-md-4 col-sm-6 col-xs-6">
+<div class="col-md-4 col-sm-4 col-xs-6">
   <%= if @current_user == @user do %>
     <div class="panel panel-danger">
   <%= else %>
     <div class="panel panel-default">
   <%= end %>
     <div class="panel-body">
-      <img class="img-circle center-block" src="<%= Gravatar.url(@user.email) %>" alt="<%= @user.name %>" height="80" width="80">
-      <p class="text-center list-group-item-heading"><%= @user.name %></p>
+      <div class="media vertical-center">
+        <div class="media-left">
+          <img class="img-circle media-object" src="<%= Gravatar.url(@user.email) %>" alt="<%= @user.name %>" height="60" width="60">
+        </div>
+        <div class="media-body">
+          <p class="text-center list-group-item-heading"><%= @user.name %></p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

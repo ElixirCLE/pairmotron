@@ -1,22 +1,26 @@
 <h2>Pairs for week <%= @week %> of <%= @year %></h2>
-<ul class="list-group">
-  <%= for pair <- @pairs do %>
-    <li class="list-group-item">
-      <div class="row">
-        <%= for user <- pair.users do %>
-          <%= render Pairmotron.SharedView, "small_profile.html", user: user, current_user: @conn.assigns[:current_user] %>
-        <% end %>
-      </div>
-      <%= if current_user_in_pair(@conn, pair) do %>
-        <%= if is_nil(user_retro(@conn)) do %>
-          <a href="<%= pair_retro_path(@conn, :new, pair.id) %>">Create Retrospective</a>
-        <%= else %>
-          <a href="<%= pair_retro_path(@conn, :edit, user_retro(@conn).id) %>">Retrospective</a>
-        <%= end %>
-      <%= end %>
-    </li>
-  <% end %>
-</ul>
+<div class="row">
+  <div class="col-md-8 col-sm-12 col-xs-12">
+    <ul class="list-group">
+      <%= for pair <- @pairs do %>
+        <li class="list-group-item">
+          <div class="row">
+            <%= for user <- pair.users do %>
+              <%= render Pairmotron.SharedView, "small_profile.html", user: user, current_user: @conn.assigns[:current_user] %>
+            <% end %>
+          </div>
+          <%= if current_user_in_pair(@conn, pair) do %>
+            <%= if is_nil(user_retro(@conn)) do %>
+              <a href="<%= pair_retro_path(@conn, :new, pair.id) %>">Create Retrospective</a>
+            <%= else %>
+              <a href="<%= pair_retro_path(@conn, :edit, user_retro(@conn).id) %>">Retrospective</a>
+            <%= end %>
+          <%= end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
 
 <%= if !past_week?(@year, @week) do %>
   <%= form_for @conn, pair_path(@conn, :delete, @year, @week), [as: :repairify, method: "delete"], fn _ -> %>

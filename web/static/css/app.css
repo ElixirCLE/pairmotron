@@ -2,3 +2,8 @@
 a.padded-link {
   padding-right: 5px;
 }
+
+.vertical-center {
+  display: flex;
+  align-items: center;
+}
