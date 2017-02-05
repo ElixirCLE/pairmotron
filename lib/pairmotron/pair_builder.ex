@@ -1,4 +1,14 @@
 defmodule Determination do
+  @moduledoc """
+  Provides all the results of the PairBuilder.
+
+  dead_pairs will be a list of %Pair{}s indicating safe-to-delete pairs.
+  remaining_pairs will be a list of %Pair{}s that are not safe-to-delete.
+    The expectation is that is list will be further filtered and used in determining how to build
+    pairs from the available users.
+  available_users will be a list of %User{}s that should go through the pairing process.
+    These are users that are not in a remaining pair but should be placed in a pair.
+  """
   defstruct dead_pairs: [], remaining_pairs: [], available_users: []
 end
 

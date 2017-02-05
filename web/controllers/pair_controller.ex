@@ -70,8 +70,8 @@ defmodule Pairmotron.PairController do
       |> Enum.map(fn(p) -> Repo.delete! p end)
 
     pairs = determination.remaining_pairs
-      |> Repo.preload([:users, :pair_retros])
-      |> Enum.filter(fn(p) -> length(p.pair_retros) == 0 end)
+      |> Repo.preload(:pair_retros)
+      |> Enum.filter(&(Enum.empty?(&1.pair_retros)))
 
     results = determination.available_users
       |> Mixer.mixify(week)
