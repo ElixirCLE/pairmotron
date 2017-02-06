@@ -16,7 +16,7 @@ defmodule Pairmotron.RegistrationController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "Successfully registered and logged in")
-        |> put_session(:current_user_id, user.id)
+        |> Guardian.Plug.sign_in(user)
         |> redirect(to: pair_path(conn, :index))
       {:error, changeset} ->
         render conn, "new.html", changeset: changeset
