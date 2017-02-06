@@ -49,4 +49,8 @@ defmodule Pairmotron.Factory do
       users: []
     }
   end
+
+  def group_membership_request_factory do
+    %Pairmotron.GroupMembershipRequest{}
+  end
 end

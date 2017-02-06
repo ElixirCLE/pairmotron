@@ -13,6 +13,7 @@ defmodule Pairmotron.User do
 
     has_many :pair_retros, Pairmotron.PairRetro
     many_to_many :groups, Pairmotron.Group, join_through: "users_groups"
+    has_many :group_membership_requests, Pairmotron.GroupMembershipRequest
 
     timestamps()
   end
