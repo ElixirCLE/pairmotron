@@ -1,46 +1,48 @@
-<h2>User Profile</h2>
+<div class="row">
+  <div class="col-md-5 col-sm-12">
+    <div class="panel-default panel">
+      <div class="panel-body">
+        <div class="media">
+          <div class="media-left">
+            <img class="img-circle" src="<%= Gravatar.url(@user.email) %>" alt="<%= @user.name %>" height="140" width="140">
+          </div>
+          <div class="media-body">
+            <h2><%= @user.name %></h2>
+            <p><%= @user.email %><p>
+            <p>
+              <%= if @user.active do %>
+                active
+              <%= else %>
+                inactive
+              <%= end %>
+            <p>
+          </div>
+        </div>
+      </div>
+            <div class="panel-footer"><%= link "Edit", to: profile_path(@conn, :edit), class: "padded-link" %></div>
+    </div>
+  </div>
+  <div class="col-md-7 col-sm-12">
+    <h3>Groups</h3>
+    <table class="table">
+      <tbody>
+        <%= for group <- @user.groups do %>
+          <tr>
+            <td>
+              <a href=<%= group_path(@conn, :show, group)%>>
+                <%= group.name %>
+              </a>
+            </td>
+            <td>
+              <%= if group.owner_id == @user.id do %>
+                <a href=<%= group_path(@conn, :edit, group)%>>Manage</a>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-<ul>
-  <li>
-    <strong>Name:</strong>
-    <%= @user.name %>
-  </li>
 
-  <li>
-    <strong>Email:</strong>
-    <%= @user.email %>
-  </li>
-
-  <li>
-    <strong>Active:</strong>
-    <%= @user.active %>
-  </li>
-</ul>
-
-<h3>Groups</h3>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Group Name</th>
-      <th/>
-    </tr>
-  </thead>
-  <tbody>
-    <%= for group <- @user.groups do %>
-      <tr>
-        <td>
-          <a href=<%= group_path(@conn, :show, group)%>>
-            <%= group.name %>
-          </a>
-        </td>
-        <td>
-          <%= if group.owner_id == @user.id do %>
-            <a href=<%= group_path(@conn, :edit, group)%>>Manage</a>
-          <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<%= link "Edit", to: profile_path(@conn, :edit), class: "padded-link" %>
