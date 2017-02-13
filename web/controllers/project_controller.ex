@@ -27,8 +27,10 @@ defmodule Pairmotron.ProjectController do
   end
 
   def create(conn, %{"project" => project_params}) do
-    groups = Group.groups_for_user(conn.assigns.current_user)
-             |> Repo.all
+    current_user = conn.assigns.current_user
+
+    groups = Group.groups_for_user(current_user) |> Repo.all
+    project_params = project_params |> Map.put("created_by_id", current_user.id)
     changeset = Project.changeset_for_create(%Project{}, project_params, groups)
 
     case Repo.insert(changeset) do

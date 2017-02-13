@@ -26,8 +26,13 @@ defimpl Canada.Can, for: Pairmotron.User do
 
   def can?(%User{id: user_id}, action, project = %Project{})
     when action in [:edit, :update, :delete] do
-    project = project |> Pairmotron.Repo.preload(:group)
-    project.group.owner_id == user_id
+    project = project |> Pairmotron.Repo.preload([{:group, :users}])
+    cond do
+      project.group.owner_id == user_id -> true
+      !Enum.any?(project.group.users, &(&1.id == user_id)) -> false
+      project.created_by_id == user_id -> true
+      true -> false
+    end
   end
 
   def can?(%User{}, _, _), do: false
