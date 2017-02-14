@@ -11,7 +11,7 @@ defmodule Pairmotron.Plug.RequireAdminTest do
     end
     test "redirects when user is not an admin ", %{conn: conn, logged_in_user: user} do
       conn = conn |> Pairmotron.Plug.RequireAdmin.call(user)
-      assert redirected_to(conn) == "/profile"
+      assert redirected_to(conn) == "/pairs"
     end
   end
 

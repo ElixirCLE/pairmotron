@@ -12,14 +12,14 @@ defmodule Pairmotron.SessionControllerTest do
   test "redirects to /pairs when user is logged in", %{conn: conn} do
     conn = conn |> guardian_log_in(insert(:user))
     conn = get conn, session_path(conn, :new)
-    assert redirected_to(conn) == profile_path(conn, :show)
+    assert redirected_to(conn) == pair_path(conn, :index)
   end
 
   test "logging in with proper credentials redirects to /pairs", %{conn: conn} do
     %User{email: user_email, password: user_pw} = insert(:user_with_password)
     params = %{"user" => %{email: user_email, password: user_pw}}
     conn = post conn, session_path(conn, :create), params
-    assert redirected_to(conn) == profile_path(conn, :show)
+    assert redirected_to(conn) == pair_path(conn, :index)
   end
 
   test "logging in with no email fails with error message", %{conn: conn} do

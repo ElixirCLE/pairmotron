@@ -41,5 +41,5 @@
   </tbody>
 </table>
 
-<%= link "Back", to: profile_path(@conn, :show), class: "padded-link" %>
+<%= link "Back", to: pair_path(@conn, :index), class: "padded-link" %>
 <%= link "New project", to: project_path(@conn, :new) %>
