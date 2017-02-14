@@ -26,6 +26,7 @@
         </div>
         <div class="collapse navbar-collapse" id="navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
+            <li><%= link "Pairs", to: pair_path(@conn, :index) %></li>
             <li><%= link "Groups", to: group_path(@conn, :index) %></li>
             <li><%= link "Projects", to: project_path(@conn, :index) %></li>
             <li><%= link "My Retros", to: pair_retro_path(@conn, :index) %></li>

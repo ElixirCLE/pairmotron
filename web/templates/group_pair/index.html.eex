@@ -1,0 +1,20 @@
+<h2>Pairs for week <%= @week %> of <%= @year %></h2>
+<div class="row">
+  <div class="col-md-8 col-sm-12 col-xs-12">
+    <ul class="list-group">
+      <%= for pair <- @pairs do %>
+        <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<%= if !past_week?(@year, @week) do %>
+  <%= form_for @conn, group_pair_path(@conn, :delete, @group_id, @year, @week), [as: :repairify, method: "delete"], fn _ -> %>
+    <%= if @conn.assigns.current_user.is_admin do %>
+      <div class="form-group">
+        <%= submit "Repairify", class: "btn btn-danger" %>
+      </div>
+    <% end %>
+  <% end %>
+<%= end %>
