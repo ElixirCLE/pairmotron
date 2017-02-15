@@ -17,5 +17,6 @@ defmodule Pairmotron.UserGroup do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
+    |> unique_constraint(:user_id_group_id, [:user_id, :group_id])
   end
 end

@@ -20,5 +20,6 @@ defmodule Pairmotron.GroupMembershipRequest do
     |> cast(params, @required_params, @optional_params)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:group_id)
+    |> unique_constraint(:user_id_group_id, [:user_id, :group_id])
   end
 end
