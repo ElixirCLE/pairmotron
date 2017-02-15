@@ -53,10 +53,10 @@ defmodule Pairmotron.Router do
     get "/pairs", PairController, :index
     get "/pairs/:year/:week", PairController, :show
 
-    resources "/groups", GroupController
-    get "/groups/:group_id/pairs", GroupPairController, :index
-    get "/groups/:group_id/pairs/:year/:week", GroupPairController, :show
+    get "/groups/:id/pairs", GroupPairController, :show
+    get "/groups/:id/pairs/:year/:week", GroupPairController, :show
     delete "/groups/:group_id/pairs/:year/:week", GroupPairController, :delete
+    resources "/groups", GroupController
 
     get "/pair_retros/new/:pair_id", PairRetroController, :new
     resources "/pair_retros", PairRetroController, except: [:new]

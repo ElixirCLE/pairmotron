@@ -2,23 +2,30 @@ defmodule Pairmotron.GroupPairController do
   use Pairmotron.Web, :controller
 
   import Pairmotron.ControllerHelpers
-  alias Pairmotron.PairMaker
+  alias Pairmotron.{PairMaker, Group}
 
-  def index(conn, %{"group_id" => g}) do
-    {year, week} = Timex.iso_week(Timex.today)
-    {group_id, _} = g |> Integer.parse
-    pairs = PairMaker.fetch_or_gen(year, week, group_id)
-    conn = assign_current_user_pair_retro_for_week(conn, year, week)
-    render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
-  end
+  plug :load_and_authorize_resource, model: Group, only: [:index, :show]
 
-  def show(conn, %{"year" => y, "week" => w, "group_id" => g}) do
+  def show(conn = @authorized_conn, %{"year" => y, "week" => w, "id" => g}) do
     {year, _} = y |> Integer.parse
     {week, _} = w |> Integer.parse
     {group_id, _} = g |> Integer.parse
     pairs = PairMaker.fetch_or_gen(year, week, group_id)
     conn = assign_current_user_pair_retro_for_week(conn, year, week)
     render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
+  end
+  def show(conn = @authorized_conn, %{"id" => g}) do
+    {year, week} = Timex.iso_week(Timex.today)
+    {group_id, _} = g |> Integer.parse
+    pairs = PairMaker.fetch_or_gen(year, week, group_id)
+    conn = assign_current_user_pair_retro_for_week(conn, year, week)
+    render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
+  end
+  def show(conn, %{"id" => _, "year" => y, "week" => w}) do
+    redirect_not_authorized(conn, pair_path(conn, :show, y, w))
+  end
+  def show(conn, %{"id" => _}) do
+    redirect_not_authorized(conn, pair_path(conn, :index))
   end
 
   def delete(conn, %{"year" => y, "week" => w, "group_id" => g}) do

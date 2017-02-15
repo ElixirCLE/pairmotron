@@ -9,7 +9,14 @@ defimpl Canada.Can, for: Pairmotron.User do
   def can?(%User{id: user_id}, action, %Group{owner_id: user_id})
     when action in [:edit, :update, :delete], do: true
 
-  def can?(%User{id: user_id}, :show, project = %Project{group_id: nil}) do
+  def can?(user = %User{}, :show, group = %Group{}) do
+    group = group |> Pairmotron.Repo.preload(:users)
+    group.users
+      |> Enum.any?(fn guser -> guser.id == user.id end)
+  end
+
+  def can?(%User{id: user_id}, action, project = %Project{group_id: nil})
+    when action in [:show, :index] do
     project = project |> Pairmotron.Repo.preload([{:pair_retros, :user}])
     project.pair_retros
     |> Enum.any?(fn retro -> retro.user.id == user_id end)

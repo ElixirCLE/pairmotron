@@ -23,8 +23,7 @@ defmodule Pairmotron.GroupPairControllerTest do
       conn = get(conn, "/groups/#{group.id}/pairs")
       refute html_response(conn, 200) =~ user.name
     end
-
-    test "pairs two users together", %{conn: conn, logged_in_user: user1} do
+test "pairs two users together", %{conn: conn, logged_in_user: user1} do
       user2 = insert(:user)
       group = insert(:group, %{users: [user1, user2]})
       conn = get(conn, "/groups/#{group.id}/pairs")
@@ -132,5 +131,27 @@ defmodule Pairmotron.GroupPairControllerTest do
       delete conn, group_pair_path(conn, :delete, group.id, year, week)
       assert Repo.get(Pair, pair.id)
     end
+  end
+
+  describe "while authenticated as a non-group user" do
+    setup do
+      user = insert(:user)
+      user2 = insert(:user)
+      group = insert(:group, %{owner: user2})
+      Pairmotron.TestHelper.create_pair([user2], group)
+      conn = build_conn() |> log_in(user)
+      {:ok, [conn: conn, logged_in_user: user, group: group]}
+    end
+
+    test "cannot access group pairs", %{conn: conn, group: group} do
+      conn = get conn, group_pair_path(conn, :show, group.id)
+      assert redirected_to(conn) == pair_path(conn, :index)
+    end
+
+    test "cannot access group pairs for a specific period", %{conn: conn, group: group} do
+      conn = get conn, group_pair_path(conn, :show, group.id, 2000, 1)
+      assert redirected_to(conn) == pair_path(conn, :show, 2000, 1)
+    end
+
   end
 end

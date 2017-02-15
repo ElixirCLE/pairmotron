@@ -34,7 +34,7 @@
               </a>
             </td>
             <td>
-              <a href=<%= group_pair_path(@conn, :index, group)%>>
+              <a href=<%= group_pair_path(@conn, :show, group)%>>
                 Pairs
               </a>
             </td>
