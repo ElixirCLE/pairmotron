@@ -44,14 +44,18 @@ defmodule Pairmotron.PairControllerTest do
       assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
 
-    test "displays each of the user's groups' pairs", %{conn: conn, logged_in_user: user, group: group} do
+    test "displays each of the user's groups' pairs (only the pairs including the user)", %{conn: conn, logged_in_user: user, group: group} do
       {year, week} = Timex.iso_week(Timex.today)
-      group2 = insert(:group, %{owner: user, users: [user]})
+      user2 = insert(:user)
+      user3 = insert(:user)
+      group2 = insert(:group, %{owner: user, users: [user, user2, user3]})
       Pairmotron.TestHelper.create_pair([user], group, year, week)
-      Pairmotron.TestHelper.create_pair([user], group2, year, week)
+      Pairmotron.TestHelper.create_pair([user, user2], group2, year, week)
+      Pairmotron.TestHelper.create_pair([user3], group2, year, week)
       conn = get conn, pair_path(conn, :index)
       assert html_response(conn, 200) =~ group.name
       assert html_response(conn, 200) =~ group2.name
+      refute html_response(conn, 200) =~ user3.name
     end
   end
 end

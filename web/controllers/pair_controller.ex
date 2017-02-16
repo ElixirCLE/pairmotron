@@ -27,7 +27,10 @@ defmodule Pairmotron.PairController do
     pairs = user.groups
       |> Enum.map(fn(g) ->
         PairMaker.fetch_or_gen(year, week, g.id)
-          |> Enum.filter(fn(p) -> !Enum.member?(p.users, user) end)
+          |> Enum.filter(fn(p) ->
+               member_ids = p.users |> Enum.map(&(&1.id))
+               Enum.member?(member_ids, user.id)
+             end)
       end)
     Enum.zip(user.groups, pairs)
   end
