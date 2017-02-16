@@ -38,7 +38,7 @@ defmodule Pairmotron.GroupPairController do
         |> put_flash(:info, "Repairified")
         |> redirect(to: group_pair_path(conn, :show, group_id, year, week))
     else
-      redirect_not_authorized(conn, profile_path(conn, :show))
+      redirect_not_authorized(conn, group_pair_path(conn, :show, g, y, w))
     end
   end
 end

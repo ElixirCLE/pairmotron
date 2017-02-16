@@ -44,19 +44,6 @@ defmodule Pairmotron.PairControllerTest do
       assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
 
-    test "does not re-pair after the first pair has been made", %{conn: conn, logged_in_user: user, group: group} do
-      Pairmotron.TestHelper.create_pair([user], group)
-      new_user = insert(:user)
-      conn = get(conn, "/pairs")
-      assert html_response(conn, 200) =~ user.name
-      refute html_response(conn, 200) =~ new_user.name
-    end
-
-    test "does not pairify for a week that is not current", %{conn: conn, logged_in_user: user} do
-      conn = get conn, pair_path(conn, :show, 1999, 1)
-      refute html_response(conn, 200) =~ user.name
-    end
-
     test "displays each of the user's groups' pairs", %{conn: conn, logged_in_user: user, group: group} do
       {year, week} = Timex.iso_week(Timex.today)
       group2 = insert(:group, %{owner: user, users: [user]})
