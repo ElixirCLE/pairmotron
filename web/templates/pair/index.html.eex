@@ -1,11 +1,14 @@
 <h2>Pairs for week <%= @week %> of <%= @year %></h2>
-<ul class="list-group">
+<div class="row">
+  <div class="col-md-8 col-sm-12 col-xs-12">
+    <ul class="list-group">
 
-  <%= for {group, pairs} <- @groups_and_pairs do %>
-    <h3><%= link group.name, to: group_pair_path(@conn, :show, group.id, @year, @week) %></h3>
-    <%= for pair <- pairs do %>
-      <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
-    <% end %>
-  <% end %>
-</ul>
-
+      <%= for {group, pairs} <- @groups_and_pairs do %>
+        <h3><%= link group.name, to: group_pair_path(@conn, :show, group.id, @year, @week) %></h3>
+        <%= for pair <- pairs do %>
+          <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
+        <% end %>
+      <% end %>
+    </ul>
+  </div>
+</div>
