@@ -6,6 +6,7 @@ defmodule Pairmotron.Group do
     belongs_to :owner, Pairmotron.User
     many_to_many :users, Pairmotron.User, join_through: Pairmotron.UserGroup
     has_many :projects, Pairmotron.Project
+    has_many :group_membership_requests, Pairmotron.GroupMembershipRequest
 
     timestamps()
   end

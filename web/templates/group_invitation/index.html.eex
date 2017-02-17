@@ -1,0 +1,32 @@
+<h2>Listing Group Invitations</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Type</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for group_membership_request <- @group_membership_requests do %>
+      <tr>
+        <td>
+          <%= group_membership_request.user.name %>
+        </td>
+        <%= if group_membership_request.initiated_by_user do %>
+          <td>User Requested</td>
+          <td>
+            <%= link "Accept Membership Request", to: group_invitation_path(@conn, :update, group_membership_request, group_membership_request.group_id) %>
+          </td>
+        <%= else %>
+          <td>Invited by Group</td>
+          <td>Awaiting Response</td>
+        <%= end %>
+      </tr>
+    <%= end %>
+  </tbody>
+</table>
+<%= if Enum.empty?(@group_membership_requests) do %>
+  There are no active invitations for this group at this time
+<%= end %>
