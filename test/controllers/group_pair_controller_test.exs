@@ -100,8 +100,9 @@ defmodule Pairmotron.GroupPairControllerTest do
     end
 
     test "cannot access group pairs", %{conn: conn, group: group} do
+      {year, week} = Timex.iso_week(Timex.today)
       conn = get conn, group_pair_path(conn, :show, group.id)
-      assert redirected_to(conn) == pair_path(conn, :index)
+      assert redirected_to(conn) == pair_path(conn, :show, year, week)
     end
 
     test "cannot access group pairs for a specific period", %{conn: conn, group: group} do

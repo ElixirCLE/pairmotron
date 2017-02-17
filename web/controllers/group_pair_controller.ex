@@ -4,28 +4,23 @@ defmodule Pairmotron.GroupPairController do
   import Pairmotron.ControllerHelpers
   alias Pairmotron.{PairMaker, Group}
 
-  plug :load_and_authorize_resource, model: Group, only: [:index, :show]
-
-  def show(conn = @authorized_conn, %{"year" => y, "week" => w, "id" => g}) do
+  def show(conn, %{"year" => y, "week" => w, "id" => g}) do
     {year, _} = y |> Integer.parse
     {week, _} = w |> Integer.parse
     {group_id, _} = g |> Integer.parse
-    pairs = PairMaker.fetch_or_gen(year, week, group_id)
-    conn = assign_current_user_pair_retro_for_week(conn, year, week)
-    render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
+
+    group = Repo.get(Group, group_id)
+    if authorized?(group, conn.assigns.current_user) do
+      pairs = PairMaker.fetch_or_gen(year, week, group_id)
+      conn = assign_current_user_pair_retro_for_week(conn, year, week)
+      render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
+    else
+      redirect_not_authorized(conn, pair_path(conn, :show, y, w))
+    end
   end
-  def show(conn = @authorized_conn, %{"id" => g}) do
+  def show(conn, %{"id" => g}) do
     {year, week} = Timex.iso_week(Timex.today)
-    {group_id, _} = g |> Integer.parse
-    pairs = PairMaker.fetch_or_gen(year, week, group_id)
-    conn = assign_current_user_pair_retro_for_week(conn, year, week)
-    render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
-  end
-  def show(conn, %{"id" => _, "year" => y, "week" => w}) do
-    redirect_not_authorized(conn, pair_path(conn, :show, y, w))
-  end
-  def show(conn, %{"id" => _}) do
-    redirect_not_authorized(conn, pair_path(conn, :index))
+    show(conn, %{"id" => g, "year" => year |> Integer.to_string, "week" => week |> Integer.to_string})
   end
 
   def delete(conn, %{"year" => y, "week" => w, "group_id" => g}) do
@@ -40,5 +35,11 @@ defmodule Pairmotron.GroupPairController do
     else
       redirect_not_authorized(conn, group_pair_path(conn, :show, g, y, w))
     end
+  end
+
+  defp authorized?(group, user) do
+    group = group |> Pairmotron.Repo.preload(:users)
+    group.users
+      |> Enum.any?(fn guser -> guser.id == user.id end)
   end
 end
