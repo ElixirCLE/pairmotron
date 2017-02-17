@@ -34,6 +34,11 @@
               </a>
             </td>
             <td>
+              <a href=<%= group_pair_path(@conn, :show, group)%>>
+                Pairs
+              </a>
+            </td>
+            <td>
               <%= if group.owner_id == @user.id do %>
                 <a href=<%= group_path(@conn, :edit, group)%>>Manage</a>
               <% end %>
@@ -44,5 +49,3 @@
     </table>
   </div>
 </div>
-
-

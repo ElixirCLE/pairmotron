@@ -6,8 +6,9 @@ defmodule Pairmotron.Pair do
     field :week, :integer
     many_to_many :users, Pairmotron.User, join_through: "users_pairs"
     has_many :pair_retros, Pairmotron.PairRetro
+    belongs_to :group, Pairmotron.Group
 
-    @required_fields ~w(year week)
+    @required_fields ~w(year week group_id)
     @optional_fields ~w()
 
     timestamps()

@@ -2,7 +2,7 @@ defmodule Pairmotron.PairTest do
   use Pairmotron.ModelCase
   alias Pairmotron.Pair
 
-  @valid_attrs %{pair_group: 42, week: 42, year: 42}
+  @valid_attrs %{group_id: 42, week: 42, year: 42}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
