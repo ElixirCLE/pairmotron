@@ -55,7 +55,7 @@ defmodule Pairmotron.Router do
 
     get "/groups/:id/pairs", GroupPairController, :show
     get "/groups/:id/pairs/:year/:week", GroupPairController, :show
-    delete "/groups/:group_id/pairs/:year/:week", GroupPairController, :delete
+    delete "/groups/:id/pairs/:year/:week", GroupPairController, :delete
     resources "/groups", GroupController
 
     get "/pair_retros/new/:pair_id", PairRetroController, :new

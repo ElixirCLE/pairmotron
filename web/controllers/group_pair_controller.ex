@@ -23,7 +23,7 @@ defmodule Pairmotron.GroupPairController do
     show(conn, %{"id" => g, "year" => year |> Integer.to_string, "week" => week |> Integer.to_string})
   end
 
-  def delete(conn, %{"year" => y, "week" => w, "group_id" => g}) do
+  def delete(conn, %{"year" => y, "week" => w, "id" => g}) do
     if conn.assigns.current_user.is_admin do
       {year, _} = y |> Integer.parse
       {week, _} = w |> Integer.parse
