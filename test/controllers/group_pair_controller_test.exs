@@ -58,6 +58,7 @@ defmodule Pairmotron.GroupPairControllerTest do
     test "cannot repairfy because user is not admin", %{conn: conn, group: group} do
       {year, week} = Timex.iso_week(Timex.today)
       conn = delete conn, group_pair_path(conn, :delete, group.id, year, week)
+      refute Phoenix.Controller.get_flash(conn, :info) == "Repairified"
       assert redirected_to(conn) == group_pair_path(conn, :show, group.id, year, week)
     end
   end
@@ -73,6 +74,16 @@ defmodule Pairmotron.GroupPairControllerTest do
     test "can repairify", %{conn: conn, group: group} do
       {year, week} = Timex.iso_week(Timex.today)
       conn = delete conn, group_pair_path(conn, :delete, group.id, year, week)
+      assert Phoenix.Controller.get_flash(conn, :info) == "Repairified"
+      assert redirected_to(conn) == group_pair_path(conn, :show, group.id, year, week)
+    end
+
+    test "can repairify a non-member group", %{conn: conn} do
+      {year, week} = Timex.iso_week(Timex.today)
+      other_user = insert(:user)
+      group = insert(:group, %{owner: other_user, users: [other_user]})
+      conn = delete conn, group_pair_path(conn, :delete, group.id, year, week)
+      assert Phoenix.Controller.get_flash(conn, :info) == "Repairified"
       assert redirected_to(conn) == group_pair_path(conn, :show, group.id, year, week)
     end
 
