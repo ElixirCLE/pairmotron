@@ -12,6 +12,11 @@ defmodule Pairmotron.GroupPairControllerTest do
       {:ok, [conn: conn, logged_in_user: user, group: group]}
     end
 
+    test "lists the group's name on the page", %{conn: conn, group: group} do
+      conn = get(conn, "/groups/#{group.id}/pairs")
+      assert html_response(conn, 200) =~ group.name
+    end
+
     test "lists one active user", %{conn: conn, logged_in_user: user, group: group} do
       conn = get(conn, "/groups/#{group.id}/pairs")
       assert html_response(conn, 200) =~ user.name

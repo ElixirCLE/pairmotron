@@ -13,7 +13,7 @@ defmodule Pairmotron.GroupPairController do
     if authorized?(group, conn.assigns.current_user) do
       pairs = PairMaker.fetch_or_gen(year, week, group_id)
       conn = assign_current_user_pair_retro_for_week(conn, year, week)
-      render conn, "index.html", pairs: pairs, year: year, week: week, group_id: group_id
+      render conn, "index.html", pairs: pairs, year: year, week: week, group: group
     else
       redirect_not_authorized(conn, pair_path(conn, :show, y, w))
     end
