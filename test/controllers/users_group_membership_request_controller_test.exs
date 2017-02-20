@@ -81,12 +81,12 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
       refute Repo.get_by(GroupMembershipRequest, %{group_id: group.id, user_id: user.id, initiated_by_user: false})
     end
 
-    test "errors if a group_membership_request without group_id param", %{conn: conn, logged_in_user: user} do
+    test "errors without group_id param", %{conn: conn, logged_in_user: user} do
       post conn, users_group_membership_request_path(conn, :create), group_membership_request: %{}
       refute Repo.get_by(GroupMembershipRequest, %{user_id: user.id})
     end
 
-    test "errors if a group_membership_request if user is already in group", %{conn: conn, logged_in_user: user} do
+    test "errors if user is already in group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{users: [user]})
       attrs = %{group_id: group.id}
       post conn, users_group_membership_request_path(conn, :create), group_membership_request: attrs
@@ -98,7 +98,10 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
       attrs = %{group_id: group.id}
       insert(:group_membership_request, %{group_id: group.id, user_id: user.id, initiated_by_user: true})
       conn = post conn, users_group_membership_request_path(conn, :create), group_membership_request: attrs
+
       assert redirected_to(conn) == users_group_membership_request_path(conn, :index)
+      assert 1 = Repo.all(GroupMembershipRequest) |> length
+      assert %{private: %{phoenix_flash: %{"error" => _}}} = conn
     end
   end
 

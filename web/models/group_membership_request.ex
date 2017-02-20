@@ -3,7 +3,7 @@ defmodule Pairmotron.GroupMembershipRequest do
 
   alias Pairmotron.GroupMembershipRequest
 
-  schema "group_membership_request" do
+  schema "group_membership_requests" do
     field :initiated_by_user, :boolean
     belongs_to :user, Pairmotron.User
     belongs_to :group, Pairmotron.Group

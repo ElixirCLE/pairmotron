@@ -28,7 +28,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
         changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, final_params)
 
         case Repo.insert(changeset) do
-          {:ok, _project} ->
+          {:ok, _group_membership_request} ->
             conn
             |> put_flash(:info, "Sent request to join group successfully.")
             |> redirect(to: users_group_membership_request_path(conn, :index))
