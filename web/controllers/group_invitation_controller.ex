@@ -4,6 +4,8 @@ defmodule Pairmotron.GroupInvitationController do
   alias Pairmotron.{Group, GroupMembershipRequest, User, UserGroup}
   import Pairmotron.ControllerHelpers
 
+  plug :load_resource, model: GroupMembershipRequest, only: [:update]
+
   def index(conn, %{"group_id" => group_id}) do
     group = Repo.get(Group, group_id)
     if group do
@@ -54,13 +56,32 @@ defmodule Pairmotron.GroupInvitationController do
   end
 
   def update(conn, %{"group_membership_request" => _params}) do
-    conn
-  end
+    group_membership_request = conn.assigns.group_membership_request |> Repo.preload([:user, :group])
+    user = group_membership_request.user
+    group = group_membership_request.group
 
-  defp preloaded_group_or_nil(group_id) do
-    group = case Repo.get(Group, group_id) do
-      nil -> nil
-      group -> Repo.preload(group, :users)
+    cond do
+      group.owner_id != conn.assigns.current_user.id ->
+        redirect_and_flash_error(conn, "You are not authorized to accept invitations for this group", group.id)
+      group_membership_request.initiated_by_user == false ->
+        redirect_and_flash_error(conn, "Cannot accept invitation created by group", group.id)
+      true ->
+        user_group_changeset = UserGroup.changeset(%UserGroup{}, %{user_id: user.id, group_id: group.id})
+
+        transaction = update_transaction(group_membership_request, user_group_changeset)
+        case Repo.transaction(transaction) do
+          {:ok, _} ->
+            conn
+            |> put_flash(:info, "User successfully added to group")
+            |> redirect(to: group_invitation_path(conn, :index, group.id))
+          {:error, :group_membership_request, _, _} ->
+            redirect_and_flash_error(conn, "Error removing invitation", group.id)
+          {:error, :user_group, %{errors: [user_id_group_id: _]}, _} ->
+            Repo.delete!(group_membership_request)
+            redirect_and_flash_error(conn, "User is already in group!", group.id)
+          {:error, :user_group, _, _} ->
+            redirect_and_flash_error(conn, "Error adding user to group", group.id)
+        end
     end
   end
 
@@ -68,5 +89,18 @@ defmodule Pairmotron.GroupInvitationController do
     conn
     |> put_flash(:error, message)
     |> redirect(to: group_invitation_path(conn, :index, group_id))
+  end
+
+  defp preloaded_group_or_nil(group_id) do
+    case Repo.get(Group, group_id) do
+      nil -> nil
+      group -> Repo.preload(group, :users)
+    end
+  end
+
+  defp update_transaction(group_membership_request, user_group_changeset) do
+    Ecto.Multi.new
+    |> Ecto.Multi.delete(:group_membership_request, group_membership_request)
+    |> Ecto.Multi.insert(:user_group, user_group_changeset)
   end
 end

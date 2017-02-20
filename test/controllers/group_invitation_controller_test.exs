@@ -154,4 +154,78 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       assert html_response(conn, 404) =~ "not found"
     end
   end
+
+  describe "using :update while authenticated" do
+    setup do
+      user = insert(:user)
+      conn = build_conn() |> log_in(user)
+      {:ok, [conn: conn, logged_in_user: user]}
+    end
+
+    test "creates a group and deletes group_invite if group_invite exists and created by user", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{group: group, user: other_user, initiated_by_user: true})
+      conn = put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
+
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      refute Repo.get(GroupMembershipRequest, group_membership_request.id)
+      assert Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
+    end
+
+    test "fails if group_membership_request doesn't exist", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user)
+      group_membership_request = build(:group_membership_request, %{group: group, user: other_user, initiated_by_user: false})
+      group_membership_request = %{group_membership_request | id: 123} # otherwise id is nil
+      conn = put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
+
+      assert html_response(conn, 404) =~ "Page not found"
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
+    end
+
+    test "fails if logged in user is not in group", %{conn: conn} do
+      group = insert(:group)
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{group: group, user: other_user, initiated_by_user: true})
+      conn = put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
+
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      assert Repo.get(GroupMembershipRequest, group_membership_request.id)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
+    end
+
+    test "fails if logged in user is in group but not owner of the group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{group: group, user: other_user, initiated_by_user: true})
+      conn = put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
+
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      assert Repo.get(GroupMembershipRequest, group_membership_request.id)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
+    end
+
+    test "redirects and deletes group_membership_request if invited user is already in the group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      group_membership_request = insert(:group_membership_request, %{group: group, user: other_user, initiated_by_user: true})
+      conn = put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
+
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      refute Repo.get(GroupMembershipRequest, group_membership_request.id)
+    end
+
+    test "fails if group_membership_request is created by group owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{group: group, user: other_user, initiated_by_user: false})
+      conn = put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
+
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      assert Repo.get(GroupMembershipRequest, group_membership_request.id)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
+    end
+
+  end
 end
