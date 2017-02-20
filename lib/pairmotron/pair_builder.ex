@@ -47,9 +47,12 @@ defmodule Pairmotron.PairBuilder do
     dead_users = previously_paired_users_set
       |> MapSet.difference(users_set)
       |> MapSet.to_list
-    dead_users
+    dead_pairs = dead_users
       |> Enum.map(fn dead_user -> Enum.find(pairs, &(dead_user in &1.users)) end)
       |> Enum.filter(&(!is_nil(&1)))
+    pairs
+      |> Enum.filter(&(length(&1.users) == 1))
+      |> Enum.concat(dead_pairs)
       |> Enum.uniq
   end
 

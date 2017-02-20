@@ -31,15 +31,26 @@ defmodule Pairmotron.PairMakerTest do
       assert user.id == userpair.user_id
     end
 
-    test "with 1 existing valid pair does not destroy the pair", %{group: group, user: user} do
-      existing_pair = Pairmotron.TestHelper.create_pair([user], group, 2017, 1)
+    test "with 1 existing valid pair does not destroy the pair", %{user: user} do
+      user2 = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, user2]})
+      existing_pair = Pairmotron.TestHelper.create_pair([user, user2], group, 2017, 1)
       PairMaker.generate_pairs(2017, 1, group.id)
       [pair] = Repo.all(Pair)
       assert existing_pair.id == pair.id
     end
 
-    test "with 1 existing valid pair and 1 existing invalid pair destroys the invalid pair", %{group: group, user: user} do
+    test "with 1 existing 1-pair destroys the pair", %{group: group, user: user} do
       existing_pair = Pairmotron.TestHelper.create_pair([user], group, 2017, 1)
+      PairMaker.generate_pairs(2017, 1, group.id)
+      [pair] = Repo.all(Pair)
+      assert existing_pair.id != pair.id
+    end
+
+    test "with 1 existing valid pair and 1 existing invalid pair destroys the invalid pair", %{user: user} do
+      user2 = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, user2]})
+      existing_pair = Pairmotron.TestHelper.create_pair([user, user2], group, 2017, 1)
       Pairmotron.TestHelper.create_pair([insert(:user)], group, 2017, 1)
       PairMaker.generate_pairs(2017, 1, group.id)
       [pair] = Repo.all(Pair)
