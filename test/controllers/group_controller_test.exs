@@ -55,6 +55,30 @@ defmodule Pairmotron.GroupControllerTest do
       assert html_response(conn, 200) =~ "Show group"
     end
 
+    test "does not show invitations link if user is not group owner", %{conn: conn} do
+      group = insert(:group)
+      conn = get conn, group_path(conn, :show, group)
+      refute html_response(conn, 200) =~ "Invitations"
+    end
+
+    test "does not show edit group link if user is not group owner", %{conn: conn} do
+      group = insert(:group)
+      conn = get conn, group_path(conn, :show, group)
+      refute html_response(conn, 200) =~ "Edit Group"
+    end
+
+    test "shows invitations link when user is group owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ "Invitations"
+    end
+
+    test "shows edit group link when user is group owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ "Edit Group"
+    end
+
     test "renders page not found when id is nonexistent", %{conn: conn} do
       assert_error_sent 404, fn ->
         get conn, group_path(conn, :show, -1)
@@ -106,8 +130,8 @@ defmodule Pairmotron.GroupControllerTest do
       assert redirected_to(conn) == group_path(conn, :index)
       assert Repo.get(Group, group.id)
     end
-
   end
+
   describe "as admin" do
     setup do
       user = insert(:user_admin)
@@ -119,6 +143,18 @@ defmodule Pairmotron.GroupControllerTest do
       group = insert(:group, owner: user)
       conn = get conn, group_path(conn, :edit, group)
       assert html_response(conn, 200) =~ "Edit group"
+    end
+
+    test "shows invitations link even if user is not group owner", %{conn: conn} do
+      group = insert(:group)
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ "Invitations"
+    end
+
+    test "shows edit group link even if user is not group owner", %{conn: conn} do
+      group = insert(:group)
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ "Edit Group"
     end
 
     test "admin may update a group not owned by admin", %{conn: conn} do

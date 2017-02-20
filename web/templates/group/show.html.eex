@@ -14,5 +14,11 @@
 
 </ul>
 
-<%= link "Edit", to: group_path(@conn, :edit, @group) %>
-<%= link "Back", to: group_path(@conn, :index) %>
+<%= if user_can_edit_group?(@conn.assigns.current_user, @group) do %>
+  <a href=<%= group_invitation_path(@conn, :index, @group) %>>
+    <button class="btn btn-primary">Invitations</button>
+  </a>
+  <a href=<%= group_path(@conn, :edit, @group) %>>
+    <button class="btn btn-primary">Edit Group</button>
+  </a>
+<%= end %>
