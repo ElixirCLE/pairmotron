@@ -1,8 +1,6 @@
 defmodule Pairmotron.GroupMembershipRequest do
   use Pairmotron.Web, :model
 
-  alias Pairmotron.GroupMembershipRequest
-
   schema "group_membership_requests" do
     field :initiated_by_user, :boolean
     belongs_to :user, Pairmotron.User
