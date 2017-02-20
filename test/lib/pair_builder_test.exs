@@ -10,6 +10,7 @@ defmodule Pairmotron.PairBuilderTest do
 
   @pair_1 %Pair{id: 1, users: [@user_1, @user_2]}
   @pair_2 %Pair{id: 2, users: [@user_3, @user_4]}
+  @pair_1a %Pair{id: 3, users: [@user_1]}
 
   describe ".determify/2" do
     test "empty pairs and users" do
@@ -63,6 +64,13 @@ defmodule Pairmotron.PairBuilderTest do
       assert determination.dead_pairs |> Enum.sort == []
       assert determination.remaining_pairs |> Enum.sort == [@pair_1]
       assert determination.available_users |> Enum.sort == [@user_3]
+    end
+
+    test "a new user is available and existing 1-pair is no longer valid" do
+      determination = PairBuilder.determify([@pair_1a], [@user_1, @user_3])
+      assert determination.dead_pairs |> Enum.sort == [@pair_1a]
+      assert determination.remaining_pairs |> Enum.sort == []
+      assert determination.available_users |> Enum.sort == [@user_1, @user_3]
     end
   end
 end
