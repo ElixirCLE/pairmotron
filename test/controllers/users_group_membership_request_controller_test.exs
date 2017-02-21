@@ -43,11 +43,12 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
 
     test "group generated request displays on index properly", %{conn: conn, logged_in_user: user} do
       group = insert(:group)
-      insert(:group_membership_request, %{initiated_by_user: false, user: user, group: group})
+      group_membership_request = insert(:group_membership_request, %{initiated_by_user: false, user: user, group: group})
       conn = get conn, users_group_membership_request_path(conn, :index)
 
       assert html_response(conn, 200) =~ "Invited by Group"
       assert html_response(conn, 200) =~ "Accept Invitation"
+      assert html_response(conn, 200) =~ users_group_membership_request_path(conn, :update, group_membership_request)
       refute html_response(conn, 200) =~ "You have no active invitations at this time"
     end
   end

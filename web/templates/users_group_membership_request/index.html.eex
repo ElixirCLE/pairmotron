@@ -19,7 +19,11 @@
           <td>Awaiting Response</td>
         <%= else %>
           <td>Invited by Group</td>
-          <td>Accept Invitation</td>
+          <td>
+            <a href=<%= users_group_membership_request_path(@conn, :update, group_membership_request) %>>
+              <button class="btn btn-primary">Accept Invitation</button>
+            </a>
+          </td>
         <%= end %>
       </tr>
     <%= end %>
