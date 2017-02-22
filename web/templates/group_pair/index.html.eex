@@ -6,6 +6,9 @@
       <%= for pair <- @pairs do %>
         <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
       <% end %>
+      <%= if Enum.empty?(@pairs) do %>
+        <p>No pairs available</p>
+      <% end %>
     </ul>
   </div>
 </div>
