@@ -55,7 +55,7 @@ defmodule Pairmotron.GroupInvitationController do
     end
   end
 
-  def update(conn, %{"group_membership_request" => _params}) do
+  def update(conn, %{}) do
     group_membership_request = conn.assigns.group_membership_request |> Repo.preload([:user, :group])
     user = group_membership_request.user
     group = group_membership_request.group

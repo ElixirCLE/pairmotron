@@ -17,7 +17,9 @@
         <%= if group_membership_request.initiated_by_user do %>
           <td>User Requested</td>
           <td>
-            <%= link "Accept Membership Request", to: group_invitation_path(@conn, :update, group_membership_request, group_membership_request.group_id) %>
+            <%= render "accept_invitation_form.html",
+                  conn: @conn,
+                  action: group_invitation_path(@conn, :update, group_membership_request, group_membership_request.group_id) %>
           </td>
         <%= else %>
           <td>Invited by Group</td>
