@@ -1,4 +1,4 @@
-<%= form_for @conn, @action, [name: :accept, method: "PUT"], fn f -> %>
+<%= form_for @conn, @action, [as: :accept, method: "PUT"], fn _f -> %>
   <div class="form-group">
     <%= submit "Accept Invitation", class: "btn btn-primary" %>
   </div>

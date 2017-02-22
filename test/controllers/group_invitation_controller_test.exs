@@ -38,7 +38,7 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       conn = get conn, group_invitation_path(conn, :index, group)
       assert html_response(conn, 200) =~ user.name
       assert html_response(conn, 200) =~ "Accept Membership Request"
-      assert html_response(conn, 200) =~ group_invitation_path(conn, :update, group_membership_request, group.id)
+      assert html_response(conn, 200) =~ group_invitation_path(conn, :update, group.id, group_membership_request)
     end
 
     test "does not list invitations not associated with the group", %{conn: conn, group: group} do
