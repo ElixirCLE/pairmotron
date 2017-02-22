@@ -4,12 +4,30 @@ defmodule Pairmotron.PairControllerTest do
   import Pairmotron.TestHelper,
     only: [log_in: 2, create_retro: 2, create_pair_and_retro: 2]
 
-  describe "while authenticated" do
+  describe "while authenticated and not belonging to any groups" do
+    setup do
+      user = insert(:user)
+      conn = build_conn() |> log_in(user)
+      {:ok, [conn: conn, logged_in_user: user]}
+    end
+
+    test "displays helpful message when there are no groups", %{conn: conn} do
+      conn = get(conn, "/pairs")
+      assert html_response(conn, 200) =~ "Find a group"
+    end
+  end
+
+  describe "while authenticated and belonging to a group" do
     setup do
       user = insert(:user)
       group = insert(:group, %{owner: user, users: [user]})
       conn = build_conn() |> log_in(user)
       {:ok, [conn: conn, logged_in_user: user, group: group]}
+    end
+
+    test "displays helpful message when there are no pairs", %{conn: conn} do
+      conn = get conn, pair_path(conn, :show, 2000, 1)
+      assert html_response(conn, 200) =~ "No pairs"
     end
 
     test "displays link to retro :create for a pair and current user with no retrospective",

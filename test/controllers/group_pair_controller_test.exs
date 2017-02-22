@@ -4,7 +4,7 @@ defmodule Pairmotron.GroupPairControllerTest do
   import Pairmotron.TestHelper,
     only: [log_in: 2, create_retro: 2, create_pair_and_retro: 2]
 
-  describe "while authenticated" do
+  describe "while authenticated and belonging to a group" do
     setup do
       user = insert(:user)
       group = insert(:group, %{owner: user, users: [user]})
@@ -15,6 +15,11 @@ defmodule Pairmotron.GroupPairControllerTest do
     test "lists the group's name on the page", %{conn: conn, group: group} do
       conn = get(conn, "/groups/#{group.id}/pairs")
       assert html_response(conn, 200) =~ group.name
+    end
+
+    test "displays helpful message when there are no pairs", %{conn: conn, group: group} do
+      conn = get conn, group_pair_path(conn, :show, group, 2000, 1)
+      assert html_response(conn, 200) =~ "No pairs"
     end
 
     test "lists one active user", %{conn: conn, logged_in_user: user, group: group} do
