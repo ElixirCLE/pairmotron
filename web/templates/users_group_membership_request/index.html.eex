@@ -20,9 +20,9 @@
         <%= else %>
           <td>Invited by Group</td>
           <td>
-            <a href=<%= users_group_membership_request_path(@conn, :update, group_membership_request) %>>
-              <button class="btn btn-primary">Accept Invitation</button>
-            </a>
+            <%= render "accept_invitation_form.html",
+                  conn: @conn,
+                  action: users_group_membership_request_path(@conn, :update, group_membership_request) %>
           </td>
         <%= end %>
       </tr>

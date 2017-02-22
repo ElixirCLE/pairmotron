@@ -38,7 +38,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
     end
   end
 
-  def update(conn, %{"group_membership_request" => _params}) do
+  def update(conn, %{}) do
     group_membership_request = conn.assigns.group_membership_request
     user = conn.assigns.current_user
 
