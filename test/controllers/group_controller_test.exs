@@ -58,25 +58,27 @@ defmodule Pairmotron.GroupControllerTest do
     test "does not show invitations link if user is not group owner", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :show, group)
-      refute html_response(conn, 200) =~ "Invitations"
+      refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group) 
     end
 
     test "does not show edit group link if user is not group owner", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :show, group)
       refute html_response(conn, 200) =~ "Edit Group"
+      refute html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
 
     test "shows invitations link when user is group owner", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       conn = get conn, group_path(conn, :show, group)
-      assert html_response(conn, 200) =~ "Invitations"
+      assert html_response(conn, 200) =~ group_invitation_path(conn, :index, group) 
     end
 
     test "shows edit group link when user is group owner", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       conn = get conn, group_path(conn, :show, group)
       assert html_response(conn, 200) =~ "Edit Group"
+      assert html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
 
     test "renders page not found when id is nonexistent", %{conn: conn} do
