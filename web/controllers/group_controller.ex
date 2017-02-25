@@ -1,7 +1,7 @@
 defmodule Pairmotron.GroupController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.Group
+  alias Pairmotron.{Group, GroupMembershipRequest}
   import Pairmotron.ControllerHelpers
 
   plug :load_and_authorize_resource, model: Group, only: [:edit, :update, :delete]
@@ -34,7 +34,10 @@ defmodule Pairmotron.GroupController do
 
   def show(conn, %{"id" => id}) do
     group = Repo.get!(Group, id) |> Repo.preload(:owner)
-    render(conn, "show.html", group: group)
+    invite_changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{group_id: id})
+    current_user = conn.assigns.current_user |> Repo.preload(:groups)
+    conn = conn |> Plug.Conn.assign(:current_user, current_user)
+    render(conn, "show.html", group: group, invite_changeset: invite_changeset)
   end
 
   def edit(conn = @authorized_conn, _params) do

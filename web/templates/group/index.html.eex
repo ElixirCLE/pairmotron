@@ -15,7 +15,7 @@
 
       <td class="text-right">
         <%= link "Show", to: group_path(@conn, :show, group), class: "btn btn-default btn-xs" %>
-        <%= if user_can_edit_group?(@conn.assigns.current_user, group) do %>
+        <%= if current_user_can_edit_group?(@conn, group) do %>
           <%= link "Edit", to: group_path(@conn, :edit, group), class: "btn btn-default btn-xs" %>
           <%= link "Delete", to: group_path(@conn, :delete, group), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
         <%= end %>
