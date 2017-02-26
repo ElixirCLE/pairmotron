@@ -12,6 +12,11 @@ defmodule Pairmotron.GroupPairControllerTest do
       {:ok, [conn: conn, logged_in_user: user, group: group]}
     end
 
+    test "displays the correct date range on the page", %{conn: conn, group: group} do
+      conn = get conn, group_pair_path(conn, :show, group, 2000, 1)
+      assert html_response(conn, 200) =~ "2000-01-03 to 2000-01-09"
+    end
+
     test "lists the group's name on the page", %{conn: conn, group: group} do
       conn = get(conn, "/groups/#{group.id}/pairs")
       assert html_response(conn, 200) =~ group.name
