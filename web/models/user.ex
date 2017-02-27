@@ -80,6 +80,6 @@ defmodule Pairmotron.User do
     #where: retro.user_id == ^user.id,
     #where: p.year == ^year,
     #where: p.week == ^week
-    
+
   end
 end

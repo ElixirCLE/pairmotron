@@ -23,10 +23,7 @@ defmodule Pairmotron.GroupInvitationController do
   def new(conn, %{"group_id" => group_id}) do
     changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{})
     group = Repo.get(Group, group_id)
-    invitable_users = User.users_not_in_group(group)
-      |> Repo.all
-      |> Enum.map(&["#{&1.name}": &1.id])
-      |> List.flatten
+    invitable_users = invitable_users_for_select(group)
     render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
   end
 
@@ -46,24 +43,30 @@ defmodule Pairmotron.GroupInvitationController do
         handle_resource_not_found(conn)
       group.owner_id != current_user.id ->
         redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
-      user in group.users ->
-        redirect_and_flash_error(conn, "Cannot invite user that is already in group", group_id)
       true ->
         implicit_params = %{"initiated_by_user" => false, "group_id" => group_id}
         final_params = Map.merge(group_membership_request_params, implicit_params)
-        changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, final_params)
+        changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, final_params, group)
 
         case Repo.insert(changeset) do
           {:ok, _group_membership_request} ->
-            #Repo.all(GroupMembershipRequest) |> IO.inspect
             conn
             |> put_flash(:info, "Sent invitation to join group successfully.")
             |> redirect(to: group_invitation_path(conn, :index, group_id))
-          {:error, _changeset} ->
-            redirect_and_flash_error(conn, "Error inviting to group", group_id)
+          {:error, changeset} ->
+            invitable_users = invitable_users_for_select(group)
+            render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
         end
     end
   end
+
+  defp invitable_users_for_select(group) do
+    User.users_not_in_group(group)
+    |> Repo.all
+    |> Enum.map(&["#{&1.name}": &1.id])
+    |> List.flatten
+  end
+
 
   def update(conn, %{}) do
     group_membership_request = conn.assigns.group_membership_request |> Repo.preload([:user, :group])

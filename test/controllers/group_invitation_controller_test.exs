@@ -155,7 +155,7 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       attrs = %{user_id: other_user.id}
       conn = post conn, group_invitation_path(conn, :create, group), group_membership_request: attrs
 
-      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      assert html_response(conn, 200) =~ "User is already in this group"
       refute Repo.get_by(GroupMembershipRequest, %{group_id: group.id, user_id: other_user.id})
     end
 
@@ -166,9 +166,8 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       attrs = %{user_id: other_user.id}
       conn = post conn, group_invitation_path(conn, :create, group), group_membership_request: attrs
 
-      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      assert html_response(conn, 200) =~ "User is already invited to this group"
       assert 1 = Repo.all(GroupMembershipRequest) |> length
-      assert %{private: %{phoenix_flash: %{"error" => _}}} = conn
     end
 
     test "errors without a user_id param", %{conn: conn, logged_in_user: user} do
