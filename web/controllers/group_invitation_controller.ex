@@ -11,13 +11,23 @@ defmodule Pairmotron.GroupInvitationController do
     if group do
       group = group |> Repo.preload([{:group_membership_requests, :user}])
       if group.owner_id == conn.assigns.current_user.id do
-        render(conn, "index.html", group_membership_requests: group.group_membership_requests)
+        render(conn, "index.html", group_membership_requests: group.group_membership_requests, group: group)
       else
         redirect_not_authorized(conn, group_path(conn, :show, group))
       end
     else
       handle_resource_not_found(conn)
     end
+  end
+
+  def new(conn, %{"group_id" => group_id}) do
+    changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{})
+    group = Repo.get(Group, group_id)
+    invitable_users = User.users_not_in_group(group)
+      |> Repo.all
+      |> Enum.map(&["#{&1.name}": &1.id])
+      |> List.flatten
+    render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
   end
 
   def create(conn, %{"group_id" => group_id, "group_membership_request" => group_membership_request_params}) do

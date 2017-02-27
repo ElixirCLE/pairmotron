@@ -69,4 +69,17 @@ defmodule Pairmotron.User do
     Pairmotron.User
     |> Ecto.Query.where([u], u.active)
   end
+
+  def users_not_in_group(%Pairmotron.Group{} = group), do: users_not_in_group(group.id)
+  def users_not_in_group(group_id) do
+    from user in Pairmotron.User,
+    order_by: user.name
+
+    #from retro in Pairmotron.PairRetro,
+    #join: p in assoc(retro, :pair),
+    #where: retro.user_id == ^user.id,
+    #where: p.year == ^year,
+    #where: p.week == ^week
+    
+  end
 end

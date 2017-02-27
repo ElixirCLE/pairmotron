@@ -61,6 +61,34 @@ defmodule Pairmotron.GroupInvitationControllerTest do
     end
   end
 
+  describe "using :new while authenticated" do
+    setup do
+      user = insert(:user)
+      conn = build_conn() |> log_in(user)
+      {:ok, [conn: conn, logged_in_user: user]}
+    end
+
+    test "renders invitation form if user is owner of group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      conn = get conn, group_invitation_path(conn, :new, group)
+      assert html_response(conn, 200) =~ "Invite user to"
+      assert html_response(conn, 200) =~ group.name
+    end
+
+    test "form can select user who is not in group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user)
+      conn = get conn, group_invitation_path(conn, :new, group)
+      assert html_response(conn, 200) =~ other_user.name
+    end
+
+    #test "form cannot select user who is already in group", %{conn: conn, logged_in_user: user} do
+      #group = insert(:group, %{owner: user, users: [user]})
+      #conn = get conn, group_invitation_path(conn, :new, group)
+      #refute html_response(conn, 200) =~ user.name
+    #end
+
+  end
   describe "using :create while authenticated" do
     setup do
       user = insert(:user)

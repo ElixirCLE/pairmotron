@@ -30,5 +30,12 @@
   </tbody>
 </table>
 <%= if Enum.empty?(@group_membership_requests) do %>
-  There are no active invitations for this group at this time
+  <p>
+    There are no active invitations for this group at this time
+  </p>
 <%= end %>
+<p>
+  <a href=<%= group_invitation_path(@conn, :new, @group) %>>
+    <button class="btn btn-primary">Invite user to group</button>
+  </a>
+</p>
