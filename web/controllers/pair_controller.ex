@@ -9,7 +9,9 @@ defmodule Pairmotron.PairController do
     user = conn.assigns[:current_user]
     groups_and_pairs = fetch_pairs(year, week, user)
     conn = assign_current_user_pair_retro_for_week(conn, year, week)
-    render conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs
+    render conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
+      start_date: Timex.from_iso_triplet({year, week, 1}),
+      stop_date: Timex.from_iso_triplet({year, week, 7})
   end
 
   def show(conn, %{"year" => y, "week" => w}) do
@@ -18,7 +20,9 @@ defmodule Pairmotron.PairController do
     user = conn.assigns[:current_user]
     groups_and_pairs = fetch_pairs(year, week, user)
     conn = assign_current_user_pair_retro_for_week(conn, year, week)
-    render conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs
+    render conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
+      start_date: Timex.from_iso_triplet({year, week, 1}),
+      stop_date: Timex.from_iso_triplet({year, week, 7})
   end
 
   defp fetch_pairs(year, week, user) do

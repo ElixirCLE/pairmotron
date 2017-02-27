@@ -25,6 +25,11 @@ defmodule Pairmotron.PairControllerTest do
       {:ok, [conn: conn, logged_in_user: user, group: group]}
     end
 
+    test "displays the correct date range on the page", %{conn: conn} do
+      conn = get conn, pair_path(conn, :show, 1999, 52)
+      assert html_response(conn, 200) =~ "1999-12-27 to 2000-01-02"
+    end
+
     test "displays helpful message when there are no pairs", %{conn: conn} do
       conn = get conn, pair_path(conn, :show, 2000, 1)
       assert html_response(conn, 200) =~ "No pairs"
