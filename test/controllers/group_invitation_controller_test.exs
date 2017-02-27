@@ -169,17 +169,6 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       assert html_response(conn, 200) =~ "User is already invited to this group"
       assert 1 = Repo.all(GroupMembershipRequest) |> length
     end
-
-    test "errors without a user_id param", %{conn: conn, logged_in_user: user} do
-      group = insert(:group, %{owner: user, users: [user]})
-      conn = post conn, group_invitation_path(conn, :create, group), group_membership_request: %{}
-      assert html_response(conn, 404) =~ "not found"
-    end
-
-    test "handles nonexistent group", %{conn: conn} do
-      conn = post conn, group_invitation_path(conn, :create, 123), group_membership_request: %{}
-      assert html_response(conn, 404) =~ "not found"
-    end
   end
 
   describe "using :update while authenticated" do

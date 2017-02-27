@@ -9,8 +9,8 @@ defmodule Pairmotron.GroupInvitationController do
   def index(conn, %{"group_id" => group_id}) do
     group = Repo.get(Group, group_id)
     if group do
-      group = group |> Repo.preload([{:group_membership_requests, :user}])
       if group.owner_id == conn.assigns.current_user.id do
+        group = group |> Repo.preload([{:group_membership_requests, :user}])
         render(conn, "index.html", group_membership_requests: group.group_membership_requests, group: group)
       else
         redirect_not_authorized(conn, group_path(conn, :show, group))
@@ -22,7 +22,7 @@ defmodule Pairmotron.GroupInvitationController do
 
   def new(conn, %{"group_id" => group_id}) do
     changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{})
-    group = Repo.get(Group, group_id)
+    group = Repo.get!(Group, group_id)
     invitable_users = invitable_users_for_select(group)
     render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
   end
@@ -31,16 +31,12 @@ defmodule Pairmotron.GroupInvitationController do
     current_user = conn.assigns.current_user
 
     {group_id_int, _} = Integer.parse(group_id)
-    group = preloaded_group_or_nil(group_id_int)
+    group = Repo.get!(Group, group_id_int) |> Repo.preload(:users)
 
     user_id = parameter_as_integer(group_membership_request_params, "user_id")
-    user = Repo.get(User, user_id)
+    user = Repo.get!(User, user_id)
 
     cond do
-      is_nil(user) ->
-        handle_resource_not_found(conn)
-      is_nil(group) ->
-        handle_resource_not_found(conn)
       group.owner_id != current_user.id ->
         redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
       true ->
@@ -51,7 +47,7 @@ defmodule Pairmotron.GroupInvitationController do
         case Repo.insert(changeset) do
           {:ok, _group_membership_request} ->
             conn
-            |> put_flash(:info, "Sent invitation to join group successfully.")
+            |> put_flash(:info, "Successfully invited #{user.name} to join #{group.name}.")
             |> redirect(to: group_invitation_path(conn, :index, group_id))
           {:error, changeset} ->
             invitable_users = invitable_users_for_select(group)
@@ -66,7 +62,6 @@ defmodule Pairmotron.GroupInvitationController do
     |> Enum.map(&["#{&1.name}": &1.id])
     |> List.flatten
   end
-
 
   def update(conn, %{}) do
     group_membership_request = conn.assigns.group_membership_request |> Repo.preload([:user, :group])
@@ -102,13 +97,6 @@ defmodule Pairmotron.GroupInvitationController do
     conn
     |> put_flash(:error, message)
     |> redirect(to: group_invitation_path(conn, :index, group_id))
-  end
-
-  defp preloaded_group_or_nil(group_id) do
-    case Repo.get(Group, group_id) do
-      nil -> nil
-      group -> Repo.preload(group, :users)
-    end
   end
 
   defp update_transaction(group_membership_request, user_group_changeset) do
