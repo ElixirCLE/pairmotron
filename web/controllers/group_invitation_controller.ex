@@ -21,10 +21,15 @@ defmodule Pairmotron.GroupInvitationController do
   end
 
   def new(conn, %{"group_id" => group_id}) do
-    changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{})
     group = Repo.get!(Group, group_id)
-    invitable_users = invitable_users_for_select(group)
-    render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
+    cond do
+      group.owner_id != conn.assigns.current_user.id ->
+        redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
+      true ->
+        changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{})
+        invitable_users = invitable_users_for_select(group)
+        render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
+    end
   end
 
   def create(conn, %{"group_id" => group_id, "group_membership_request" => group_membership_request_params}) do

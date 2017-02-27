@@ -88,6 +88,18 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       conn = get conn, group_invitation_path(conn, :new, group)
       refute html_response(conn, 200) =~ other_user.name
     end
+
+    test "redirects if logged in user in group but not owner of group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      conn = get conn, group_invitation_path(conn, :new, group)
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+    end
+
+    test "redirects if logged in user is not owner of group", %{conn: conn} do
+      group = insert(:group)
+      conn = get conn, group_invitation_path(conn, :new, group)
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+    end
   end
 
   describe "using :create while authenticated" do
