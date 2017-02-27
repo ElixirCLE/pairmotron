@@ -10,4 +10,19 @@ defmodule Pairmotron.GroupView do
     conn.assigns.current_user.groups
     |> Enum.any?(&(&1.id == group.id))
   end
+
+  def current_user_has_requested_membership_to_group?(conn, group) do
+    conn.assigns.current_user.group_membership_requests
+    |> Enum.any?(&(&1.group_id == group.id and &1.initiated_by_user))
+  end
+
+  def current_user_has_been_invited_by_group?(conn, group) do
+    conn.assigns.current_user.group_membership_requests
+    |> Enum.any?(&(&1.group_id == group.id and not &1.initiated_by_user))
+  end
+
+  def current_user_group_membership_request_for_group(conn, group) do
+    conn.assigns.current_user.group_membership_requests
+    |> Enum.find(&(&1.group_id == group.id and not &1.initiated_by_user))
+  end
 end

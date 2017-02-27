@@ -14,10 +14,23 @@
 
 </ul>
 
-<%= if not current_user_in_group?(@conn, @group) do %>
-  <%= render "request_membership_form.html",
-        changeset: @invite_changeset,
-        action: users_group_membership_request_path(@conn, :create) %>
+<%= cond do %>
+  <%= current_user_has_been_invited_by_group?(@conn, @group) -> %>
+    <%= render Pairmotron.UsersGroupMembershipRequestView,
+          "accept_invitation_form.html",
+          conn: @conn,
+          action: users_group_membership_request_path(@conn, :update, current_user_group_membership_request_for_group(@conn, @group)) %>
+  <%= current_user_in_group?(@conn, @group) -> %>
+    <p><label class="label label-success">Member</label></p>
+  <%= current_user_has_requested_membership_to_group?(@conn, @group) -> %>
+    <p><label class="label label-warning">Invitation Pending...</label></p>
+  <%= true -> %>
+    <%= render "request_membership_form.html",
+          changeset: @invite_changeset,
+          action: users_group_membership_request_path(@conn, :create) %>
+<%= end %>
+
+<%= if not current_user_has_requested_membership_to_group?(@conn, @group) do %>
 <%= end %>
 
 <%= if current_user_can_edit_group?(@conn, @group) do %>
