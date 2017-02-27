@@ -73,13 +73,8 @@ defmodule Pairmotron.User do
   def users_not_in_group(%Pairmotron.Group{} = group), do: users_not_in_group(group.id)
   def users_not_in_group(group_id) do
     from user in Pairmotron.User,
+    left_join: user_group in Pairmotron.UserGroup, on: user_group.user_id == user.id and user_group.group_id == ^group_id,
+    where: is_nil(user_group.user_id),
     order_by: user.name
-
-    #from retro in Pairmotron.PairRetro,
-    #join: p in assoc(retro, :pair),
-    #where: retro.user_id == ^user.id,
-    #where: p.year == ^year,
-    #where: p.week == ^week
-
   end
 end
