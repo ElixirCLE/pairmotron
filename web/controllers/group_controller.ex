@@ -7,7 +7,7 @@ defmodule Pairmotron.GroupController do
   plug :load_and_authorize_resource, model: Group, only: [:edit, :update, :delete]
 
   def index(conn, _params) do
-    groups = Repo.all(Group)
+    groups = Group |> order_by(:name) |> Repo.all
     current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
     conn = conn |> Plug.Conn.assign(:current_user, current_user)
     render(conn, "index.html", groups: groups)

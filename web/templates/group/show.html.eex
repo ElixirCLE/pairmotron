@@ -1,3 +1,13 @@
-<h2><%= @group.name %></h2>
-<p><%= @group.name %></p>
+<h2><%= link @group.name, to: group_path(@conn, :show, @group) %>
+  <small>
+    <%= cond do %>
+      <%= current_user_in_group?(@conn, @group) -> %>
+        <label class="label label-success">Member</label>
+      <%=  current_user_has_requested_membership_to_group?(@conn, @group) -> %>
+        <label class="label label-warning">Invitation Pending...</label>
+      <%= true -> %>
+    <%= end %>
+  </small>
+</h2>
+<p><%= @group.description %></p>
 <%= render "group_actions.html", conn: @conn, group: @group %>

@@ -3,6 +3,7 @@ defmodule Pairmotron.Group do
 
   schema "groups" do
     field :name, :string
+    field :description, :string
     belongs_to :owner, Pairmotron.User
     many_to_many :users, Pairmotron.User, join_through: Pairmotron.UserGroup
     has_many :projects, Pairmotron.Project
@@ -12,7 +13,7 @@ defmodule Pairmotron.Group do
   end
 
   @required_fields ~w(name owner_id)
-  @optional_fields ~w()
+  @optional_fields ~w(description)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

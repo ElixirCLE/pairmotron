@@ -26,6 +26,7 @@ defmodule Pairmotron.GroupView do
     |> Enum.find(&(&1.group_id == group.id and not &1.initiated_by_user))
   end
 
+  def truncate(nil, _), do: nil
   def truncate(string, len) do
     cond do
       String.length(string) > len ->
