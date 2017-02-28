@@ -13,6 +13,7 @@ defmodule Pairmotron.User do
 
     has_many :pair_retros, Pairmotron.PairRetro
     many_to_many :groups, Pairmotron.Group, join_through: "users_groups"
+    has_many :group_membership_requests, Pairmotron.GroupMembershipRequest
 
     timestamps()
   end
@@ -67,5 +68,13 @@ defmodule Pairmotron.User do
   def active_users do
     Pairmotron.User
     |> Ecto.Query.where([u], u.active)
+  end
+
+  def users_not_in_group(%Pairmotron.Group{} = group), do: users_not_in_group(group.id)
+  def users_not_in_group(group_id) do
+    from user in Pairmotron.User,
+    left_join: user_group in Pairmotron.UserGroup, on: user_group.user_id == user.id and user_group.group_id == ^group_id,
+    where: is_nil(user_group.user_id),
+    order_by: user.name
   end
 end

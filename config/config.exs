@@ -49,7 +49,8 @@ config :ex_admin,
     Pairmotron.ExAdmin.Group,
     Pairmotron.ExAdmin.Project,
     Pairmotron.ExAdmin.User,
-    Pairmotron.ExAdmin.UserGroup
+    Pairmotron.ExAdmin.UserGroup,
+    Pairmotron.ExAdmin.GroupMembershipRequest
   ]
 
 # Import environment specific config. This must remain at the bottom
