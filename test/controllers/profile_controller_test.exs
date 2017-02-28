@@ -2,7 +2,6 @@ defmodule Pairmotron.ProfileControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.User
-  import Pairmotron.TestHelper, only: [log_in: 2]
 
   @valid_attrs %{email: "email", name: "name", password: "password", password_confirmation: "password"}
 
@@ -11,11 +10,9 @@ defmodule Pairmotron.ProfileControllerTest do
     assert redirected_to(conn) == session_path(conn, :new)
   end
 
-  describe "while authenticated" do
+  describe "using :show while authenticated" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "shows the current user", %{conn: conn, logged_in_user: user} do
@@ -51,10 +48,22 @@ defmodule Pairmotron.ProfileControllerTest do
       conn = get conn, profile_path(conn, :show)
       refute html_response(conn, 200) =~ group_path(conn, :edit, group1)
     end
+  end
+
+  describe "using :edit while authenticated" do
+    setup do
+      login_user()
+    end
 
     test "renders form for editing the current user", %{conn: conn} do
       conn = get conn, profile_path(conn, :edit)
       assert html_response(conn, 200) =~ "Edit Profile"
+    end
+  end
+
+  describe "using :update while authenticated" do
+    setup do
+      login_user()
     end
 
     test "updates current user", %{conn: conn, logged_in_user: user} do

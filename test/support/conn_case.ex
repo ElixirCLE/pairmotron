@@ -27,6 +27,7 @@ defmodule Pairmotron.ConnCase do
 
       import Pairmotron.Router.Helpers
       import Pairmotron.Factory
+      import Pairmotron.LoginHelper
 
       # The default endpoint for testing
       @endpoint Pairmotron.Endpoint
