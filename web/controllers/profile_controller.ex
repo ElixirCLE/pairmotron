@@ -4,8 +4,9 @@ defmodule Pairmotron.ProfileController do
   alias Pairmotron.User
 
   def show(conn, _params) do
-    user = conn.assigns.current_user |> Repo.preload(:groups)
-    render(conn, "show.html", user: user)
+    current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
+    conn = conn |> Plug.Conn.assign(:current_user, current_user)
+    render(conn, "show.html", user: current_user)
   end
 
   def edit(conn, _params) do

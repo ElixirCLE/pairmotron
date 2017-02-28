@@ -8,7 +8,17 @@ defmodule Pairmotron.GroupController do
 
   def index(conn, _params) do
     groups = Repo.all(Group)
+    current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
+    conn = conn |> Plug.Conn.assign(:current_user, current_user)
     render(conn, "index.html", groups: groups)
+  end
+
+  def show(conn, %{"id" => id}) do
+    group = Repo.get!(Group, id) |> Repo.preload(:owner)
+    invite_changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{group_id: id})
+    current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
+    conn = conn |> Plug.Conn.assign(:current_user, current_user)
+    render(conn, "show.html", group: group, invite_changeset: invite_changeset)
   end
 
   def new(conn, _params) do
@@ -30,14 +40,6 @@ defmodule Pairmotron.GroupController do
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
     end
-  end
-
-  def show(conn, %{"id" => id}) do
-    group = Repo.get!(Group, id) |> Repo.preload(:owner)
-    invite_changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{group_id: id})
-    current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
-    conn = conn |> Plug.Conn.assign(:current_user, current_user)
-    render(conn, "show.html", group: group, invite_changeset: invite_changeset)
   end
 
   def edit(conn = @authorized_conn, _params) do
@@ -68,12 +70,11 @@ defmodule Pairmotron.GroupController do
 
   def delete(conn = @authorized_conn, _params) do
     Repo.delete!(conn.assigns.group)
-
     conn
     |> put_flash(:info, "Group deleted successfully.")
     |> redirect(to: group_path(conn, :index))
   end
-  def delete(conn, _params) do 
+  def delete(conn, _params) do
     redirect_not_authorized(conn, group_path(conn, :index))
   end
 end

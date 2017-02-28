@@ -1,5 +1,5 @@
 <%= form_for @conn, @action, [as: :accept, method: "PUT"], fn _f -> %>
   <div class="form-group">
-    <%= submit "Accept Membership Request", class: "btn btn-primary" %>
+    <%= submit "Accept Membership Request", class: "btn btn-primary btn-xs" %>
   </div>
 <% end %>

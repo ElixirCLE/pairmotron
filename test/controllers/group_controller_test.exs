@@ -18,7 +18,7 @@ defmodule Pairmotron.GroupControllerTest do
 
     test "lists all entries on index", %{conn: conn} do
       conn = get conn, group_path(conn, :index)
-      assert html_response(conn, 200) =~ "Listing groups"
+      assert html_response(conn, 200) =~ "Groups"
     end
   end
 
@@ -67,7 +67,7 @@ defmodule Pairmotron.GroupControllerTest do
     test "shows chosen resource", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :show, group)
-      assert html_response(conn, 200) =~ "Show group"
+      assert html_response(conn, 200) =~ group.name
     end
 
     test "does not show invitations link if user is not group owner", %{conn: conn} do
@@ -98,7 +98,7 @@ defmodule Pairmotron.GroupControllerTest do
     test "shows edit group link when user is group owner", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       conn = get conn, group_path(conn, :show, group)
-      assert html_response(conn, 200) =~ "Edit Group"
+      assert html_response(conn, 200) =~ "Edit"
       assert html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
 
@@ -216,7 +216,7 @@ defmodule Pairmotron.GroupControllerTest do
     test "shows edit group link even if user is not group owner", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :show, group)
-      assert html_response(conn, 200) =~ "Edit Group"
+      assert html_response(conn, 200) =~ "Edit"
     end
 
     test "admin may update a group not owned by admin", %{conn: conn} do
