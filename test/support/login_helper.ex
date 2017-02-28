@@ -8,4 +8,10 @@ defmodule Pairmotron.LoginHelper do
     conn = build_conn() |> log_in(user)
     {:ok, [conn: conn, logged_in_user: user]}
   end
+
+  def login_admin_user() do
+    user = insert(:user_admin)
+    conn = build_conn() |> log_in(user)
+    {:ok, [conn: conn, logged_in_user: user]}
+  end
 end

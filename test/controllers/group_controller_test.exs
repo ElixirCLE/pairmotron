@@ -2,7 +2,6 @@ defmodule Pairmotron.GroupControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.Group
-  import Pairmotron.TestHelper, only: [log_in: 2]
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{}
@@ -12,21 +11,31 @@ defmodule Pairmotron.GroupControllerTest do
     assert redirected_to(conn) == session_path(conn, :new)
   end
 
-  describe "while authenticated" do
+  describe "using :index while authenticated" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "lists all entries on index", %{conn: conn} do
       conn = get conn, group_path(conn, :index)
       assert html_response(conn, 200) =~ "Listing groups"
     end
+  end
+
+  describe "using :new while authenticated" do
+    setup do
+      login_user()
+    end
 
     test "renders form for new resources", %{conn: conn} do
       conn = get conn, group_path(conn, :new)
       assert html_response(conn, 200) =~ "New group"
+    end
+  end
+
+  describe "using :create while authenticated" do
+    setup do
+      login_user()
     end
 
     test "creates resource and redirects when data is valid", %{conn: conn, logged_in_user: user} do
@@ -47,6 +56,12 @@ defmodule Pairmotron.GroupControllerTest do
     test "does not create resource and renders errors when data is invalid", %{conn: conn} do
       conn = post conn, group_path(conn, :create), group: @invalid_attrs
       assert html_response(conn, 200) =~ "New group"
+    end
+  end
+
+  describe "using :show while authenticated" do
+    setup do
+      login_user()
     end
 
     test "shows chosen resource", %{conn: conn} do
@@ -115,6 +130,12 @@ defmodule Pairmotron.GroupControllerTest do
         get conn, group_path(conn, :show, -1)
       end
     end
+  end
+
+  describe "using :edit while authenticated" do
+    setup do
+      login_user()
+    end
 
     test "renders form for editing chosen resource", %{conn: conn, logged_in_user: user} do
       group = insert(:group, owner: user)
@@ -126,6 +147,12 @@ defmodule Pairmotron.GroupControllerTest do
       group = insert(:group)
       conn = get conn, group_path(conn, :edit, group)
       assert redirected_to(conn) == group_path(conn, :index)
+    end
+  end
+
+  describe "using :update while authenticated" do
+    setup do
+      login_user()
     end
 
     test "updates chosen resource and redirects when data is valid", %{conn: conn, logged_in_user: user} do
@@ -147,6 +174,12 @@ defmodule Pairmotron.GroupControllerTest do
       conn = put conn, group_path(conn, :update, group), group: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit group"
     end
+  end
+
+  describe "using :delete while authenticated" do
+    setup do
+      login_user()
+    end
 
     test "deletes chosen resource", %{conn: conn, logged_in_user: user} do
       group = insert(:group, owner: user)
@@ -165,9 +198,7 @@ defmodule Pairmotron.GroupControllerTest do
 
   describe "as admin" do
     setup do
-      user = insert(:user_admin)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_admin_user()
     end
 
     test "admin may edit a group not owned by admin", %{conn: conn, logged_in_user: user} do

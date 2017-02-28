@@ -63,9 +63,7 @@ defmodule Pairmotron.GroupInvitationControllerTest do
 
   describe "using :new while authenticated" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "renders invitation form if user is owner of group", %{conn: conn, logged_in_user: user} do
@@ -104,9 +102,7 @@ defmodule Pairmotron.GroupInvitationControllerTest do
 
   describe "using :create while authenticated" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "can create a group_membership_request if current_user is owner of group", %{conn: conn, logged_in_user: user} do
@@ -186,9 +182,7 @@ defmodule Pairmotron.GroupInvitationControllerTest do
 
   describe "using :update while authenticated" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "creates a group and deletes group_invite if group_invite exists and created by user", %{conn: conn, logged_in_user: user} do

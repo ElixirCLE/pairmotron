@@ -3,8 +3,6 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
 
   alias Pairmotron.{GroupMembershipRequest, UserGroup}
 
-  import Pairmotron.TestHelper, only: [log_in: 2]
-
   test "redirects to sign-in when not logged in", %{conn: conn} do
     conn = get conn, users_group_membership_request_path(conn, :index)
     assert redirected_to(conn) == session_path(conn, :new)
@@ -12,9 +10,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
 
   describe "using :index while authenticated" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "states that there are no active invitations when there are not", %{conn: conn} do
@@ -53,9 +49,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
 
   describe "using :create while authenticated" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "can create a group_membership_request", %{conn: conn, logged_in_user: user} do
@@ -113,9 +107,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
 
   describe "using :update while authenticated" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "creates a group and deletes group_invite if group_invite exists and created by group", %{conn: conn, logged_in_user: user} do
