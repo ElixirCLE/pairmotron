@@ -30,9 +30,6 @@
           action: users_group_membership_request_path(@conn, :create) %>
 <%= end %>
 
-<%= if not current_user_has_requested_membership_to_group?(@conn, @group) do %>
-<%= end %>
-
 <%= if current_user_can_edit_group?(@conn, @group) do %>
   <a href=<%= group_invitation_path(@conn, :index, @group) %>>
     <button class="btn btn-primary">Invitations</button>
