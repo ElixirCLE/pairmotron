@@ -31,9 +31,9 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def create(conn, %{"pair_retro" => pair_retro_params}) do
-    pair_id = parameter_as_integer(pair_retro_params, "pair_id")
     current_user = conn.assigns.current_user
 
+    pair_id = parameter_as_integer(pair_retro_params, "pair_id")
     pair = Pair.pair_with_users(pair_id) |> Repo.one
 
     cond do

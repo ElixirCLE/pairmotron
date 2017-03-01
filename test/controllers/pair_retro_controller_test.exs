@@ -2,8 +2,7 @@ defmodule Pairmotron.PairRetroControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.PairRetro
-  import Pairmotron.TestHelper,
-    only: [create_retro: 2, create_pair_and_retro: 2]
+  import Pairmotron.TestHelper, only: [create_pair_and_retro: 2]
 
   @valid_attrs %{subject: "some content", reflection: "some content", pair_date: Timex.today}
   @invalid_attrs %{}
@@ -200,7 +199,7 @@ defmodule Pairmotron.PairRetroControllerTest do
     test "renders form for editing logged in user's own resource", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
-      retro = create_retro(user, pair)
+      retro = insert(:retro, %{user: user, pair: pair})
       conn = get conn, pair_retro_path(conn, :edit, retro)
       assert html_response(conn, 200) =~ "Edit retrospective"
     end
