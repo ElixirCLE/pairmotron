@@ -19,7 +19,7 @@ defmodule Pairmotron.PairRetroController do
 
     cond do
       is_nil(pair) ->
-        redirect_and_flash_error(conn, "You cannot create a retrospective for non-existent pair")
+        redirect_and_flash_error(conn, "You cannot create a retrospective for a non-existent pair")
       not current_user.id in Enum.map(pair.users, &(&1.id)) ->
         redirect_and_flash_error(conn, "You cannot create a retrospective for a pair you are not in")
       true ->
@@ -38,7 +38,7 @@ defmodule Pairmotron.PairRetroController do
 
     cond do
       is_nil(pair) ->
-        redirect_and_flash_error(conn, "You cannot create a retrospective for non-existent pair")
+        redirect_and_flash_error(conn, "You cannot create a retrospective for a non-existent pair")
       not current_user.id in Enum.map(pair.users, &(&1.id)) ->
         redirect_and_flash_error(conn, "You cannot create a retrospective for a pair you are not in")
       true ->
