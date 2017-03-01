@@ -3,7 +3,7 @@ defmodule Pairmotron.PairRetroControllerTest do
 
   alias Pairmotron.PairRetro
   import Pairmotron.TestHelper,
-    only: [log_in: 2, create_pair: 4, create_retro: 2, create_pair_and_retro: 2]
+    only: [create_retro: 2, create_pair_and_retro: 2]
 
   @valid_attrs %{subject: "some content", reflection: "some content", pair_date: Timex.today}
   @invalid_attrs %{}
@@ -16,17 +16,14 @@ defmodule Pairmotron.PairRetroControllerTest do
   defp create_user_and_pair_and_retro() do
     user = insert(:user)
     group = insert(:group, %{owner: user})
-    pair = Pairmotron.TestHelper.create_pair([user], group)
-    retro = create_retro(user, pair)
+    pair = insert(:pair, %{group: group, users: [user]})
+    retro = insert(:retro, user: user, pair: pair)
     {user, pair, retro}
   end
 
-  describe "while authenticated" do
+  describe "using :index while authenticated" do
     setup do
-      user = insert(:user)
-      group = insert(:group, %{owner: user})
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user, group: group]}
+      login_user()
     end
 
     test "lists all entries on index", %{conn: conn} do
@@ -34,7 +31,8 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "Listing your retrospectives"
     end
 
-    test "lists the current user's retrospectives", %{conn: conn, logged_in_user: user, group: group} do
+    test "lists the current user's retrospectives", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
       {_pair, retro} = create_pair_and_retro(user, group)
       conn = get conn, pair_retro_path(conn, :index)
       assert html_response(conn, 200) =~ Ecto.Date.to_string(retro.pair_date)
@@ -45,15 +43,29 @@ defmodule Pairmotron.PairRetroControllerTest do
       conn = get conn, pair_retro_path(conn, :index)
       refute html_response(conn, 200) =~ Ecto.Date.to_string(retro.pair_date)
     end
+  end
 
-    test "renders form for new resources", %{conn: conn, logged_in_user: user, group: group} do
-      pair = Pairmotron.TestHelper.create_pair([user], group)
+  describe "using :new while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "renders form for new resources", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
       conn = get conn, pair_retro_path(conn, :new, pair.id)
       assert html_response(conn, 200) =~ "New retrospective"
     end
+  end
 
-    test "creates retro and redirects when data is valid and user is logged in", %{conn: conn, logged_in_user: user, group: group} do
-      pair = Pairmotron.TestHelper.create_pair([user], group)
+  describe "using :create while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "creates retro and redirects when data is valid and user is logged in", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
       attrs = Map.merge(@valid_attrs, %{pair_id: Integer.to_string(pair.id),
                                         user_id: Integer.to_string(user.id)})
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
@@ -61,8 +73,9 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert Repo.get_by(PairRetro, attrs)
     end
 
-    test "cannot create retro with a pair_date before the pair's week", %{conn: conn, logged_in_user: user, group: group} do
-      pair = Pairmotron.TestHelper.create_pair([user], group,  2016, 1)
+    test "cannot create retro with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user], year: 2016, week: 1})
       attrs = Map.merge(@valid_attrs, %{pair_date: ~D(1999-10-20),
                                         pair_id: Integer.to_string(pair.id),
                                         user_id: Integer.to_string(user.id)})
@@ -71,9 +84,12 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "cannot be before the week of the pair"
     end
 
-    test "cannot create retro without a user_id parameter", %{conn: conn, logged_in_user: user, group: group} do
-      pair = Pairmotron.TestHelper.create_pair([user], group)
+    test "cannot create retro without a user_id parameter", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+
       attrs = Map.merge(@valid_attrs, %{pair_id: Integer.to_string(pair.id)})
+
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
       assert html_response(conn, 200) =~ "New retrospective"
       assert html_response(conn, 200) =~ "something went wrong"
@@ -82,8 +98,8 @@ defmodule Pairmotron.PairRetroControllerTest do
 
     test "cannot create retro when the retros user is not the logged in user", %{conn: conn} do
       user = insert(:user)
-      group = insert(:group, %{owner: user})
-      pair = Pairmotron.TestHelper.create_pair([user], group)
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
       attrs = Map.merge(@valid_attrs, %{pair_id: Integer.to_string(pair.id),
                                         user_id: Integer.to_string(user.id)})
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
@@ -95,8 +111,15 @@ defmodule Pairmotron.PairRetroControllerTest do
       conn = post conn, pair_retro_path(conn, :create), pair_retro: @invalid_attrs
       assert html_response(conn, 200) =~ "New retrospective"
     end
+  end
 
-    test "can show the logged in user's retrospective", %{conn: conn, logged_in_user: user, group: group} do
+  describe "using :show while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "can show the logged in user's retrospective", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
       {_pair, retro} = create_pair_and_retro(user, group)
       conn = get conn, pair_retro_path(conn, :show, retro)
       assert html_response(conn, 200) =~ "Show retrospective"
@@ -113,9 +136,16 @@ defmodule Pairmotron.PairRetroControllerTest do
       conn = get conn, pair_retro_path(conn, :show, -1)
       assert html_response(conn, 404) =~ "Page not found"
     end
+  end
 
-    test "renders form for editing logged in user's own resource", %{conn: conn, logged_in_user: user, group: group} do
-      pair = Pairmotron.TestHelper.create_pair([user], group)
+  describe "using :edit while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "renders form for editing logged in user's own resource", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
       retro = create_retro(user, pair)
       conn = get conn, pair_retro_path(conn, :edit, retro)
       assert html_response(conn, 200) =~ "Edit retrospective"
@@ -127,46 +157,93 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert redirected_to(conn) == pair_retro_path(conn, :index)
       assert %{"error" => _} = conn.private.phoenix_flash
     end
+  end
 
-    test "updates logged in users' retro and redirects when data is valid", %{conn: conn, logged_in_user: user, group: group} do
-      pair = Pairmotron.TestHelper.create_pair([user], group)
-      attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
-      pair_retro = Repo.insert! %PairRetro{user_id: user.id}
+  describe "using :update while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "updates logged in users' retro and redirects when data is valid", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      pair_retro = insert(:retro, %{user: user, pair: pair})
+
+      attrs = Map.merge(@valid_attrs, %{subject: "different subject", reflection: "learned so much more"})
+
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :show, pair_retro)
       assert Repo.get_by(PairRetro, attrs)
     end
 
-    test "does not update retro with a pair_date before the pair's week", %{conn: conn, logged_in_user: user, group: group} do
-      pair = create_pair([user], group, 2016, 1)
-      attrs = Map.merge(@valid_attrs, %{pair_date: ~D(1999-10-20),
-                                        pair_id: pair.id,
-                                        user_id: user.id})
-      pair_retro = Repo.insert! %PairRetro{user_id: user.id}
+    test "does not update retro with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user], year: 2016, week: 1})
+      pair_retro = insert(:retro, %{user: user, pair: pair})
+
+      new_pair_date = {1999, 10, 20} |> Ecto.Date.from_erl
+      attrs = Map.merge(@valid_attrs, %{pair_date: new_pair_date})
+
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
       assert html_response(conn, 200) =~ "Edit retrospective"
       assert html_response(conn, 200) =~ "cannot be before the week of the pair"
     end
 
-    test "does not update retro of user who is not the logged in user", %{conn: conn} do
-      user = insert(:user)
-      group = insert(:group, %{owner: user})
-      pair = Pairmotron.TestHelper.create_pair([user], group)
+    test "does not update retro of user who is not the logged in user", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [other_user]})
+      pair_retro = insert(:retro, %{pair: pair, user: other_user})
+
       attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
-      pair_retro = Repo.insert! %PairRetro{}
+
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :index)
       assert %{"error" => _} = conn.private.phoenix_flash
       refute Repo.get_by(PairRetro, attrs)
     end
 
+    test "cannot change retro to a different user", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      other_user = insert(:user)
+      pair_retro = insert(:retro, %{pair: pair, user: user})
+
+      attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: other_user.id})
+
+      put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
+      refute Repo.get_by(PairRetro, attrs)
+    end
+
+    test "cannot change retro to a different pair", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      other_pair = insert(:pair, %{group: group})
+      pair_retro = insert(:retro, %{pair: pair, user: user})
+
+      attrs = Map.merge(@valid_attrs, %{pair_id: other_pair.id, user_id: user.id})
+
+      put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
+      refute Repo.get_by(PairRetro, attrs)
+    end
+
     test "does not update chosen resource and renders errors when data is invalid", %{conn: conn, logged_in_user: user} do
-      pair_retro = Repo.insert! %PairRetro{user_id: user.id}
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      pair_retro = Repo.insert! %PairRetro{user_id: user.id, pair_id: pair.id}
+
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit retrospective"
     end
+  end
 
-    test "can delete the logged in users' retro", %{conn: conn, logged_in_user: user, group: group} do
+  describe "using :delete while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "can delete the logged in users' retro", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
       {_pair, retro} = create_pair_and_retro(user, group)
       conn = delete conn, pair_retro_path(conn, :delete, retro)
       assert redirected_to(conn) == pair_retro_path(conn, :index)
@@ -184,17 +261,17 @@ defmodule Pairmotron.PairRetroControllerTest do
 
   describe "as admin" do
     setup do
-      user = insert(:user_admin)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_admin_user()
     end
 
     test "creates other user's retro and redirects", %{conn: conn} do
       user = insert(:user)
       group = insert(:group, %{owner: user})
-      pair = Pairmotron.TestHelper.create_pair([user], group)
+      pair = insert(:pair, %{group: group, users: [user]})
+
       attrs = Map.merge(@valid_attrs, %{pair_id: Integer.to_string(pair.id),
                                         user_id: Integer.to_string(user.id)})
+
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :index)
       assert Repo.get_by(PairRetro, attrs)
@@ -209,9 +286,11 @@ defmodule Pairmotron.PairRetroControllerTest do
     test "updates other user's retrospective and redirects when data is valid", %{conn: conn} do
       user = insert(:user)
       group = insert(:group, %{owner: user})
-      pair = Pairmotron.TestHelper.create_pair([user], group)
+      pair = insert(:pair, %{group: group, users: [user]})
+      pair_retro = Repo.insert! %PairRetro{user_id: user.id, pair_id: pair.id}
+
       attrs = Map.merge(@valid_attrs, %{pair_id: pair.id, user_id: user.id})
-      pair_retro = Repo.insert! %PairRetro{user_id: user.id}
+
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
       assert redirected_to(conn) == pair_retro_path(conn, :show, pair_retro)
       assert Repo.get_by(PairRetro, attrs)

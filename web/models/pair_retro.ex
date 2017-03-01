@@ -34,6 +34,28 @@ defmodule Pairmotron.PairRetro do
     |> validate_field_is_not_in_future(:pair_date)
   end
 
+  @required_update_fields ~w(pair_date)
+
+  @doc """
+  Builds a changeset based on the `struct` and `params`.
+
+  pair_start_date should be a date which is the first day
+  of the week and year on the associated pair. It is used
+  to validate that the pair_date of this pair_retro is after
+  that date, since the actual pairing could not have occurred
+  before the actual pair was assigned.
+
+  The update changeset does not allow the user to change the user or pair
+  associated with the pair_retro.
+  """
+  def update_changeset(struct, params \\ %{}, pair_start_date) do
+    struct
+    |> cast(params, @required_update_fields, @optional_fields)
+    |> foreign_key_constraint(:project_id)
+    |> validate_field_is_not_before_date(:pair_date, pair_start_date)
+    |> validate_field_is_not_in_future(:pair_date)
+  end
+
   defp validate_field_is_not_before_date(changeset, field, pair_start_date) do
     validate_change changeset, field, fn field, field_date ->
       cond do

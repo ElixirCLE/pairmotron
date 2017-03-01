@@ -57,9 +57,11 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def update(conn = @authorized_conn, %{"pair_retro" => pair_retro_params}) do
-    earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
-    pair_retro = conn.assigns.pair_retro
-    changeset = PairRetro.changeset(pair_retro, pair_retro_params, earliest_pair_date)
+    pair_retro = conn.assigns.pair_retro |> Repo.preload(:pair)
+    pair = pair_retro.pair
+
+    earliest_pair_date = Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
+    changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, earliest_pair_date)
 
     case Repo.update(changeset) do
       {:ok, pair_retro} ->
