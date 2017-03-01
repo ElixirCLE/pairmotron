@@ -21,4 +21,19 @@ defmodule Pairmotron.Pair do
     struct
     |> cast(params, @required_fields, @optional_fields)
   end
+
+  @doc """
+  Ecto query that returns a pair with its :users association prelodaded.
+  Performs a single database call.
+  """
+  def pair_with_users(pair_id) when is_binary(pair_id) do
+    {pair_id_int, _} = Integer.parse(pair_id)
+    pair_with_users(pair_id_int)
+  end
+  def pair_with_users(pair_id) do
+    from pair in Pairmotron.Pair,
+    join: users in assoc(pair, :users),
+    where: pair.id == ^pair_id,
+    preload: [users: users]
+  end
 end

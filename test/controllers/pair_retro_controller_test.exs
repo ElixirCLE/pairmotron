@@ -56,6 +56,18 @@ defmodule Pairmotron.PairRetroControllerTest do
       conn = get conn, pair_retro_path(conn, :new, pair.id)
       assert html_response(conn, 200) =~ "New retrospective"
     end
+
+    test "redirects with error for nonexistent pair", %{conn: conn} do
+      conn = get conn, pair_retro_path(conn, :new, 123)
+      assert redirected_to(conn) == pair_path(conn, :index)
+    end
+
+    test "redirects with error if user is not in the pair", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: []})
+      conn = get conn, pair_retro_path(conn, :new, pair.id)
+      assert redirected_to(conn) == pair_path(conn, :index)
+    end
   end
 
   describe "using :create while authenticated" do
@@ -133,8 +145,25 @@ defmodule Pairmotron.PairRetroControllerTest do
                                         user_id: Integer.to_string(user.id)})
 
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
-      assert redirected_to(conn) == pair_retro_path(conn, :index)
+      assert redirected_to(conn) == pair_path(conn, :index)
       assert %{"error" => _} = conn.private.phoenix_flash
+      refute Repo.get_by(PairRetro, %{user_id: user.id})
+    end
+
+    test "fails without pair_id parameter", %{conn: conn, logged_in_user: user} do
+      attrs = Map.merge(@valid_attrs, %{})
+
+      conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
+      assert redirected_to(conn) == pair_path(conn, :index)
+      refute Repo.get_by(PairRetro, %{user_id: user.id})
+    end
+
+    test "fails with pair_id parameter of non-existent pair", %{conn: conn, logged_in_user: user} do
+      attrs = Map.merge(@valid_attrs, %{pair_id: 123})
+
+      conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
+      assert redirected_to(conn) == pair_path(conn, :index)
+      refute Repo.get_by(PairRetro, %{user_id: user.id})
     end
   end
 
