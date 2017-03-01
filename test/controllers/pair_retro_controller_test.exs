@@ -63,7 +63,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       login_user()
     end
 
-    test "creates retro and redirects when data is valid and user is logged in", %{conn: conn, logged_in_user: user} do
+    test "creates retro and redirects when data is valid", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
 
@@ -75,7 +75,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert Repo.get_by(PairRetro, attrs)
     end
 
-    test "cannot create retro with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
+    test "fails with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user], year: 2016, week: 1})
 
@@ -88,7 +88,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "cannot be before the week of the pair"
     end
 
-    test "cannot create retro without a pair_date parameter", %{conn: conn, logged_in_user: user} do
+    test "fails without a pair_date parameter", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
 
@@ -143,14 +143,14 @@ defmodule Pairmotron.PairRetroControllerTest do
       login_user()
     end
 
-    test "can show the logged in user's retrospective", %{conn: conn, logged_in_user: user} do
+    test "displays a logged in user's retrospective", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       {_pair, retro} = create_pair_and_retro(user, group)
       conn = get conn, pair_retro_path(conn, :show, retro)
       assert html_response(conn, 200) =~ "Show retrospective"
     end
 
-    test "cannot show other user's retrospective", %{conn: conn} do
+    test "does not display a different user's retrospective", %{conn: conn} do
       {_user, _pair, retro} = create_user_and_pair_and_retro()
       conn = get conn, pair_retro_path(conn, :show, retro)
       assert redirected_to(conn) == pair_retro_path(conn, :index)
@@ -201,7 +201,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert Repo.get_by(PairRetro, attrs)
     end
 
-    test "does not update retro with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
+    test "fails with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user], year: 2016, week: 1})
       pair_retro = insert(:retro, %{user: user, pair: pair})
@@ -214,7 +214,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "cannot be before the week of the pair"
     end
 
-    test "does not update retro of user who is not the logged in user", %{conn: conn, logged_in_user: user} do
+    test "fails to update a different user's retro", %{conn: conn, logged_in_user: user} do
       other_user = insert(:user)
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [other_user]})
@@ -228,7 +228,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       refute Repo.get_by(PairRetro, attrs)
     end
 
-    test "cannot change retro to a different user", %{conn: conn, logged_in_user: user} do
+    test "fails to change retro to a different user", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
       other_user = insert(:user)
@@ -240,7 +240,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       refute Repo.get_by(PairRetro, attrs)
     end
 
-    test "cannot change retro to a different pair", %{conn: conn, logged_in_user: user} do
+    test "fails to change retro to a different pair", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
       other_pair = insert(:pair, %{group: group})
@@ -267,7 +267,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       login_user()
     end
 
-    test "can delete the logged in users' retro", %{conn: conn, logged_in_user: user} do
+    test "deletes the logged in users' retro", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       {_pair, retro} = create_pair_and_retro(user, group)
 
@@ -276,7 +276,7 @@ defmodule Pairmotron.PairRetroControllerTest do
       refute Repo.get(PairRetro, retro.id)
     end
 
-    test "can not delete retro of a user that is not logged in", %{conn: conn} do
+    test "fails to delete retro of a user that is not logged in", %{conn: conn} do
       {_user, _pair, retro} = create_user_and_pair_and_retro()
 
       conn = delete conn, pair_retro_path(conn, :delete, retro)
