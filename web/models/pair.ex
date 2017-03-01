@@ -26,10 +26,8 @@ defmodule Pairmotron.Pair do
   Ecto query that returns a pair with its :users association prelodaded.
   Performs a single database call.
   """
-  def pair_with_users(pair_id) when is_binary(pair_id) do
-    {pair_id_int, _} = Integer.parse(pair_id)
-    pair_with_users(pair_id_int)
-  end
+  def pair_with_users(pair_id) when is_binary(pair_id), do:
+    Integer.parse(pair_id) |> elem(0) |> pair_with_users
   def pair_with_users(pair_id) do
     from pair in Pairmotron.Pair,
     join: users in assoc(pair, :users),
