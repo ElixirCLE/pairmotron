@@ -1,7 +1,7 @@
 defmodule Pairmotron.PairRetroController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.{PairRetro, Project}
+  alias Pairmotron.{PairRetro, Project, Pair}
   import Pairmotron.ControllerHelpers
 
   plug :load_and_authorize_resource, model: PairRetro, only: [:show, :edit, :update, :delete]
@@ -13,28 +13,48 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def new(conn, %{"pair_id" => pair_id}) do
-    conn = assign(conn, :projects, Repo.all(Project))
-    current_user = conn.assigns[:current_user]
-    changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id}, nil)
-    render(conn, "new.html", changeset: changeset)
+    current_user = conn.assigns.current_user
+
+    pair = Pair.pair_with_users(pair_id) |> Repo.one
+
+    cond do
+      is_nil(pair) ->
+        redirect_and_flash_error(conn, "You cannot create a retrospective for a non-existent pair")
+      not current_user.id in Enum.map(pair.users, &(&1.id)) ->
+        redirect_and_flash_error(conn, "You cannot create a retrospective for a pair you are not in")
+      true ->
+        conn = assign(conn, :projects, Repo.all(Project))
+        current_user = conn.assigns[:current_user]
+        changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id}, nil)
+        render(conn, "new.html", changeset: changeset)
+    end
   end
 
   def create(conn, %{"pair_retro" => pair_retro_params}) do
-    user_id = parameter_as_integer(pair_retro_params, "user_id")
-    current_user = conn.assigns[:current_user]
-    if current_user.id == user_id || user_id == 0 || is_admin?(current_user) do
-      earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
-      changeset = PairRetro.changeset(%PairRetro{}, pair_retro_params, earliest_pair_date)
-      case Repo.insert(changeset) do
-        {:ok, _pair_retro} ->
-          conn
-          |> put_flash(:info, "Pair retro created successfully.")
-          |> redirect(to: pair_retro_path(conn, :index))
-        {:error, changeset} ->
-          render(conn, "new.html", changeset: changeset)
-      end
-    else
-      redirect_not_authorized(conn, pair_retro_path(conn, :index))
+    current_user = conn.assigns.current_user
+
+    pair_id = parameter_as_integer(pair_retro_params, "pair_id")
+    pair = Pair.pair_with_users(pair_id) |> Repo.one
+
+    cond do
+      is_nil(pair) ->
+        redirect_and_flash_error(conn, "You cannot create a retrospective for a non-existent pair")
+      not current_user.id in Enum.map(pair.users, &(&1.id)) ->
+        redirect_and_flash_error(conn, "You cannot create a retrospective for a pair you are not in")
+      true ->
+        implicit_params = %{"user_id" => conn.assigns.current_user.id}
+        final_params = pair_retro_params |> Map.merge(implicit_params)
+
+        earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
+        changeset = PairRetro.changeset(%PairRetro{}, final_params, earliest_pair_date)
+        case Repo.insert(changeset) do
+          {:ok, _pair_retro} ->
+            conn
+            |> put_flash(:info, "Pair retro created successfully.")
+            |> redirect(to: pair_retro_path(conn, :index))
+          {:error, changeset} ->
+            render(conn, "new.html", changeset: changeset)
+        end
     end
   end
 
@@ -57,9 +77,11 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def update(conn = @authorized_conn, %{"pair_retro" => pair_retro_params}) do
-    earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
-    pair_retro = conn.assigns.pair_retro
-    changeset = PairRetro.changeset(pair_retro, pair_retro_params, earliest_pair_date)
+    pair_retro = conn.assigns.pair_retro |> Repo.preload(:pair)
+    pair = pair_retro.pair
+
+    earliest_pair_date = Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
+    changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, earliest_pair_date)
 
     case Repo.update(changeset) do
       {:ok, pair_retro} ->
@@ -91,5 +113,11 @@ defmodule Pairmotron.PairRetroController do
       nil -> nil
       pair -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
     end
+  end
+
+  defp redirect_and_flash_error(conn, message) do
+    conn
+    |> put_flash(:error, message)
+    |> redirect(to: pair_path(conn, :index))
   end
 end

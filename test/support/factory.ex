@@ -53,4 +53,21 @@ defmodule Pairmotron.Factory do
   def group_membership_request_factory do
     %Pairmotron.GroupMembershipRequest{}
   end
+
+  def pair_factory do
+    {current_year, current_week} = Timex.iso_week(Timex.today)
+    %Pairmotron.Pair{
+      year: current_year,
+      week: current_week,
+      group: build(:group)
+    }
+  end
+
+  def retro_factory do
+    %Pairmotron.PairRetro{
+      pair_date: Timex.today |> Timex.to_erl |> Ecto.Date.from_erl,
+      user: build(:user),
+      pair: build(:pair)
+    }
+  end
 end
