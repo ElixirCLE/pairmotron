@@ -7,3 +7,7 @@ a.padded-link {
   display: flex;
   align-items: center;
 }
+
+.prevent-overflow {
+  overflow: scroll;
+}

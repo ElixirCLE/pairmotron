@@ -4,7 +4,7 @@
   <div class="col-md-8 col-sm-12 col-xs-12">
     <ul class="list-group">
       <%= for group <- @groups do %>
-        <li class="list-group-item">
+        <li class="list-group-item prevent-overflow">
           <h4><%= link group.name, to: group_path(@conn, :show, group) %>
             <small>
               <%= cond do %>
