@@ -13,14 +13,6 @@ defmodule Pairmotron.GroupController do
     render(conn, "index.html", groups: groups)
   end
 
-  def show(conn, %{"id" => id}) do
-    group = Repo.get!(Group, id) |> Repo.preload(:owner)
-    invite_changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{group_id: id})
-    current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
-    conn = conn |> Plug.Conn.assign(:current_user, current_user)
-    render(conn, "show.html", group: group, invite_changeset: invite_changeset)
-  end
-
   def new(conn, _params) do
     changeset = Group.changeset(%Group{}, %{owner_id: conn.assigns.current_user.id})
     render(conn, "new.html", changeset: changeset)
@@ -40,6 +32,14 @@ defmodule Pairmotron.GroupController do
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
     end
+  end
+
+  def show(conn, %{"id" => id}) do
+    group = Repo.get!(Group, id) |> Repo.preload(:owner)
+    invite_changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{group_id: id})
+    current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
+    conn = conn |> Plug.Conn.assign(:current_user, current_user)
+    render(conn, "show.html", group: group, invite_changeset: invite_changeset)
   end
 
   def edit(conn = @authorized_conn, _params) do
