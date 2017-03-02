@@ -27,6 +27,12 @@ defmodule Pairmotron.GroupControllerTest do
       refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
     end
 
+    test "does not show invitations link if user is not group owner but in group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      conn = get conn, group_path(conn, :index)
+      refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
     test "does not show edit group link if user is not group owner", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :index)
@@ -152,6 +158,12 @@ defmodule Pairmotron.GroupControllerTest do
     test "does not show invitations link if user is not group owner", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :show, group)
+      refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "does not show invitations link if user is not group owner but in group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      conn = get conn, group_path(conn, :index)
       refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
     end
 
