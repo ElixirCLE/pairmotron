@@ -1,6 +1,6 @@
 <%= form_for @changeset, @action, fn f -> %>
-
-  <%= hidden_input f, :group_id, value: value_from_changeset(@changeset, :group_id) %>
-
-  <%= submit "Request Membership", class: "btn btn-primary btn-sm" %>
+  <div class="form-group">
+    <%= hidden_input f, :group_id, value: value_from_changeset(@changeset, :group_id) %>
+    <%= submit "Request Membership", class: "btn btn-primary btn-sm" %>
+  </div>
 <% end %>
