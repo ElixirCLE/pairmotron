@@ -1,28 +1,29 @@
-<h2>Listing groups</h2>
+<h2>Groups</h2>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Name</th>
-
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-<%= for group <- @groups do %>
-    <tr>
-      <td><%= group.name %></td>
-
-      <td class="text-right">
-        <%= link "Show", to: group_path(@conn, :show, group), class: "btn btn-default btn-xs" %>
-        <%= if current_user_can_edit_group?(@conn, group) do %>
-          <%= link "Edit", to: group_path(@conn, :edit, group), class: "btn btn-default btn-xs" %>
-          <%= link "Delete", to: group_path(@conn, :delete, group), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
-        <%= end %>
-      </td>
-    </tr>
-<% end %>
-  </tbody>
-</table>
+<div class="row">
+  <div class="col-md-8 col-sm-12 col-xs-12">
+    <ul class="list-group">
+      <%= for group <- @groups do %>
+        <li class="list-group-item prevent-overflow">
+          <h4><%= link group.name, to: group_path(@conn, :show, group) %>
+            <small>
+              <%= cond do %>
+                <%= current_user_can_edit_group?(@conn, group) -> %>
+                  <label class="label label-info">Owner</label>
+                <%= current_user_in_group?(@conn, group) -> %>
+                  <label class="label label-success">Member</label>
+                <%=  current_user_has_requested_membership_to_group?(@conn, group) -> %>
+                  <label class="label label-warning">Invitation Pending...</label>
+                <%= true -> %>
+              <%= end %>
+            </small>
+          </h4>
+          <p><%= truncate(group.description, 110) %></p>
+          <%= render "group_actions.html", conn: @conn, group: group %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
 
 <%= link "New group", to: group_path(@conn, :new) %>

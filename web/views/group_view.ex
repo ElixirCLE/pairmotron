@@ -25,4 +25,14 @@ defmodule Pairmotron.GroupView do
     conn.assigns.current_user.group_membership_requests
     |> Enum.find(&(&1.group_id == group.id and not &1.initiated_by_user))
   end
+
+  def truncate(nil, _), do: nil
+  def truncate(string, len) do
+    cond do
+      String.length(string) > len ->
+        String.slice(string, 0, len) <> "..."
+      True ->
+        string
+    end
+  end
 end

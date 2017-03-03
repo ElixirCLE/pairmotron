@@ -3,7 +3,7 @@ defmodule Pairmotron.GroupTest do
 
   alias Pairmotron.Group
 
-  @valid_attrs %{name: "some content", owner_id: 1}
+  @valid_attrs %{name: "some content", owner_id: 1, description: "group description"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

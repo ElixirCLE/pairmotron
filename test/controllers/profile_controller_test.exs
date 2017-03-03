@@ -31,6 +31,12 @@ defmodule Pairmotron.ProfileControllerTest do
       assert html_response(conn, 200) =~ group_path(conn, :show, group2)
     end
 
+    test "shows pairs link when user is in group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      conn = get conn, profile_path(conn, :show)
+      assert html_response(conn, 200) =~ group_pair_path(conn, :show, group)
+    end
+
     test "displays the no groups actions when the user has no groups", %{conn: conn} do
       conn = get conn, profile_path(conn, :show)
       assert html_response(conn, 200) =~ "Find a group"
@@ -39,7 +45,7 @@ defmodule Pairmotron.ProfileControllerTest do
     test "links to group edit if current user is owner", %{conn: conn, logged_in_user: user} do
       group1 = insert(:group, %{owner: user, users: [user]})
       conn = get conn, profile_path(conn, :show)
-      assert html_response(conn, 200) =~ "Manage"
+      assert html_response(conn, 200) =~ "Edit"
       assert html_response(conn, 200) =~ group_path(conn, :edit, group1)
     end
 

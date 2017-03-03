@@ -7,7 +7,9 @@ defmodule Pairmotron.GroupController do
   plug :load_and_authorize_resource, model: Group, only: [:edit, :update, :delete]
 
   def index(conn, _params) do
-    groups = Repo.all(Group)
+    groups = Group |> order_by(:name) |> Repo.all
+    current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
+    conn = conn |> Plug.Conn.assign(:current_user, current_user)
     render(conn, "index.html", groups: groups)
   end
 
@@ -68,12 +70,11 @@ defmodule Pairmotron.GroupController do
 
   def delete(conn = @authorized_conn, _params) do
     Repo.delete!(conn.assigns.group)
-
     conn
     |> put_flash(:info, "Group deleted successfully.")
     |> redirect(to: group_path(conn, :index))
   end
-  def delete(conn, _params) do 
+  def delete(conn, _params) do
     redirect_not_authorized(conn, group_path(conn, :index))
   end
 end
