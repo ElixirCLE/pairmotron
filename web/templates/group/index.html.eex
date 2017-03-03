@@ -8,7 +8,7 @@
           <h4><%= link group.name, to: group_path(@conn, :show, group) %>
             <small>
               <%= cond do %>
-                <%= current_user_can_edit_group?(@conn, group) -> %>
+                <%= group.owner_id == @conn.assigns.current_user.id -> %>
                   <label class="label label-info">Owner</label>
                 <%= current_user_in_group?(@conn, group) -> %>
                   <label class="label label-success">Member</label>

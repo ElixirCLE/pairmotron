@@ -1,24 +1,26 @@
-<%= cond do %>
-  <%= current_user_has_been_invited_by_group?(@conn, @group) -> %>
-    <%= render Pairmotron.UsersGroupMembershipRequestView,
-          "accept_invitation_form.html",
-          conn: @conn,
-          action: users_group_membership_request_path(@conn, :update, current_user_group_membership_request_for_group(@conn, @group)) %>
-  <%= current_user_in_group?(@conn, @group) -> %>
-    <%= link "Pairs", to: group_pair_path(@conn, :show, @group), class: "btn btn-default btn-sm"%>
-  <%= not current_user_in_group?(@conn, @group) and not current_user_has_requested_membership_to_group?(@conn, @group) -> %>
-    <%= render "request_membership_form.html",
-    changeset: Pairmotron.GroupMembershipRequest.changeset(%Pairmotron.GroupMembershipRequest{}, %{group_id: @group.id}),
-          action: users_group_membership_request_path(@conn, :create) %>
-  <%= true -> %>
-<%= end %>
+<div class="form-group">
+  <%= cond do %>
+    <%= current_user_has_been_invited_by_group?(@conn, @group) -> %>
+      <%= render Pairmotron.UsersGroupMembershipRequestView,
+            "accept_invitation_form.html",
+            conn: @conn,
+            action: users_group_membership_request_path(@conn, :update, current_user_group_membership_request_for_group(@conn, @group)) %>
+    <%= current_user_in_group?(@conn, @group) -> %>
+      <%= link "Pairs", to: group_pair_path(@conn, :show, @group), class: "btn btn-default btn-sm"%>
+    <%= not current_user_in_group?(@conn, @group) and not current_user_has_requested_membership_to_group?(@conn, @group) -> %>
+      <%= render "request_membership_form.html",
+      changeset: Pairmotron.GroupMembershipRequest.changeset(%Pairmotron.GroupMembershipRequest{}, %{group_id: @group.id}),
+            action: users_group_membership_request_path(@conn, :create) %>
+    <%= true -> %>
+  <%= end %>
 
-<%= if current_user_can_edit_group?(@conn, @group) do %>
-  <a href=<%= group_invitation_path(@conn, :index, @group) %>>
-    <button class="btn btn-primary btn-sm">Invitations</button>
-  </a>
-  <a href=<%= group_path(@conn, :edit, @group) %>>
-    <button class="btn btn-primary btn-sm">Edit</button>
-  </a>
-  <%= link "Delete", to: group_path(@conn, :delete, @group), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-sm" %>
-<%= end %>
+  <%= if current_user_can_edit_group?(@conn, @group) do %>
+    <a href=<%= group_invitation_path(@conn, :index, @group) %>>
+      <button class="btn btn-primary btn-sm">Invitations</button>
+    </a>
+    <a href=<%= group_path(@conn, :edit, @group) %>>
+      <button class="btn btn-primary btn-sm">Edit</button>
+    </a>
+    <%= link "Delete", to: group_path(@conn, :delete, @group), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-sm" %>
+  <%= end %>
+</div>
