@@ -23,9 +23,9 @@ defmodule Pairmotron.PairRetroController do
       not current_user.id in Enum.map(pair.users, &(&1.id)) ->
         redirect_and_flash_error(conn, "You cannot create a retrospective for a pair you are not in")
       true ->
-        projects = Repo.all(Project)
+        projects = Project.projects_for_group(pair.group_id) |> Repo.all
         current_user = conn.assigns[:current_user]
-        changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id}, nil)
+        changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id}, nil, nil, nil)
         render(conn, "new.html", changeset: changeset, projects: projects)
     end
   end
@@ -45,8 +45,11 @@ defmodule Pairmotron.PairRetroController do
         implicit_params = %{"user_id" => conn.assigns.current_user.id}
         final_params = pair_retro_params |> Map.merge(implicit_params)
 
+        project_id = Map.get(final_params, "project_id", 0)
+        project = Repo.get(Project, project_id)
+
         earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
-        changeset = PairRetro.changeset(%PairRetro{}, final_params, earliest_pair_date)
+        changeset = PairRetro.changeset(%PairRetro{}, final_params, earliest_pair_date, project, pair)
         case Repo.insert(changeset) do
           {:ok, _pair_retro} ->
             conn
@@ -70,7 +73,7 @@ defmodule Pairmotron.PairRetroController do
   def edit(conn = @authorized_conn, _params) do
     projects = Repo.all(Project)
     retro = conn.assigns.pair_retro
-    changeset = PairRetro.changeset(retro, %{}, nil)
+    changeset = PairRetro.changeset(retro, %{}, nil, nil, nil)
     render(conn, "edit.html", pair_retro: retro, changeset: changeset, projects: projects)
   end
   def edit(conn, _params) do

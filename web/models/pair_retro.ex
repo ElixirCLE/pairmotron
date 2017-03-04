@@ -23,8 +23,11 @@ defmodule Pairmotron.PairRetro do
   to validate that the pair_date of this pair_retro is after
   that date, since the actual pairing could not have occurred
   before the actual pair was assigned.
+
+  Validates that the selected project is associated with the group tht is
+  associated with the pair.
   """
-  def changeset(struct, params \\ %{}, pair_start_date) do
+  def changeset(struct, params \\ %{}, pair_start_date, project, pair) do
     struct
     |> cast(params, @required_fields, @optional_fields)
     |> foreign_key_constraint(:user_id)
@@ -32,6 +35,7 @@ defmodule Pairmotron.PairRetro do
     |> foreign_key_constraint(:project_id)
     |> validate_field_is_not_before_date(:pair_date, pair_start_date)
     |> validate_field_is_not_in_future(:pair_date)
+    |> validate_project_is_for_group(:project_id, project, pair)
   end
 
   @required_update_fields ~w(pair_date)
@@ -72,6 +76,20 @@ defmodule Pairmotron.PairRetro do
       cond do
         Timex.after?(Ecto.Date.to_erl(field_date), Timex.today) ->
           [{field, "cannot be in the future"}]
+        true -> []
+      end
+    end
+  end
+
+  defp validate_project_is_for_group(changeset, field, project, pair) do
+    validate_change changeset, field, fn field, project_id ->
+      cond do
+        is_nil(project) -> []
+        is_nil(pair) -> []
+        pair.group_id != project.group_id ->
+          [{field, "Must belong to the pair's group"}]
+        project.id != project_id ->
+          [{field, "Must have same id as passed in project's id"}]
         true -> []
       end
     end

@@ -12,7 +12,7 @@ defmodule Pairmotron.PairRetroTest do
       pair = insert(:pair, %{users: [user], group: group})
       attrs = Map.merge(@valid_attrs, %{user_id: user.id,
                                         pair_id: pair.id})
-      changeset = PairRetro.changeset(%PairRetro{}, attrs, Timex.today)
+      changeset = PairRetro.changeset(%PairRetro{}, attrs, Timex.today, nil, nil)
       assert changeset.valid?
     end
 
@@ -23,7 +23,7 @@ defmodule Pairmotron.PairRetroTest do
       attrs = Map.merge(@valid_attrs, %{pair_date: ~D(2011-01-01),
                                         user_id: user.id,
                                         pair_id: pair.id})
-      changeset = PairRetro.changeset(%PairRetro{}, attrs, ~D(2016-01-04))
+      changeset = PairRetro.changeset(%PairRetro{}, attrs, ~D(2016-01-04), nil, nil)
       refute changeset.valid?
     end
 
@@ -34,12 +34,12 @@ defmodule Pairmotron.PairRetroTest do
       attrs = Map.merge(@valid_attrs, %{pair_date: Timex.shift(Timex.today, days: 1),
                                         user_id: user.id,
                                         pair_id: pair.id})
-      changeset = PairRetro.changeset(%PairRetro{}, attrs, nil)
+      changeset = PairRetro.changeset(%PairRetro{}, attrs, nil, nil, nil)
       refute changeset.valid?
     end
 
     test "changeset with invalid attributes" do
-      changeset = PairRetro.changeset(%PairRetro{}, @invalid_attrs, nil)
+      changeset = PairRetro.changeset(%PairRetro{}, @invalid_attrs, nil, nil, nil)
       refute changeset.valid?
     end
   end

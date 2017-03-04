@@ -56,6 +56,24 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "New retrospective"
     end
 
+    test "displays a project associated with the pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project, %{group: group})
+
+      conn = get conn, pair_retro_path(conn, :new, pair.id)
+      assert html_response(conn, 200) =~ project.name
+    end
+
+    test "does not display a project not associated with the pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project)
+
+      conn = get conn, pair_retro_path(conn, :new, pair.id)
+      refute html_response(conn, 200) =~ project.name
+    end
+
     test "redirects with error for nonexistent pair", %{conn: conn} do
       conn = get conn, pair_retro_path(conn, :new, 123)
       assert redirected_to(conn) == pair_path(conn, :index)
@@ -104,6 +122,21 @@ defmodule Pairmotron.PairRetroControllerTest do
       pair = insert(:pair, %{group: group, users: [user]})
 
       attrs = %{pair_id: Integer.to_string(pair.id), user_id: Integer.to_string(user.id)}
+
+      conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
+      assert html_response(conn, 200) =~ "New retrospective"
+      assert html_response(conn, 200) =~ "something went wrong"
+      refute Repo.get_by(PairRetro, attrs)
+    end
+
+    test "fails if the project does not belong to group associated with pair", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project)
+
+      attrs = Map.merge(@valid_attrs, %{pair_id: Integer.to_string(pair.id),
+                                        user_id: Integer.to_string(user.id),
+                                        project_id: Integer.to_string(project.id)})
 
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
       assert html_response(conn, 200) =~ "New retrospective"
