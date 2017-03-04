@@ -56,7 +56,7 @@ defmodule Pairmotron.PairRetroController do
             |> put_flash(:info, "Pair retro created successfully.")
             |> redirect(to: pair_retro_path(conn, :index))
           {:error, changeset} ->
-            projects = Repo.all(Project)
+            projects = Project.projects_for_group(pair.group_id) |> Repo.all
             render(conn, "new.html", changeset: changeset, projects: projects)
         end
     end

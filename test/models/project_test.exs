@@ -28,7 +28,7 @@ defmodule Pairmotron.ProjectTest do
     end
 
     test "does not return a project that is not associated with the given group" do
-      project = insert(:project)
+      insert(:project)
       assert Project.projects_for_group(1) |> Repo.one == nil
     end
   end
