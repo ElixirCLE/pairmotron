@@ -71,8 +71,8 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def edit(conn = @authorized_conn, _params) do
-    projects = Repo.all(Project)
-    retro = conn.assigns.pair_retro
+    retro = conn.assigns.pair_retro |> Repo.preload(:pair)
+    projects = Project.projects_for_group(retro.pair.group_id) |> Repo.all
     changeset = PairRetro.changeset(retro, %{}, nil, nil, nil)
     render(conn, "edit.html", pair_retro: retro, changeset: changeset, projects: projects)
   end

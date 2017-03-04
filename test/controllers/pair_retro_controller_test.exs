@@ -233,12 +233,34 @@ defmodule Pairmotron.PairRetroControllerTest do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
       retro = insert(:retro, %{user: user, pair: pair})
+
       conn = get conn, pair_retro_path(conn, :edit, retro)
       assert html_response(conn, 200) =~ "Edit retrospective"
     end
 
+    test "lists a project associated with the retro's pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project, %{group: group})
+      retro = insert(:retro, %{user: user, pair: pair})
+
+      conn = get conn, pair_retro_path(conn, :edit, retro)
+      assert html_response(conn, 200) =~ project.name
+    end
+
+    test "does not list a project not associated with the retro's pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project)
+      retro = insert(:retro, %{user: user, pair: pair})
+
+      conn = get conn, pair_retro_path(conn, :edit, retro)
+      refute html_response(conn, 200) =~ project.name
+    end
+
     test "does not render form for editing different user's resource", %{conn: conn} do
       {_user, _pair, retro} = create_user_and_pair_and_retro()
+
       conn = get conn, pair_retro_path(conn, :edit, retro)
       assert redirected_to(conn) == pair_retro_path(conn, :index)
       assert %{"error" => _} = conn.private.phoenix_flash
