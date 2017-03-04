@@ -14,4 +14,50 @@ defmodule Pairmotron.PairTest do
     changeset = Pair.changeset(%Pair{}, @invalid_attrs)
     refute changeset.valid?
   end
+
+  describe "pair_with_users_and_group/1" do
+    test "returns nil when no pair exists" do
+      assert Pair.pair_with_users_and_group(1) |> Repo.one == nil
+    end
+
+    test "returns the pair if it exists with preloaded group and users" do
+      user = insert(:user)
+      group = insert(:group)
+      pair = insert(:pair, %{users: [user], group: group})
+      returned_pair = Pair.pair_with_users_and_group(pair.id) |> Repo.one
+      assert Enum.at(returned_pair.users, 0).id == user.id
+      assert returned_pair.group.id == pair.group.id
+    end
+
+    test "returns the pair if it exists and has no users" do
+      pair = insert(:pair)
+      returned_pair = Pair.pair_with_users_and_group(pair.id) |> Repo.one
+      assert returned_pair.id == pair.id
+      assert returned_pair.users == []
+      assert returned_pair.group.id == pair.group.id
+    end
+
+    test "returns the pair if it exists and has no group" do
+      user = insert(:user)
+      pair = insert(:pair, %{users: [user], group: nil})
+      returned_pair = Pair.pair_with_users_and_group(pair.id) |> Repo.one
+      assert returned_pair.id == pair.id
+      assert Enum.at(returned_pair.users, 0).id == user.id
+      assert returned_pair.group == nil
+    end
+
+    test "returns the pair if it exists and has no users or group" do
+      pair = insert(:pair, %{group: nil})
+      returned_pair = Pair.pair_with_users_and_group(pair.id) |> Repo.one
+      assert returned_pair.id == pair.id
+      assert returned_pair.users == []
+      assert returned_pair.group == nil
+    end
+
+    test "returns the pair if passed a binary" do
+      pair = insert(:pair)
+      returned_pair = Pair.pair_with_users_and_group("#{pair.id}") |> Repo.one
+      assert returned_pair.id == pair.id
+    end
+  end
 end
