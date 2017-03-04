@@ -23,10 +23,10 @@ defmodule Pairmotron.PairRetroController do
       not current_user.id in Enum.map(pair.users, &(&1.id)) ->
         redirect_and_flash_error(conn, "You cannot create a retrospective for a pair you are not in")
       true ->
-        conn = assign(conn, :projects, Repo.all(Project))
+        projects = Repo.all(Project)
         current_user = conn.assigns[:current_user]
         changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id}, nil)
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset, projects: projects)
     end
   end
 
@@ -53,7 +53,8 @@ defmodule Pairmotron.PairRetroController do
             |> put_flash(:info, "Pair retro created successfully.")
             |> redirect(to: pair_retro_path(conn, :index))
           {:error, changeset} ->
-            render(conn, "new.html", changeset: changeset)
+            projects = Repo.all(Project)
+            render(conn, "new.html", changeset: changeset, projects: projects)
         end
     end
   end
@@ -67,10 +68,10 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def edit(conn = @authorized_conn, _params) do
-    conn = assign(conn, :projects, Repo.all(Project))
+    projects = Repo.all(Project)
     retro = conn.assigns.pair_retro
     changeset = PairRetro.changeset(retro, %{}, nil)
-    render(conn, "edit.html", pair_retro: retro, changeset: changeset)
+    render(conn, "edit.html", pair_retro: retro, changeset: changeset, projects: projects)
   end
   def edit(conn, _params) do
     redirect_not_authorized(conn, pair_retro_path(conn, :index))
@@ -89,7 +90,8 @@ defmodule Pairmotron.PairRetroController do
         |> put_flash(:info, "Pair retro updated successfully.")
         |> redirect(to: pair_retro_path(conn, :show, pair_retro))
       {:error, changeset} ->
-        render(conn, "edit.html", pair_retro: pair_retro, changeset: changeset)
+        projects = Repo.all(Project)
+        render(conn, "edit.html", pair_retro: pair_retro, changeset: changeset, projects: projects)
     end
   end
   def update(conn, _params) do
