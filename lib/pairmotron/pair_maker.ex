@@ -1,13 +1,13 @@
 defmodule Pairmotron.PairMaker do
   import Ecto.Query
-  alias Pairmotron.{Repo, Group, Pair, UserPair, Mixer, Pairer, PairBuilder}
+  alias Pairmotron.{Repo, Group, Pair, Mixer, Pairer, PairBuilder}
 
   def fetch_or_gen(year, week, group_id) do
     case fetch_pairs(year, week, group_id) do
       []    -> generate_and_fetch_if_current_week(year, week, group_id)
       pairs -> pairs
     end
-      |> fetch_users_from_pairs
+      |> preload_users
   end
 
   defp generate_and_fetch_if_current_week(year, week, group_id) do
@@ -26,7 +26,7 @@ defmodule Pairmotron.PairMaker do
       |> Repo.all
   end
 
-  defp fetch_users_from_pairs(pairs) do
+  defp preload_users(pairs) do
     pairs
       |> Repo.preload([:users])
   end
@@ -47,8 +47,12 @@ defmodule Pairmotron.PairMaker do
 
     determination = PairBuilder.determify(pairs, users)
 
-    determination.dead_pairs
-      |> Enum.map(fn(p) -> Repo.delete! p end)
+    multi = Ecto.Multi.new
+
+    multi = determination.dead_pairs
+      |> Enum.reduce(multi, fn(pair, acc) ->
+          acc |> Ecto.Multi.delete(:remove_dead_pairs, pair)
+      end)
 
     pairs = determination.remaining_pairs
       |> Repo.preload(:pair_retros)
@@ -58,23 +62,23 @@ defmodule Pairmotron.PairMaker do
       |> Mixer.mixify(week)
       |> Pairer.generate_pairs(pairs)
 
-    results.pairs
-      |> Enum.map(fn(users) -> make_pairs(users, year, week, group_id) end)
-      |> List.flatten
-      |> Enum.map(fn(p) -> Repo.insert! p end)
+    multi = results.pairs
+      |> Enum.reduce(multi, fn(users, acc) ->
+          insert_pair(acc, year, week, group_id, users)
+      end)
 
-    insert_user_pair(results.user_pair)
+    multi = insert_lone_user_pair(multi, results.user_pair)
+    Repo.transaction(multi)
   end
 
-  defp insert_user_pair(nil), do: nil
-  defp insert_user_pair(user_pair) do
-    Repo.insert! user_pair
+  defp insert_lone_user_pair(multi, nil), do: multi
+  defp insert_lone_user_pair(multi, user_pair) do
+    multi |> Ecto.Multi.insert(:create_lone_user_pair, user_pair)
   end
 
-  defp make_pairs(users, year, week, group_id) do
-    pair = Repo.insert! Pair.changeset(%Pair{}, %{year: year, week: week, group_id: group_id})
-    users
-      |> Enum.map(fn(user) -> UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: user.id}) end)
+  defp insert_pair(multi, year, week, group_id, users) do
+    pair = Pair.changeset(%Pair{}, %{year: year, week: week, group_id: group_id})
+      |> Ecto.Changeset.put_assoc(:users, users)
+    multi |> Ecto.Multi.insert(:insert_pair, pair)
   end
-
 end
