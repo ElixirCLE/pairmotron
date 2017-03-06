@@ -52,12 +52,13 @@ defmodule Pairmotron.PairRetro do
   The update changeset does not allow the user to change the user or pair
   associated with the pair_retro.
   """
-  def update_changeset(struct, params \\ %{}, pair_start_date) do
+  def update_changeset(struct, params \\ %{}, pair_start_date, project, pair) do
     struct
     |> cast(params, @required_update_fields, @optional_fields)
     |> foreign_key_constraint(:project_id)
     |> validate_field_is_not_before_date(:pair_date, pair_start_date)
     |> validate_field_is_not_in_future(:pair_date)
+    |> validate_project_is_for_group(:project_id, project, pair)
   end
 
   defp validate_field_is_not_before_date(changeset, field, pair_start_date) do

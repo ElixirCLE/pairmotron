@@ -81,11 +81,14 @@ defmodule Pairmotron.PairRetroController do
   end
 
   def update(conn = @authorized_conn, %{"pair_retro" => pair_retro_params}) do
-    pair_retro = conn.assigns.pair_retro |> Repo.preload(:pair)
+    pair_retro = conn.assigns.pair_retro |> Repo.preload([:pair, :project])
     pair = pair_retro.pair
 
+    project_id = Map.get(pair_retro_params, "project_id") || (pair_retro.project && pair_retro.project.id) || 0
+    project = Repo.get(Project, project_id)
+
     earliest_pair_date = Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
-    changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, earliest_pair_date)
+    changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, earliest_pair_date, project, pair)
 
     case Repo.update(changeset) do
       {:ok, pair_retro} ->
@@ -93,7 +96,7 @@ defmodule Pairmotron.PairRetroController do
         |> put_flash(:info, "Pair retro updated successfully.")
         |> redirect(to: pair_retro_path(conn, :show, pair_retro))
       {:error, changeset} ->
-        projects = Repo.all(Project)
+        projects = Project.projects_for_group(pair.group_id) |> Repo.all
         render(conn, "edit.html", pair_retro: pair_retro, changeset: changeset, projects: projects)
     end
   end

@@ -338,10 +338,36 @@ defmodule Pairmotron.PairRetroControllerTest do
     test "does not update chosen resource and renders errors when data is invalid", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
-      pair_retro = Repo.insert! %PairRetro{user_id: user.id, pair_id: pair.id}
+      pair_retro = insert(:retro, %{user: user, pair: pair, pair_date: nil})
 
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit retrospective"
+    end
+
+    test "allows update to project associated with the retro's pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project, %{group: group})
+      pair_retro = insert(:retro, %{user: user, pair: pair})
+
+      attrs = Map.merge(@valid_attrs, %{project_id: project.id})
+
+      conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
+      assert redirected_to(conn) == pair_retro_path(conn, :show, pair_retro)
+      assert Repo.get_by(PairRetro, attrs)
+    end
+
+    test "fails if new project is not associated with the retro's pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project)
+      pair_retro = insert(:retro, %{user: user, pair: pair})
+
+      attrs = Map.merge(@valid_attrs, %{project_id: project.id})
+
+      conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
+      assert html_response(conn, 200) =~ "Edit retrospective"
+      refute Repo.get_by(PairRetro, attrs)
     end
   end
 
