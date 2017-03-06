@@ -83,8 +83,7 @@ defmodule Pairmotron.PairRetroController do
     pair_retro = conn.assigns.pair_retro |> Repo.preload([:pair, :project])
     pair = pair_retro.pair
 
-    project_id = Map.get(pair_retro_params, "project_id") || (pair_retro.project && pair_retro.project.id) || 0
-    project = Repo.get(Project, project_id)
+    project = project_from_params_or_pair_retro(pair_retro_params, pair_retro)
 
     changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, pair, project)
 
@@ -102,6 +101,11 @@ defmodule Pairmotron.PairRetroController do
     redirect_not_authorized(conn, pair_retro_path(conn, :index))
   end
 
+  defp project_from_params_or_pair_retro(params, pair_retro) do
+    id = Map.get(params, "project_id") || (pair_retro.project && pair_retro.project.id) || 0
+    Repo.get(Project, id)
+  end
+
   def delete(conn = @authorized_conn, _params) do
       Repo.delete!(conn.assigns.pair_retro)
 
@@ -111,14 +115,6 @@ defmodule Pairmotron.PairRetroController do
   end
   def delete(conn, _params) do
     redirect_not_authorized(conn, pair_retro_path(conn, :index))
-  end
-
-  defp earliest_pair_date_from_params(params) do
-    pair_id = parameter_as_integer(params, "pair_id")
-    case Repo.get(Pairmotron.Pair, pair_id) do
-      nil -> nil
-      pair -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
-    end
   end
 
   defp redirect_and_flash_error(conn, message) do
