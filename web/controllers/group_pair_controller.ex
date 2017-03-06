@@ -11,7 +11,13 @@ defmodule Pairmotron.GroupPairController do
 
     group = Repo.get(Group, group_id)
     if authorized?(group, conn.assigns.current_user) do
-      pairs = PairMaker.fetch_or_gen(year, week, group_id)
+      pairs = case PairMaker.fetch_or_gen(year, week, group_id) do
+        {:error, pairs, message} ->
+          conn |> put_flash(:error, message)
+          pairs
+        {:ok, pairs} ->
+          pairs
+      end
       conn = assign_current_user_pair_retro_for_week(conn, year, week)
       render conn, "index.html", pairs: pairs, year: year, week: week, group: group,
         start_date: Timex.from_iso_triplet({year, week, 1}),

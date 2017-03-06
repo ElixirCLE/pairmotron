@@ -1,28 +1,36 @@
 defmodule Pairmotron.PairMaker do
+  require Logger
   import Ecto.Query
   alias Pairmotron.{Repo, Group, Pair, Mixer, Pairer, PairBuilder}
 
   def fetch_or_gen(year, week, group_id) do
     case fetch_pairs(year, week, group_id) do
       []    -> generate_and_fetch_if_current_week(year, week, group_id)
-      pairs -> pairs
+      pairs -> {:ok, pairs}
     end
-      |> Repo.preload([:users])
   end
 
   defp generate_and_fetch_if_current_week(year, week, group_id) do
     case Pairmotron.Calendar.same_week?(year, week, Timex.today) do
       true ->
-        generate_pairs(year, week, group_id)
-        fetch_pairs(year, week, group_id)
-      false -> []
+        result = generate_pairs(year, week, group_id)
+        pairs = fetch_pairs(year, week, group_id)
+        prepare_result(result, pairs)
+      false ->
+        result = {:error, "Not current week"}
+        pairs = []
+        prepare_result(result, pairs)
     end
   end
+
+  defp prepare_result({:error, message}, pairs), do: {:error, pairs, message}
+  defp prepare_result({:ok, _}, pairs), do: {:ok, pairs}
 
   defp fetch_pairs(year, week, group_id) do
     Pair
       |> where(year: ^year, week: ^week, group_id: ^group_id)
       |> order_by(:id)
+      |> preload(:users)
       |> Repo.all
   end
 
@@ -63,7 +71,16 @@ defmodule Pairmotron.PairMaker do
       end)
 
     multi = insert_lone_user_pair(multi, results.user_pair)
-    Repo.transaction(multi)
+    case Repo.transaction(multi) do
+      {:error, failed_operation, failed_value, _} ->
+        Logger.error "Generating pairs failed"
+        Logger.error "Year: #{year}, week: #{week}, group_id: #{group_id}"
+        Logger.error "#{IO.inspect(failed_operation)}"
+        Logger.error "#{IO.inspect(failed_value)}"
+        {:error, "Sorry, generating pairs failed"}
+      {:ok, _} ->
+        {:ok, nil}
+    end
   end
 
   defp insert_lone_user_pair(multi, nil), do: multi
@@ -72,8 +89,9 @@ defmodule Pairmotron.PairMaker do
   end
 
   defp insert_pair(multi, year, week, group_id, users) do
+    atom = String.to_atom("insert_pair_#{year}_#{week}_#{group_id}_#{hd(users).id}")
     pair = Pair.changeset(%Pair{}, %{year: year, week: week, group_id: group_id})
       |> Ecto.Changeset.put_assoc(:users, users)
-    multi |> Ecto.Multi.insert(:insert_pair, pair)
+    multi |> Ecto.Multi.insert(atom, pair)
   end
 end
