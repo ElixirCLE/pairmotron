@@ -7,7 +7,7 @@ defmodule Pairmotron.PairMaker do
       []    -> generate_and_fetch_if_current_week(year, week, group_id)
       pairs -> pairs
     end
-      |> preload_users
+      |> Repo.preload([:users])
   end
 
   defp generate_and_fetch_if_current_week(year, week, group_id) do
@@ -24,11 +24,6 @@ defmodule Pairmotron.PairMaker do
       |> where(year: ^year, week: ^week, group_id: ^group_id)
       |> order_by(:id)
       |> Repo.all
-  end
-
-  defp preload_users(pairs) do
-    pairs
-      |> Repo.preload([:users])
   end
 
   def generate_pairs(year, week, group_id) do
