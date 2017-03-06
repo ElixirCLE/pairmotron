@@ -28,16 +28,8 @@ defmodule Pairmotron.Pair do
   """
   def pair_with_users(pair_id) do
     from pair in Pairmotron.Pair,
-    join: users in assoc(pair, :users),
+    left_join: users in assoc(pair, :users),
     where: pair.id == ^pair_id,
     preload: [users: users]
-  end
-
-  def pair_with_users_and_group(pair_id) do
-    from pair in Pairmotron.Pair,
-    left_join: users in assoc(pair, :users),
-    left_join: group in assoc(pair, :group),
-    where: pair.id == ^pair_id,
-    preload: [users: users, group: group]
   end
 end
