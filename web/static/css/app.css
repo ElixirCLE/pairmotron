@@ -9,5 +9,5 @@ a.padded-link {
 }
 
 .prevent-overflow {
-  overflow: scroll;
+  overflow: hidden;
 }
