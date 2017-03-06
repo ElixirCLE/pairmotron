@@ -48,7 +48,7 @@ defmodule Pairmotron.PairRetroController do
         project_id = Map.get(final_params, "project_id", 0)
         project = Repo.get(Project, project_id)
 
-        changeset = PairRetro.changeset(%PairRetro{}, final_params, project, pair)
+        changeset = PairRetro.changeset(%PairRetro{}, final_params, pair, project)
         case Repo.insert(changeset) do
           {:ok, _pair_retro} ->
             conn
@@ -86,7 +86,7 @@ defmodule Pairmotron.PairRetroController do
     project_id = Map.get(pair_retro_params, "project_id") || (pair_retro.project && pair_retro.project.id) || 0
     project = Repo.get(Project, project_id)
 
-    changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, project, pair)
+    changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, pair, project)
 
     case Repo.update(changeset) do
       {:ok, pair_retro} ->

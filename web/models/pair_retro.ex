@@ -27,7 +27,7 @@ defmodule Pairmotron.PairRetro do
   Validates that the selected project is associated with the group tht is
   associated with the pair.
   """
-  def changeset(struct, params \\ %{}, project, pair) do
+  def changeset(struct, params \\ %{}, pair, project) do
     struct
     |> cast(params, @required_fields, @optional_fields)
     |> foreign_key_constraint(:user_id)
@@ -52,7 +52,7 @@ defmodule Pairmotron.PairRetro do
   The update changeset does not allow the user to change the user or pair
   associated with the pair_retro.
   """
-  def update_changeset(struct, params \\ %{}, project, pair) do
+  def update_changeset(struct, params \\ %{}, pair, project) do
     struct
     |> cast(params, @required_update_fields, @optional_fields)
     |> foreign_key_constraint(:project_id)

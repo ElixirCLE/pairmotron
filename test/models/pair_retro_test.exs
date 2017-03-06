@@ -12,7 +12,7 @@ defmodule Pairmotron.PairRetroTest do
       pair = insert(:pair, %{users: [user], group: group})
       attrs = Map.merge(@valid_attrs, %{user_id: user.id,
                                         pair_id: pair.id})
-      changeset = PairRetro.changeset(%PairRetro{}, attrs, nil, pair)
+      changeset = PairRetro.changeset(%PairRetro{}, attrs, pair, nil)
       assert changeset.valid?
     end
 
@@ -23,7 +23,7 @@ defmodule Pairmotron.PairRetroTest do
       attrs = Map.merge(@valid_attrs, %{pair_date: ~D(2011-01-01),
                                         user_id: user.id,
                                         pair_id: pair.id})
-      changeset = PairRetro.changeset(%PairRetro{}, attrs, nil, pair)
+      changeset = PairRetro.changeset(%PairRetro{}, attrs, pair, nil)
       refute changeset.valid?
     end
 
@@ -34,7 +34,7 @@ defmodule Pairmotron.PairRetroTest do
       attrs = Map.merge(@valid_attrs, %{pair_date: Timex.shift(Timex.today, days: 1),
                                         user_id: user.id,
                                         pair_id: pair.id})
-      changeset = PairRetro.changeset(%PairRetro{}, attrs, nil, pair)
+      changeset = PairRetro.changeset(%PairRetro{}, attrs, pair, nil)
       refute changeset.valid?
     end
 
