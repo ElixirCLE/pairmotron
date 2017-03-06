@@ -1,8 +1,15 @@
 defmodule Pairmotron.PairMaker do
+  @moduledoc """
+  Provides functions to retrieve and/or generate pairs for a given time period and group.
+  """
   require Logger
   import Ecto.Query
   alias Pairmotron.{Repo, Group, Pair, Mixer, Pairer, PairBuilder}
 
+  @doc """
+  Retrieves pairs for a given period and group. Generates pairs if none are found.
+  """
+  @spec fetch_or_gen(number, number, number) :: {:ok, List.t} | {:error, String.t}
   def fetch_or_gen(year, week, group_id) do
     case fetch_pairs(year, week, group_id) do
       []    -> generate_and_fetch_if_current_week(year, week, group_id)
@@ -34,6 +41,11 @@ defmodule Pairmotron.PairMaker do
       |> Repo.all
   end
 
+  @doc """
+  Creates pairs for the period and group. This function will remove any pairs no longer necessary
+  and add pairs as appropriate. This is done in one big transaction for data integrity.
+  """
+  @spec generate_pairs(number, number, number) :: {:ok, nil} | {:error, String.t}
   def generate_pairs(year, week, group_id) do
     group = Group
       |> select([g], g)
@@ -45,17 +57,9 @@ defmodule Pairmotron.PairMaker do
       |> Enum.filter(fn(u) -> u.active end)
       |> Enum.sort
 
-    pairs = fetch_pairs(year, week, group_id)
-      |> Repo.preload(:users)
+    existing_pairs = fetch_pairs(year, week, group_id)
 
-    determination = PairBuilder.determify(pairs, users)
-
-    multi = Ecto.Multi.new
-
-    multi = determination.dead_pairs
-      |> Enum.reduce(multi, fn(pair, acc) ->
-          acc |> Ecto.Multi.delete(:remove_dead_pairs, pair)
-      end)
+    determination = PairBuilder.determify(existing_pairs, users)
 
     pairs = determination.remaining_pairs
       |> Repo.preload(:pair_retros)
@@ -65,22 +69,18 @@ defmodule Pairmotron.PairMaker do
       |> Mixer.mixify(week)
       |> Pairer.generate_pairs(pairs)
 
-    multi = results.pairs
-      |> Enum.reduce(multi, fn(users, acc) ->
-          insert_pair(acc, year, week, group_id, users)
-      end)
+    Ecto.Multi.new
+      |> remove_dead_pairs(determination.dead_pairs)
+      |> insert_pairs(results.pairs, year, week, group_id)
+      |> insert_lone_user_pair(results.user_pair)
+      |> commit_transaction(year, week, group_id)
+  end
 
-    multi = insert_lone_user_pair(multi, results.user_pair)
-    case Repo.transaction(multi) do
-      {:error, failed_operation, failed_value, _} ->
-        Logger.error "Generating pairs failed"
-        Logger.error "Year: #{year}, week: #{week}, group_id: #{group_id}"
-        Logger.error "#{IO.inspect(failed_operation)}"
-        Logger.error "#{IO.inspect(failed_value)}"
-        {:error, "Sorry, generating pairs failed"}
-      {:ok, _} ->
-        {:ok, nil}
-    end
+  defp remove_dead_pairs(multi, dead_pairs) do
+    dead_pairs
+      |> Enum.reduce(multi, fn(pair, acc) ->
+          acc |> Ecto.Multi.delete(:remove_dead_pairs, pair)
+      end)
   end
 
   defp insert_lone_user_pair(multi, nil), do: multi
@@ -88,10 +88,31 @@ defmodule Pairmotron.PairMaker do
     multi |> Ecto.Multi.insert(:create_lone_user_pair, user_pair)
   end
 
+  defp insert_pairs(multi, pairs, year, week, group_id) do
+    pairs
+      |> Enum.reduce(multi, fn(users, acc) ->
+          insert_pair(acc, year, week, group_id, users)
+      end)
+  end
+
   defp insert_pair(multi, year, week, group_id, users) do
     atom = String.to_atom("insert_pair_#{year}_#{week}_#{group_id}_#{hd(users).id}")
-    pair = Pair.changeset(%Pair{}, %{year: year, week: week, group_id: group_id})
+    pair = %Pair{}
+      |> Pair.changeset(%{year: year, week: week, group_id: group_id})
       |> Ecto.Changeset.put_assoc(:users, users)
     multi |> Ecto.Multi.insert(atom, pair)
+  end
+
+  defp commit_transaction(multi, year, week, group_id) do
+    case Repo.transaction(multi) do
+      {:error, failed_operation, failed_value, _} ->
+        Logger.error "Generating pairs failed"
+        Logger.error "Year: #{year}, week: #{week}, group_id: #{group_id}"
+        Logger.error "#{failed_operation}"
+        Logger.error "#{failed_value}"
+        {:error, "Sorry, generating pairs failed"}
+      {:ok, _} ->
+        {:ok, nil}
+    end
   end
 end
