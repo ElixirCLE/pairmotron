@@ -27,13 +27,13 @@ defmodule Pairmotron.PairRetro do
   Validates that the selected project is associated with the group tht is
   associated with the pair.
   """
-  def changeset(struct, params \\ %{}, pair_start_date, project, pair) do
+  def changeset(struct, params \\ %{}, project, pair) do
     struct
     |> cast(params, @required_fields, @optional_fields)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:pair_id)
     |> foreign_key_constraint(:project_id)
-    |> validate_field_is_not_before_date(:pair_date, pair_start_date)
+    |> validate_date_is_not_before_pair(:pair_date, pair)
     |> validate_field_is_not_in_future(:pair_date)
     |> validate_project_is_for_group(:project_id, project, pair)
   end
@@ -52,16 +52,20 @@ defmodule Pairmotron.PairRetro do
   The update changeset does not allow the user to change the user or pair
   associated with the pair_retro.
   """
-  def update_changeset(struct, params \\ %{}, pair_start_date, project, pair) do
+  def update_changeset(struct, params \\ %{}, project, pair) do
     struct
     |> cast(params, @required_update_fields, @optional_fields)
     |> foreign_key_constraint(:project_id)
-    |> validate_field_is_not_before_date(:pair_date, pair_start_date)
+    |> validate_date_is_not_before_pair(:pair_date, pair)
     |> validate_field_is_not_in_future(:pair_date)
     |> validate_project_is_for_group(:project_id, project, pair)
   end
 
-  defp validate_field_is_not_before_date(changeset, field, pair_start_date) do
+  defp validate_date_is_not_before_pair(changeset, field, pair) do
+    pair_start_date = cond do
+      is_nil(pair) -> nil
+      true -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
+    end
     validate_change changeset, field, fn field, field_date ->
       cond do
         is_nil(pair_start_date) -> []

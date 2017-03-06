@@ -25,7 +25,7 @@ defmodule Pairmotron.PairRetroController do
       true ->
         projects = Project.projects_for_group(pair.group_id) |> Repo.all
         current_user = conn.assigns[:current_user]
-        changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id}, nil, nil, nil)
+        changeset = PairRetro.changeset(%PairRetro{}, %{pair_id: pair_id, user_id: current_user.id}, nil, nil)
         render(conn, "new.html", changeset: changeset, projects: projects)
     end
   end
@@ -48,8 +48,7 @@ defmodule Pairmotron.PairRetroController do
         project_id = Map.get(final_params, "project_id", 0)
         project = Repo.get(Project, project_id)
 
-        earliest_pair_date = earliest_pair_date_from_params(pair_retro_params)
-        changeset = PairRetro.changeset(%PairRetro{}, final_params, earliest_pair_date, project, pair)
+        changeset = PairRetro.changeset(%PairRetro{}, final_params, project, pair)
         case Repo.insert(changeset) do
           {:ok, _pair_retro} ->
             conn
@@ -73,7 +72,7 @@ defmodule Pairmotron.PairRetroController do
   def edit(conn = @authorized_conn, _params) do
     retro = conn.assigns.pair_retro |> Repo.preload(:pair)
     projects = Project.projects_for_group(retro.pair.group_id) |> Repo.all
-    changeset = PairRetro.changeset(retro, %{}, nil, nil, nil)
+    changeset = PairRetro.changeset(retro, %{}, nil, nil)
     render(conn, "edit.html", pair_retro: retro, changeset: changeset, projects: projects)
   end
   def edit(conn, _params) do
@@ -87,8 +86,7 @@ defmodule Pairmotron.PairRetroController do
     project_id = Map.get(pair_retro_params, "project_id") || (pair_retro.project && pair_retro.project.id) || 0
     project = Repo.get(Project, project_id)
 
-    earliest_pair_date = Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
-    changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, earliest_pair_date, project, pair)
+    changeset = PairRetro.update_changeset(pair_retro, pair_retro_params, project, pair)
 
     case Repo.update(changeset) do
       {:ok, pair_retro} ->
