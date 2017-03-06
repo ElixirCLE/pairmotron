@@ -2,6 +2,6 @@
 
 <%= render "form.html", changeset: @changeset,
                         action: pair_retro_path(@conn, :update, @pair_retro),
-                        projects: projects_for_select(@conn) %>
+                        projects: projects_as_select(@projects) %>
 
 <%= link "Back", to: pair_retro_path(@conn, :index) %>

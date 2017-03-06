@@ -39,7 +39,8 @@ defmodule Pairmotron.TestHelper do
                                             pair_date:  Timex.today,
                                             user_id:    user.id,
                                             pair_id:    pair.id},
-                                          Timex.today)
+                                          nil,
+                                          nil)
     Repo.insert!(retro_changeset)
   end
 
@@ -51,7 +52,8 @@ defmodule Pairmotron.TestHelper do
                                             user_id: user.id,
                                             pair_id: pair.id,
                                             project_id: project.id},
-                                          Timex.today)
+                                          nil,
+                                          nil)
     Repo.insert!(retro_changeset)
   end
 

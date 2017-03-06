@@ -68,4 +68,10 @@ defmodule Pairmotron.Project do
     join: u in assoc(group, :users),
     where: u.id == ^user.id
   end
+
+  def projects_for_group(group = %Pairmotron.Group{}), do: projects_for_group(group.id)
+  def projects_for_group(group_id) do
+    from project in Pairmotron.Project,
+    where: project.group_id == ^group_id
+  end
 end

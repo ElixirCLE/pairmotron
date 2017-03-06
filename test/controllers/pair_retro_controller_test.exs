@@ -56,6 +56,24 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert html_response(conn, 200) =~ "New retrospective"
     end
 
+    test "displays a project associated with the pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project, %{group: group})
+
+      conn = get conn, pair_retro_path(conn, :new, pair.id)
+      assert html_response(conn, 200) =~ project.name
+    end
+
+    test "does not display a project not associated with the pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project)
+
+      conn = get conn, pair_retro_path(conn, :new, pair.id)
+      refute html_response(conn, 200) =~ project.name
+    end
+
     test "redirects with error for nonexistent pair", %{conn: conn} do
       conn = get conn, pair_retro_path(conn, :new, 123)
       assert redirected_to(conn) == pair_path(conn, :index)
@@ -104,6 +122,21 @@ defmodule Pairmotron.PairRetroControllerTest do
       pair = insert(:pair, %{group: group, users: [user]})
 
       attrs = %{pair_id: Integer.to_string(pair.id), user_id: Integer.to_string(user.id)}
+
+      conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
+      assert html_response(conn, 200) =~ "New retrospective"
+      assert html_response(conn, 200) =~ "something went wrong"
+      refute Repo.get_by(PairRetro, attrs)
+    end
+
+    test "fails if the project does not belong to group associated with pair", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project)
+
+      attrs = Map.merge(@valid_attrs, %{pair_id: Integer.to_string(pair.id),
+                                        user_id: Integer.to_string(user.id),
+                                        project_id: Integer.to_string(project.id)})
 
       conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
       assert html_response(conn, 200) =~ "New retrospective"
@@ -200,12 +233,34 @@ defmodule Pairmotron.PairRetroControllerTest do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
       retro = insert(:retro, %{user: user, pair: pair})
+
       conn = get conn, pair_retro_path(conn, :edit, retro)
       assert html_response(conn, 200) =~ "Edit retrospective"
     end
 
+    test "lists a project associated with the retro's pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project, %{group: group})
+      retro = insert(:retro, %{user: user, pair: pair})
+
+      conn = get conn, pair_retro_path(conn, :edit, retro)
+      assert html_response(conn, 200) =~ project.name
+    end
+
+    test "does not list a project not associated with the retro's pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project)
+      retro = insert(:retro, %{user: user, pair: pair})
+
+      conn = get conn, pair_retro_path(conn, :edit, retro)
+      refute html_response(conn, 200) =~ project.name
+    end
+
     test "does not render form for editing different user's resource", %{conn: conn} do
       {_user, _pair, retro} = create_user_and_pair_and_retro()
+
       conn = get conn, pair_retro_path(conn, :edit, retro)
       assert redirected_to(conn) == pair_retro_path(conn, :index)
       assert %{"error" => _} = conn.private.phoenix_flash
@@ -283,10 +338,36 @@ defmodule Pairmotron.PairRetroControllerTest do
     test "does not update chosen resource and renders errors when data is invalid", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user]})
-      pair_retro = Repo.insert! %PairRetro{user_id: user.id, pair_id: pair.id}
+      pair_retro = insert(:retro, %{user: user, pair: pair, pair_date: nil})
 
       conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit retrospective"
+    end
+
+    test "allows update to project associated with the retro's pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project, %{group: group})
+      pair_retro = insert(:retro, %{user: user, pair: pair})
+
+      attrs = Map.merge(@valid_attrs, %{project_id: project.id})
+
+      conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
+      assert redirected_to(conn) == pair_retro_path(conn, :show, pair_retro)
+      assert Repo.get_by(PairRetro, attrs)
+    end
+
+    test "fails if new project is not associated with the retro's pair's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+      project = insert(:project)
+      pair_retro = insert(:retro, %{user: user, pair: pair})
+
+      attrs = Map.merge(@valid_attrs, %{project_id: project.id})
+
+      conn = put conn, pair_retro_path(conn, :update, pair_retro), pair_retro: attrs
+      assert html_response(conn, 200) =~ "Edit retrospective"
+      refute Repo.get_by(PairRetro, attrs)
     end
   end
 
