@@ -61,14 +61,11 @@ defmodule Pairmotron.PairRetro do
     |> validate_project_is_for_group(:project_id, project, pair)
   end
 
+  defp validate_date_is_not_before_pair(changeset, _, nil), do: changeset
   defp validate_date_is_not_before_pair(changeset, field, pair) do
-    pair_start_date = cond do
-      is_nil(pair) -> nil
-      true -> Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
-    end
+    pair_start_date = Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
     validate_change changeset, field, fn field, field_date ->
       cond do
-        is_nil(pair_start_date) -> []
         Timex.before?(Ecto.Date.to_erl(field_date), pair_start_date) ->
           [{field, "cannot be before the week of the pair"}]
         true -> []
