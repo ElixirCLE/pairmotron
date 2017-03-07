@@ -1,6 +1,15 @@
 defmodule Pairmotron.User do
   @moduledoc """
-  Is a user which can log in to the application and also be paired.
+  Is a user which can log in to the application and also be paired up in a
+  Pair.
+
+  Users can also create and own Groups and create PairRetros.
+
+  Users can be active which means that they are actively paired by the pairing
+  logic.
+
+  Users can also be admins, which gives them access to the /admin routes as
+  well as some features such as repairifying in the standard routes.
   """
   use Pairmotron.Web, :model
 
@@ -56,7 +65,7 @@ defmodule Pairmotron.User do
     |> common_changeset
   end
 
-  @specp common_changeset(%Ecto.Changeset{}) :: %Ecto.Changeset{}
+  @spec common_changeset(%Ecto.Changeset{}) :: %Ecto.Changeset{}
   defp common_changeset(changeset) do
     changeset
     |> unique_constraint(:email)
@@ -66,7 +75,7 @@ defmodule Pairmotron.User do
     |> generate_password
   end
 
-  @specp generate_password(%Ecto.Changeset{}) :: %Ecto.Changeset{}
+  @spec generate_password(%Ecto.Changeset{}) :: %Ecto.Changeset{}
   defp generate_password(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
@@ -82,7 +91,7 @@ defmodule Pairmotron.User do
     |> Ecto.Query.where([u], u.active)
   end
 
-  @spec users_not_in_group(%Pairmotron.Group{} | integer() | binary()) :: %Ecto.Query{}
+  @spec users_not_in_group(Types.group | integer() | binary()) :: %Ecto.Query{}
   def users_not_in_group(%Pairmotron.Group{} = group), do: users_not_in_group(group.id)
   def users_not_in_group(group_id) do
     from user in Pairmotron.User,
