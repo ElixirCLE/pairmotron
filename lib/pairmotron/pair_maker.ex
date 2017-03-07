@@ -90,13 +90,16 @@ defmodule Pairmotron.PairMaker do
 
   defp insert_pairs(multi, pairs, year, week, group_id) do
     pairs
-      |> Enum.reduce(multi, fn(users, acc) ->
-          insert_pair(acc, year, week, group_id, users)
+      |> Enum.with_index
+      |> Enum.reduce(multi, fn({users, index}, acc) ->
+          insert_pair(acc, {year, week, group_id}, users, index)
       end)
   end
 
-  defp insert_pair(multi, year, week, group_id, users) do
-    atom = String.to_atom("insert_pair_#{year}_#{week}_#{group_id}_#{hd(users).id}")
+  defp insert_pair(multi, {year, week, group_id}, users, index) do
+    # The atom name in multi functions needs to be unique to the multi.
+    # We are using the index to avoid creating enough new atoms to reach the atom-limit.
+    atom = String.to_atom("insert_pair_#{index}")
     pair = %Pair{}
       |> Pair.changeset(%{year: year, week: week, group_id: group_id})
       |> Ecto.Changeset.put_assoc(:users, users)
