@@ -23,6 +23,8 @@ defmodule Pairmotron.Web do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+
+      alias Pairmotron.Types
     end
   end
 
@@ -38,6 +40,8 @@ defmodule Pairmotron.Web do
       import Pairmotron.Gettext
 
       import Canary.Plugs
+
+      alias Pairmotron.Types
 
       @authorized_conn %{assigns: %{authorized: true}}
     end
