@@ -109,7 +109,7 @@ defmodule Pairmotron.PairRetroController do
     redirect_not_authorized(conn, pair_retro_path(conn, :index))
   end
 
-  @specp project_from_params_or_pair_retro(map(), %Pairmotron.PairRetro{}) :: nil | %Pairmotron.Project{}
+  @spec project_from_params_or_pair_retro(map(), Types.retro) :: nil | %Pairmotron.Project{}
   defp project_from_params_or_pair_retro(params, pair_retro) do
     case Map.get(params, "project_id") || (pair_retro.project && pair_retro.project.id) do
       nil -> nil
@@ -129,7 +129,7 @@ defmodule Pairmotron.PairRetroController do
     redirect_not_authorized(conn, pair_retro_path(conn, :index))
   end
 
-  @specp redirect_and_flash_error(%Plug.Conn{}, binary()) :: %Plug.Conn{}
+  @spec redirect_and_flash_error(%Plug.Conn{}, binary()) :: %Plug.Conn{}
   defp redirect_and_flash_error(conn, message) do
     conn
     |> put_flash(:error, message)
