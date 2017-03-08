@@ -1,14 +1,5 @@
-<li class="list-group-item">
-  <div class="row">
-    <%= for user <- @pair.users do %>
-      <%= render Pairmotron.SharedView, "small_profile.html", user: user, current_user: @conn.assigns[:current_user] %>
-    <% end %>
-  </div>
-  <%= if current_user_in_pair(@conn, @pair) do %>
-    <%= if is_nil(user_retro(@conn)) do %>
-      <a href="<%= pair_retro_path(@conn, :new, @pair.id) %>">Create Retrospective</a>
-    <%= else %>
-      <a href="<%= pair_retro_path(@conn, :edit, user_retro(@conn).id) %>">Retrospective</a>
-    <%= end %>
-  <%= end %>
-</li>
+<div class="row">
+  <%= for user <- @pair.users do %>
+    <%= render Pairmotron.SharedView, "small_profile.html", user: user, current_user: @conn.assigns[:current_user] %>
+  <% end %>
+</div>

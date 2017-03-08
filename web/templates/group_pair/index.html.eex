@@ -4,7 +4,16 @@
     <ul class="list-group">
       <h3><%= @group.name %></h3>
       <%= for pair <- @pairs do %>
-        <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
+        <li class="list-group-item">
+          <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
+          <%= if current_user_in_pair(@conn, pair) do %>
+            <%= if is_nil(user_retro(@conn)) do %>
+              <a href="<%= pair_retro_path(@conn, :new, pair.id) %>">Create Retrospective</a>
+            <%= else %>
+              <a href="<%= pair_retro_path(@conn, :edit, user_retro(@conn).id) %>">Retrospective</a>
+            <%= end %>
+          <%= end %>
+        </li>
       <% end %>
       <%= if Enum.empty?(@pairs) do %>
         <p>No pairs available</p>

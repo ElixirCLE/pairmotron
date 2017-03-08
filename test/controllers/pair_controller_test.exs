@@ -39,32 +39,32 @@ defmodule Pairmotron.PairControllerTest do
       %{conn: conn, logged_in_user: user, group: group} do
       pair = Pairmotron.TestHelper.create_pair([user], group)
       conn = get(conn, "/pairs")
-      assert html_response(conn, 200) =~ pair_retro_path(conn, :new, pair.id)
+      refute html_response(conn, 200) =~ pair_retro_path(conn, :new, pair.id)
     end
 
-    test "displays link to retro :create when the other user in pair has retro but current_user doesn't",
+    test "does not display link to retro :create when the other user in pair has retro but current_user doesn't",
       %{conn: conn, logged_in_user: user, group: group} do
       other_user = insert(:user)
       pair = Pairmotron.TestHelper.create_pair([user, other_user], group)
       create_retro(other_user, pair)
       conn = get(conn, "/pairs")
-      assert html_response(conn, 200) =~ pair_retro_path(conn, :new, pair.id)
+      refute html_response(conn, 200) =~ pair_retro_path(conn, :new, pair.id)
     end
 
-    test "displays link to retro :show for pair and current user with retrospective",
+    test "does not display link to retro :show for pair and current user with retrospective",
       %{conn: conn, logged_in_user: user, group: group} do
       {_pair, retro} = create_pair_and_retro(user, group)
       conn = get(conn, "/pairs")
-      assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
+      refute html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
 
-    test "displays link to retro :show for pair and current user with retrospective for :show",
+    test "does not display link to retro :show for pair and current user with retrospective for :show",
       %{conn: conn, logged_in_user: user, group: group} do
       {year, week} = Timex.iso_week(Timex.today)
       pair = Pairmotron.TestHelper.create_pair([user], group, year, week)
       retro = create_retro(user, pair) # create_retro function defines pair_date as Timex.today
       conn = get conn, pair_path(conn, :show, year, week)
-      assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
+      refute html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
 
     test "displays each of the user's groups' pairs (only the pairs including the user)", %{conn: conn, logged_in_user: user, group: group} do
