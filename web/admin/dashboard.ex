@@ -1,4 +1,5 @@
 defmodule Pairmotron.ExAdmin.Dashboard do
+  @moduledoc false
   use ExAdmin.Register
 
   alias Pairmotron.{Repo, User}
