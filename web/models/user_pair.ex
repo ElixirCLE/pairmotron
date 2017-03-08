@@ -1,4 +1,8 @@
 defmodule Pairmotron.UserPair do
+  @moduledoc """
+  A UserPair joins together Users and Pairss and is used to represent a
+  specific User being in a specific Pair.
+  """
   use Pairmotron.Web, :model
 
   schema "users_pairs" do
@@ -14,6 +18,7 @@ defmodule Pairmotron.UserPair do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
+  @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
