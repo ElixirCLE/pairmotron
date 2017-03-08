@@ -92,7 +92,7 @@ defmodule Pairmotron.User do
   end
 
   @spec users_not_in_group(Types.group | integer() | binary()) :: %Ecto.Query{}
-  def users_not_in_group(%Pairmotron.Group{} = group), do: users_not_in_group(group.id)
+  def users_not_in_group(group = %Pairmotron.Group{}), do: users_not_in_group(group.id)
   def users_not_in_group(group_id) do
     from user in Pairmotron.User,
     left_join: user_group in Pairmotron.UserGroup, on: user_group.user_id == user.id and user_group.group_id == ^group_id,

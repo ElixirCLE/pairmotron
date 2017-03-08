@@ -20,9 +20,7 @@ defmodule Pairmotron.Web do
     quote do
       use Ecto.Schema
 
-      import Ecto
-      import Ecto.Changeset
-      import Ecto.Query
+      import Ecto.{Changeset, Query}
 
       alias Pairmotron.Types
     end
@@ -57,9 +55,7 @@ defmodule Pairmotron.Web do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import Pairmotron.Router.Helpers
-      import Pairmotron.ErrorHelpers
-      import Pairmotron.Gettext
+      import Pairmotron.{Router.Helpers, ErrorHelpers, Gettext}
 
       import Pairmotron.ViewHelpers
       alias Pairmotron.Gravatar
@@ -77,7 +73,6 @@ defmodule Pairmotron.Web do
       use Phoenix.Channel
 
       alias Pairmotron.Repo
-      import Ecto
       import Ecto.Query
       import Pairmotron.Gettext
     end

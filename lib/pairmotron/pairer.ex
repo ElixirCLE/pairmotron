@@ -36,9 +36,9 @@ defmodule Pairmotron.Pairer do
   end
 
   defp unlonelify([], _), do: %PairerResult{}
-  defp unlonelify(users = [[ _1, _2]], _), do: %PairerResult{pairs: users}
-  defp unlonelify(users = [[ _1, _2, _3]], _), do: %PairerResult{pairs: users}
-  defp unlonelify(users = [[ _1, _2] | _], _), do: %PairerResult{pairs: users}
+  defp unlonelify(users = [[_1, _2]], _), do: %PairerResult{pairs: users}
+  defp unlonelify(users = [[_1, _2, _3]], _), do: %PairerResult{pairs: users}
+  defp unlonelify(users = [[_1, _2] | _], _), do: %PairerResult{pairs: users}
   defp unlonelify(users = [[_]], [%Pair{users: [_1, _2, _3]}]), do: %PairerResult{pairs: users}
   defp unlonelify([[single]], [pair = %Pair{users: [_1, _2]}]) do
     %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
@@ -53,7 +53,7 @@ defmodule Pairmotron.Pairer do
   defp unlonelify([[single]], [%Pair{users: [_1, _2, _3]} | pairs]), do: unlonelify([[single]], pairs)
 
 
-  defp friendify(pairs = [ [_first, _second] | _rest]), do: pairs
+  defp friendify(pairs = [[_first, _second] | _rest]), do: pairs
   defp friendify([[single] | [pair | rest]]) do
     [[single | pair] | rest]
   end
