@@ -18,14 +18,16 @@ defmodule Pairmotron.SessionController do
   end
 
   def create(conn, %{"user" => user_params = %{"email" => email}}) do
-    Repo.get_by(User, email: email)
+    User
+    |> Repo.get_by(email: email)
     |> sign_in(user_params, conn)
   end
 
   def create(conn, _params), do: bad_sign_in(conn)
 
   def delete(conn, _) do
-    Guardian.Plug.sign_out(conn)
+    conn
+    |> Guardian.Plug.sign_out
     |> put_flash(:info, "You have been logged out")
     |> redirect(to: session_path(conn, :new))
   end

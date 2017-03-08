@@ -35,7 +35,7 @@ defmodule Pairmotron.GroupController do
   end
 
   def show(conn, %{"id" => id}) do
-    group = Repo.get!(Group, id) |> Repo.preload(:owner)
+    group = Group |> Repo.get!(id) |> Repo.preload(:owner)
     invite_changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{group_id: id})
     current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
     conn = conn |> Plug.Conn.assign(:current_user, current_user)
