@@ -1,4 +1,5 @@
 defmodule Pairmotron.ExAdmin.GroupMembershipRequest do
+  @moduledoc false
   use ExAdmin.Register
 
   register_resource Pairmotron.GroupMembershipRequest do

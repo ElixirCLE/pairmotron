@@ -28,11 +28,10 @@ defmodule Pairmotron.GroupView do
 
   def truncate(nil, _), do: nil
   def truncate(string, len) do
-    cond do
-      String.length(string) > len ->
-        String.slice(string, 0, len) <> "..."
-      True ->
-        string
+    if String.length(string) > len do
+      String.slice(string, 0, len) <> "..."
+    else
+      string
     end
   end
 end

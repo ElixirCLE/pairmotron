@@ -58,7 +58,8 @@ defmodule Pairmotron.PairBuilder do
 
   defp find_available_users(_, _, []), do: []
   defp find_available_users(dead_pairs, pairs, users) do
-    unchanged_users_set = find_remaining_pairs(dead_pairs, pairs)
+    unchanged_users_set = dead_pairs
+      |> find_remaining_pairs(pairs)
       |> pair_users
       |> MapSet.new
     users

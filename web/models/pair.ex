@@ -1,4 +1,11 @@
 defmodule Pairmotron.Pair do
+  @moduledoc """
+  A Pair is made up of 1 to 3 Users and corresponds to those Users pairing on a
+  specific year and week.
+
+  A Pair can also have a number of PairRetros up to the number of users in that
+  Pair which contain information about what each user did during that pair.
+  """
   use Pairmotron.Web, :model
 
   schema "pairs" do
@@ -17,6 +24,7 @@ defmodule Pairmotron.Pair do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
+  @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
@@ -26,6 +34,7 @@ defmodule Pairmotron.Pair do
   Ecto query that returns a pair with its :users association prelodaded.
   Performs a single database call.
   """
+  @spec pair_with_users(integer() | binary()) :: %Ecto.Query{}
   def pair_with_users(pair_id) do
     from pair in Pairmotron.Pair,
     left_join: users in assoc(pair, :users),

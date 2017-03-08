@@ -1,4 +1,5 @@
 defmodule Pairmotron.ExAdmin.UserGroup do
+  @moduledoc false
   use ExAdmin.Register
 
   register_resource Pairmotron.UserGroup do

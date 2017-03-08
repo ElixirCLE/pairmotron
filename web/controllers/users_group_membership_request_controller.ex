@@ -19,22 +19,21 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
     current_user = conn.assigns.current_user
     group_id = parameter_as_integer(group_membership_request_params, "group_id")
 
-    cond do
-      user_is_in_group?(current_user, group_id) ->
-        redirect_and_flash_error(conn, "User already in group")
-      true ->
-        implicit_params = %{"user_id" => current_user.id, "initiated_by_user" => true}
-        final_params = Map.merge(group_membership_request_params, implicit_params)
-        changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, final_params)
+    if user_is_in_group?(current_user, group_id) do
+      redirect_and_flash_error(conn, "User already in group")
+    else
+      implicit_params = %{"user_id" => current_user.id, "initiated_by_user" => true}
+      final_params = Map.merge(group_membership_request_params, implicit_params)
+      changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, final_params)
 
-        case Repo.insert(changeset) do
-          {:ok, _group_membership_request} ->
-            conn
-            |> put_flash(:info, "Sent request to join group successfully.")
-            |> redirect(to: users_group_membership_request_path(conn, :index))
-          {:error, _changeset} ->
-            redirect_and_flash_error(conn, "Error requesting group membership")
-        end
+      case Repo.insert(changeset) do
+        {:ok, _group_membership_request} ->
+          conn
+          |> put_flash(:info, "Sent request to join group successfully.")
+          |> redirect(to: users_group_membership_request_path(conn, :index))
+        {:error, _changeset} ->
+          redirect_and_flash_error(conn, "Error requesting group membership")
+      end
     end
   end
 

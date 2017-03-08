@@ -1,4 +1,17 @@
 defmodule Pairmotron.PairRetro do
+  @moduledoc """
+  A PairRetro is short for "pair retrospective". It is a User's thoughts and
+  statements about what they worked on for a specific pair.
+
+  One retrospective can be created per User per Pair. Users cannot see what
+  other Users have entered for their retrospectives.
+
+  Retrospectives also have the subtle purpose of marking that a pair actually
+  occurred. If a group's pairs are repairified, they will try not to delete
+  pairs that already have an existing retrospective under the assumption that
+  this pair already occurred and so the Users in that pair are not able to be
+  paired again.
+  """
   use Pairmotron.Web, :model
 
   schema "pair_retros" do
@@ -27,6 +40,7 @@ defmodule Pairmotron.PairRetro do
   Validates that the selected project is associated with the group tht is
   associated with the pair.
   """
+  @spec changeset(map() | %Ecto.Changeset{}, map(), Types.pair, Types.project) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}, pair, project) do
     struct
     |> cast(params, @required_fields, @optional_fields)
@@ -35,7 +49,7 @@ defmodule Pairmotron.PairRetro do
     |> foreign_key_constraint(:project_id)
     |> validate_date_is_not_before_pair(:pair_date, pair)
     |> validate_field_is_not_in_future(:pair_date)
-    |> validate_project_is_for_group(:project_id, project, pair)
+    |> validate_project_is_for_group(:project_id, pair, project)
   end
 
   @required_update_fields ~w(pair_date)
@@ -52,38 +66,42 @@ defmodule Pairmotron.PairRetro do
   The update changeset does not allow the user to change the user or pair
   associated with the pair_retro.
   """
+  @spec update_changeset(map() | %Ecto.Changeset{}, map(), Types.pair, Types.project) :: %Ecto.Changeset{}
   def update_changeset(struct, params \\ %{}, pair, project) do
     struct
     |> cast(params, @required_update_fields, @optional_fields)
     |> foreign_key_constraint(:project_id)
     |> validate_date_is_not_before_pair(:pair_date, pair)
     |> validate_field_is_not_in_future(:pair_date)
-    |> validate_project_is_for_group(:project_id, project, pair)
+    |> validate_project_is_for_group(:project_id, pair, project)
   end
 
+  @spec validate_date_is_not_before_pair(%Ecto.Changeset{}, atom(), nil | Types.pair) :: %Ecto.Changeset{}
   defp validate_date_is_not_before_pair(changeset, _, nil), do: changeset
   defp validate_date_is_not_before_pair(changeset, field, pair) do
     pair_start_date = Pairmotron.Calendar.first_date_of_week(pair.year, pair.week)
     validate_change changeset, field, fn field, field_date ->
-      cond do
-        Timex.before?(Ecto.Date.to_erl(field_date), pair_start_date) ->
-          [{field, "cannot be before the week of the pair"}]
-        true -> []
+      if Timex.before?(Ecto.Date.to_erl(field_date), pair_start_date) do
+        [{field, "cannot be before the week of the pair"}]
+      else
+        []
       end
     end
   end
 
+  @spec validate_field_is_not_in_future(%Ecto.Changeset{}, atom()) :: %Ecto.Changeset{}
   defp validate_field_is_not_in_future(changeset, field) do
     validate_change changeset, field, fn field, field_date ->
-      cond do
-        Timex.after?(Ecto.Date.to_erl(field_date), Timex.today) ->
-          [{field, "cannot be in the future"}]
-        true -> []
+      if Timex.after?(Ecto.Date.to_erl(field_date), Timex.today) do
+        [{field, "cannot be in the future"}]
+      else
+        []
       end
     end
   end
 
-  defp validate_project_is_for_group(changeset, field, project, pair) do
+  @spec validate_project_is_for_group(%Ecto.Changeset{}, atom(), Types.pair, Types.project) :: %Ecto.Changeset{}
+  defp validate_project_is_for_group(changeset, field, pair, project) do
     validate_change changeset, field, fn field, project_id ->
       cond do
         is_nil(project) -> []
@@ -97,6 +115,7 @@ defmodule Pairmotron.PairRetro do
     end
   end
 
+  @spec retro_for_user_and_week(Types.user, integer(), 1..53) :: %Ecto.Query{}
   def retro_for_user_and_week(user, year, week) do
     from retro in Pairmotron.PairRetro,
     join: p in assoc(retro, :pair),
@@ -105,6 +124,7 @@ defmodule Pairmotron.PairRetro do
     where: p.week == ^week
   end
 
+  @spec users_retros(Types.user) :: %Ecto.Query{}
   def users_retros(user) do
     from retro in Pairmotron.PairRetro,
     where: retro.user_id == ^user.id

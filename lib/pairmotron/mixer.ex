@@ -1,6 +1,6 @@
 defmodule Pairmotron.Mixer do
 
-  def mixify(things, week \\1)
+  def mixify(things, week \\ 1)
   def mixify([], _week), do: []
   def mixify(things, week) do
     single = things

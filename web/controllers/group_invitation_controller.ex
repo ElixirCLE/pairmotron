@@ -22,13 +22,12 @@ defmodule Pairmotron.GroupInvitationController do
 
   def new(conn, %{"group_id" => group_id}) do
     group = Repo.get!(Group, group_id)
-    cond do
-      group.owner_id != conn.assigns.current_user.id ->
-        redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
-      true ->
-        changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{})
-        invitable_users = invitable_users_for_select(group)
-        render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
+    if group.owner_id != conn.assigns.current_user.id do
+      redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
+    else
+      changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{})
+      invitable_users = invitable_users_for_select(group)
+      render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
     end
   end
 
@@ -36,33 +35,33 @@ defmodule Pairmotron.GroupInvitationController do
     current_user = conn.assigns.current_user
 
     {group_id_int, _} = Integer.parse(group_id)
-    group = Repo.get!(Group, group_id_int) |> Repo.preload(:users)
+    group = Group |> Repo.get!(group_id_int) |> Repo.preload(:users)
 
     user_id = parameter_as_integer(group_membership_request_params, "user_id")
     user = Repo.get!(User, user_id)
 
-    cond do
-      group.owner_id != current_user.id ->
-        redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
-      true ->
-        implicit_params = %{"initiated_by_user" => false, "group_id" => group_id}
-        final_params = Map.merge(group_membership_request_params, implicit_params)
-        changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, final_params, group)
+    if group.owner_id != current_user.id do
+      redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
+    else
+      implicit_params = %{"initiated_by_user" => false, "group_id" => group_id}
+      final_params = Map.merge(group_membership_request_params, implicit_params)
+      changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, final_params, group)
 
-        case Repo.insert(changeset) do
-          {:ok, _group_membership_request} ->
-            conn
-            |> put_flash(:info, "Successfully invited #{user.name} to join #{group.name}.")
-            |> redirect(to: group_invitation_path(conn, :index, group_id))
-          {:error, changeset} ->
-            invitable_users = invitable_users_for_select(group)
-            render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
-        end
+      case Repo.insert(changeset) do
+        {:ok, _group_membership_request} ->
+          conn
+          |> put_flash(:info, "Successfully invited #{user.name} to join #{group.name}.")
+          |> redirect(to: group_invitation_path(conn, :index, group_id))
+        {:error, changeset} ->
+          invitable_users = invitable_users_for_select(group)
+          render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
+      end
     end
   end
 
   defp invitable_users_for_select(group) do
-    User.users_not_in_group(group)
+    group
+    |> User.users_not_in_group
     |> Repo.all
     |> Enum.map(&["#{&1.name}": &1.id])
     |> List.flatten
