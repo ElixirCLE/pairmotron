@@ -6,16 +6,21 @@ defmodule Pairmotron.ProjectController do
 
   plug :load_and_authorize_resource, model: Project, only: [:show, :edit, :update, :delete]
 
+  @spec index(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def index(conn, _params) do
-    projects = Project.projects_for_user(conn.assigns.current_user)
-               |> Repo.all
-               |> Repo.preload(:group)
+    projects = conn.assigns.current_user
+      |> Project.projects_for_user
+      |> Repo.all
+      |> Repo.preload(:group)
     render(conn, "index.html", projects: projects)
   end
 
+  @spec new(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def new(conn, _params) do
-    groups = Group.groups_for_user(conn.assigns.current_user)
-             |> Repo.all
+    groups = conn.assigns.current_user
+      |> Group.groups_for_user
+      |> Repo.all
+
     case groups do
       [] ->
         render(conn, "no_groups.html")
@@ -26,10 +31,14 @@ defmodule Pairmotron.ProjectController do
     end
   end
 
+  @spec create(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def create(conn, %{"project" => project_params}) do
     current_user = conn.assigns.current_user
 
-    groups = Group.groups_for_user(current_user) |> Repo.all
+    groups = current_user
+      |> Group.groups_for_user
+      |> Repo.all
+
     project_params = project_params |> Map.put("created_by_id", current_user.id)
     changeset = Project.changeset_for_create(%Project{}, project_params, groups)
 
@@ -44,17 +53,20 @@ defmodule Pairmotron.ProjectController do
     end
   end
 
+  @spec show(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def show(conn = @authorized_conn, %{"id" => id}) do
-    project = Repo.get!(Project, id) |> Repo.preload(:group)
+    project = Project |> Repo.get!(id) |> Repo.preload(:group)
     render(conn, "show.html", project: project)
   end
   def show(conn, _params) do
     redirect_not_authorized(conn, project_path(conn, :index))
   end
 
+  @spec edit(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def edit(conn = @authorized_conn, _params) do
-    groups = Group.groups_for_user(conn.assigns.current_user)
-             |> Repo.all
+    groups = conn.assigns.current_user
+      |> Group.groups_for_user
+      |> Repo.all
     conn = assign(conn, :groups, groups)
     project = conn.assigns.project
     changeset = Project.changeset(project)
@@ -64,6 +76,7 @@ defmodule Pairmotron.ProjectController do
     redirect_not_authorized(conn, project_path(conn, :index))
   end
 
+  @spec update(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def update(conn = @authorized_conn, %{"project" => project_params}) do
     project = conn.assigns.project
     changeset = Project.changeset_for_update(project, project_params)
@@ -81,6 +94,7 @@ defmodule Pairmotron.ProjectController do
     redirect_not_authorized(conn, project_path(conn, :index))
   end
 
+  @spec delete(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def delete(conn = @authorized_conn, _params) do
     project = conn.assigns.project
 
