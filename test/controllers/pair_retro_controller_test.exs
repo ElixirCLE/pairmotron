@@ -104,6 +104,19 @@ defmodule Pairmotron.PairRetroControllerTest do
       assert Repo.get_by(PairRetro, attrs)
     end
 
+    test 'creates retro if project_id param is "" (no project selected)', %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      pair = insert(:pair, %{group: group, users: [user]})
+
+      attrs = Map.merge(@valid_attrs, %{project_id: "",
+                                        pair_id: Integer.to_string(pair.id),
+                                        user_id: Integer.to_string(user.id)})
+
+      conn = post conn, pair_retro_path(conn, :create), pair_retro: attrs
+      assert redirected_to(conn) == pair_retro_path(conn, :index)
+      assert Repo.get_by(PairRetro, %{pair_id: pair.id, user_id: user.id})
+    end
+
     test "fails with a pair_date before the pair's week", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       pair = insert(:pair, %{group: group, users: [user], year: 2016, week: 1})

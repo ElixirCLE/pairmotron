@@ -50,8 +50,7 @@ defmodule Pairmotron.PairRetroController do
         implicit_params = %{"user_id" => conn.assigns.current_user.id}
         final_params = pair_retro_params |> Map.merge(implicit_params)
 
-        project_id = Map.get(final_params, "project_id", 0)
-        project = Repo.get(Project, project_id)
+        project = project_from_params(final_params)
 
         changeset = PairRetro.changeset(%PairRetro{}, final_params, pair, project)
         case Repo.insert(changeset) do
@@ -63,6 +62,15 @@ defmodule Pairmotron.PairRetroController do
             projects = pair.group_id |> Project.projects_for_group |> Repo.all
             render(conn, "new.html", changeset: changeset, projects: projects)
         end
+    end
+  end
+
+  @spec project_from_params(map()) :: Types.project | nil
+  defp project_from_params(params) do
+    case Map.get(params, "project_id") do
+      nil -> nil
+      "" -> nil
+      project_id -> Repo.get(Project, project_id)
     end
   end
 

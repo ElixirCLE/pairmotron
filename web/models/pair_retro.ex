@@ -101,11 +101,11 @@ defmodule Pairmotron.PairRetro do
   end
 
   @spec validate_project_is_for_group(%Ecto.Changeset{}, atom(), Types.pair, Types.project) :: %Ecto.Changeset{}
+  defp validate_project_is_for_group(changeset, _, nil, _), do: changeset
+  defp validate_project_is_for_group(changeset, _, _, nil), do: changeset
   defp validate_project_is_for_group(changeset, field, pair, project) do
     validate_change changeset, field, fn field, project_id ->
       cond do
-        is_nil(project) -> []
-        is_nil(pair) -> []
         pair.group_id != project.group_id ->
           [{field, "Must belong to the pair's group"}]
         project.id != project_id ->
