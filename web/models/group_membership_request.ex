@@ -46,7 +46,7 @@ defmodule Pairmotron.GroupMembershipRequest do
   @spec users_changeset(map() | %Ecto.Changeset{}, map(), Types.group) :: %Ecto.Changeset{}
   def users_changeset(struct, params \\ %{}, group) do
     struct
-    |> changeset(struct)
+    |> changeset(params)
     |> validate_user_not_in_group(:user_id, group)
   end
 
