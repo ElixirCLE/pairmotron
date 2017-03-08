@@ -1,6 +1,6 @@
 defmodule Pairmotron.UserPair do
   @moduledoc """
-  A UserPair joins together Users and Pairss and is used to represent a
+  A UserPair joins together Users and Pairs and is used to represent a
   specific User being in a specific Pair.
   """
   use Pairmotron.Web, :model

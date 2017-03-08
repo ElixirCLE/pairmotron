@@ -1,7 +1,7 @@
 defmodule Pairmotron.ViewHelpers do
   @moduledoc """
   Contains various functions that are used by a number of views/templates. Auto
-  imported into views and templates through web.es.
+  imported into views and templates through web.ex.
   """
   alias Pairmotron.Types
 

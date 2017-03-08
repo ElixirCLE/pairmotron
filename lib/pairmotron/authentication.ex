@@ -1,6 +1,6 @@
 defmodule Pairmotron.Authentication do
   @moduledoc """
-  Helper module for Pairmotron authnetication. Sole responsibility is returning
+  Helper module for Pairmotron authentication. Sole responsibility is returning
   the current_user from the Plug.Conn if it is present or attempting to
   retrieve the current_user from the Guardian JWT.
   """
