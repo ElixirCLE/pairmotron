@@ -90,6 +90,21 @@ defmodule Pairmotron.PairMakerTest do
       group = insert(:group, %{owner: user, users: [user, insert(:user), insert(:user), insert(:user), insert(:user), insert(:user), insert(:user)]})
       PairMaker.generate_pairs(2017, 1, group.id)
     end
+
+    test "can remove several no longer valid pairs" do
+      user = insert(:user)
+      user2 = insert(:user)
+      user3 = insert(:user)
+      user4 = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, user2, user3, user4]})
+      PairMaker.generate_pairs(2017, 1, group.id)
+      user |> Ecto.Changeset.change(active: false) |> Repo.update
+      user2 |> Ecto.Changeset.change(active: false) |> Repo.update
+      user3 |> Ecto.Changeset.change(active: false) |> Repo.update
+      user4 |> Ecto.Changeset.change(active: false) |> Repo.update
+      PairMaker.generate_pairs(2017, 1, group.id)
+      assert Repo.all(UserPair) == []
+    end
   end
 
   describe "fetch_or_gen/3" do
