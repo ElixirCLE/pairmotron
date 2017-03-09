@@ -77,9 +77,13 @@ defmodule Pairmotron.PairMaker do
   end
 
   defp remove_dead_pairs(multi, dead_pairs) do
+    # The atom name in multi functions needs to be unique to the multi.
+    # We are using the index to avoid creating enough new atoms to reach the atom-limit.
     dead_pairs
-      |> Enum.reduce(multi, fn(pair, acc) ->
-          acc |> Ecto.Multi.delete(:remove_dead_pairs, pair)
+      |> Enum.with_index
+      |> Enum.reduce(multi, fn({pair, index}, acc) ->
+          atom = String.to_atom("remove_dead_pair_#{index}")
+          acc |> Ecto.Multi.delete(atom, pair)
       end)
   end
 
