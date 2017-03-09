@@ -27,11 +27,6 @@ defmodule Pairmotron.MixerTest do
       results = Mixer.mixify([1, 2, 3, 4, 5, 6, 7, 8])
       assert Enum.sort(results) == [1, 2, 3, 4, 5, 6, 7, 8]
     end
-
-    test "returns a list not in the same order" do
-      results = Mixer.mixify([1, 2, 3, 4, 5, 6, 7, 8])
-      refute results == [1, 2, 3, 4, 5, 6, 7, 8]
-    end
   end
 
   describe "mixify/2 with a custom shuffle function" do
