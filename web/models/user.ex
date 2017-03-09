@@ -72,11 +72,14 @@ defmodule Pairmotron.User do
     |> validate_length(:password, min: @minimum_password_length)
     |> validate_length(:password_confirmation, min: @minimum_password_length)
     |> validate_confirmation(:password)
-    |> generate_password
+    |> hash_password_if_changed_and_valid
   end
 
-  @spec generate_password(%Ecto.Changeset{}) :: %Ecto.Changeset{}
-  defp generate_password(changeset) do
+  # Hashes the contents of the :password field and inserts the results into the
+  # :password_hash field. Only hashes and inserts if the password was changed
+  # and the changeset is valid.
+  @spec hash_password_if_changed_and_valid(%Ecto.Changeset{}) :: %Ecto.Changeset{}
+  defp hash_password_if_changed_and_valid(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
         put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(pass))
