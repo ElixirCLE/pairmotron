@@ -1,4 +1,17 @@
 defmodule Pairmotron.UsersGroupMembershipRequestController do
+  @moduledoc """
+  Handles actions taken by users involving GroupMembershipRequests.
+
+  The :index action lists all current GroupMembershipRequests for a specific
+  user, both created by that user, and created by the group inviting that user.
+
+  The :create action creates a GroupMembershipRequest which is initiated by the
+  logged in user.  In other words, this reprepresents a user requesting to be
+  in a group.
+
+  The :update action accepts an user's invitation from a group. That invitation
+  must have been created by the group.
+  """
   use Pairmotron.Web, :controller
 
   alias Pairmotron.{Group, GroupMembershipRequest, UserGroup}
@@ -6,6 +19,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
 
   plug :load_resource, model: GroupMembershipRequest, only: [:update]
 
+  @spec index(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def index(conn, _params) do
     group_membership_requests =
       conn.assigns.current_user
@@ -15,6 +29,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
     render(conn, "index.html", group_membership_requests: group_membership_requests)
   end
 
+  @spec create(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def create(conn, %{"group_membership_request" => group_membership_request_params}) do
     current_user = conn.assigns.current_user
     group_id = parameter_as_integer(group_membership_request_params, "group_id")
@@ -37,6 +52,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
     end
   end
 
+  @spec update(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def update(conn, %{}) do
     group_membership_request = conn.assigns.group_membership_request
     user = conn.assigns.current_user
@@ -68,18 +84,21 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
     end
   end
 
+  @spec user_is_in_group?(Types.user, group_id :: integer() | binary()) :: boolean()
   defp user_is_in_group?(user, group_id) do
     group = Repo.get(Group, group_id)
     user = user |> Repo.preload(:groups)
     group in user.groups
   end
 
+  @spec redirect_and_flash_error(%Plug.Conn{}, binary()) :: %Plug.Conn{}
   defp redirect_and_flash_error(conn, message) do
     conn
     |> put_flash(:error, message)
     |> redirect(to: users_group_membership_request_path(conn, :index))
   end
 
+  @spec update_transaction(Types.group_membership_request, %Ecto.Changeset{}) :: %Ecto.Multi{}
   defp update_transaction(group_membership_request, user_group_changeset) do
     Ecto.Multi.new
     |> Ecto.Multi.delete(:group_membership_request, group_membership_request)
