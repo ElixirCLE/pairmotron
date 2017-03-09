@@ -6,7 +6,9 @@
       <%= for {group, pairs} <- @groups_and_pairs do %>
         <h3><%= link group.name, to: group_pair_path(@conn, :show, group.id, @year, @week) %></h3>
         <%= for pair <- pairs do %>
-          <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
+          <li class="list-group-item">
+            <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
+          </li>
         <% end %>
         <%= if Enum.empty?(pairs) do %>
           <p>No pairs available</p>
