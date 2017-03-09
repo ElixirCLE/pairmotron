@@ -33,4 +33,11 @@ defmodule Pairmotron.MixerTest do
       refute results == [1, 2, 3, 4, 5, 6, 7, 8]
     end
   end
+
+  describe "mixify/2 with a custom shuffle function" do
+    test "applies the function" do
+      results = Mixer.mixify([1, 2, 3, 4, 5], &Enum.reverse/1)
+      assert results == [5, 4, 3, 2, 1]
+    end
+  end
 end
