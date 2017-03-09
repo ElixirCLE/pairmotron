@@ -1,20 +1,26 @@
 defmodule Pairmotron.ProfileController do
+  @moduledoc """
+  Handles interactions where Users can see and modify their own information.
+  """
   use Pairmotron.Web, :controller
 
   alias Pairmotron.User
 
+  @spec show(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def show(conn, _params) do
     current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
     conn = conn |> Plug.Conn.assign(:current_user, current_user)
     render(conn, "show.html", user: current_user)
   end
 
+  @spec edit(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def edit(conn, _params) do
     user = conn.assigns.current_user
     changeset = User.profile_changeset(user)
     render(conn, "edit.html", user: user, changeset: changeset)
   end
 
+  @spec update(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def update(conn, %{"user" => user_params}) do
     user = conn.assigns.current_user
     changeset = User.profile_changeset(user, user_params)

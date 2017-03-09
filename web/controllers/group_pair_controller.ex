@@ -1,4 +1,8 @@
 defmodule Pairmotron.GroupPairController do
+  @moduledoc """
+  Handles displaying all of the pairs associated with a year and week for a
+  specific group.
+  """
   use Pairmotron.Web, :controller
 
   import Pairmotron.ControllerHelpers

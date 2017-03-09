@@ -1,14 +1,20 @@
 defmodule Pairmotron.RegistrationController do
+  @moduledoc """
+  Handles Users registering for accounts and also logging in when they succeed
+  at doing so.
+  """
   use Pairmotron.Web, :controller
 
   alias Pairmotron.User
 
   plug :scrub_params, "user" when action in [:create]
 
+  @spec new(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def new(conn, _params) do
     render conn, changeset: User.profile_changeset(%User{})
   end
 
+  @spec create(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def create(conn, %{"user" => user_params}) do
     changeset = User.registration_changeset(%User{}, user_params)
 

@@ -1,4 +1,9 @@
 defmodule Pairmotron.ProjectController do
+  @moduledoc """
+  Handles interactions with projects. Users can create and modify projects
+  which are specific to a group. Projects are suggestions for what the Users in
+  a Pair can work on together.
+  """
   use Pairmotron.Web, :controller
 
   alias Pairmotron.{Group, Project}

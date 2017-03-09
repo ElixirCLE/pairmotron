@@ -9,8 +9,10 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
   logged in user.  In other words, this reprepresents a user requesting to be
   in a group.
 
-  The :update action accepts an user's invitation from a group. That invitation
-  must have been created by the group.
+  The :update action accepts a user's invitation from a group. That invitation
+  must have been created by the group. If this succeeds, the
+  GroupMembershipRequest is deleted, and the User is now a member of that
+  group.
   """
   use Pairmotron.Web, :controller
 
