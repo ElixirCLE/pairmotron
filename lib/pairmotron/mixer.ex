@@ -1,12 +1,13 @@
 defmodule Pairmotron.Mixer do
+  @moduledoc """
+  Mixes a provided list
+  """
 
-  def mixify(things, week \\ 1)
-  def mixify([], _week), do: []
-  def mixify(things, week) do
-    single = things
-      |> Enum.at(rem(week, length(things)))
-    remainder = things
-      |> List.delete(single)
-    [single | mixify(remainder, week)]
+  @doc """
+  Shuffles or applies the provided function to the provided list
+  """
+  @spec mixify(List.t, (List.t -> List.t)) :: List.t
+  def mixify(things, function \\ &Enum.shuffle/1) do
+    things |> function.()
   end
 end

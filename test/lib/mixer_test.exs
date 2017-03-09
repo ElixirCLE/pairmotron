@@ -3,21 +3,36 @@ defmodule Pairmotron.MixerTest do
 
   alias Pairmotron.Mixer
 
-  describe ".mixify" do
-    test "empty list returns an empty list" do
+  describe "mixify/1 with an empty list" do
+    test "returns an empty list" do
       assert Mixer.mixify([]) == []
     end
+  end
 
-    test "list of one returns same list" do
+  describe "mixify/1 with a list of one" do
+    test "returns the same list" do
       assert Mixer.mixify([1]) == [1]
     end
+  end
 
-    test "list of two things with the same seed returns a predictable list" do
-      assert Mixer.mixify([1, 2]) == [2, 1]
+  describe "mixify/1 with a list of two" do
+    test "returns a list containing both things" do
+      results = Mixer.mixify([1, 2])
+      assert Enum.sort(results) == [1, 2]
     end
+  end
 
-    test "list of many things with the same seed returns a predictable list" do
-      assert Mixer.mixify([1, 2, 3, 4, 5, 6, 7, 8], 3) == [4, 5, 6, 7, 8, 1, 3, 2]
+  describe "mixify/1 with a list of many" do
+    test "returns a list containing all things" do
+      results = Mixer.mixify([1, 2, 3, 4, 5, 6, 7, 8])
+      assert Enum.sort(results) == [1, 2, 3, 4, 5, 6, 7, 8]
+    end
+  end
+
+  describe "mixify/2 with a custom shuffle function" do
+    test "applies the function" do
+      results = Mixer.mixify([1, 2, 3, 4, 5], &Enum.reverse/1)
+      assert results == [5, 4, 3, 2, 1]
     end
   end
 end

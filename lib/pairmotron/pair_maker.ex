@@ -66,7 +66,7 @@ defmodule Pairmotron.PairMaker do
       |> Enum.filter(&(Enum.empty?(&1.pair_retros)))
 
     results = determination.available_users
-      |> Mixer.mixify(week)
+      |> Mixer.mixify
       |> Pairer.generate_pairs(pairs)
 
     Ecto.Multi.new
