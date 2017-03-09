@@ -1,4 +1,7 @@
 defmodule Pairmotron.PairController do
+  @moduledoc """
+  Handles interactions around Users looking at the pairs that they are in.
+  """
   use Pairmotron.Web, :controller
 
   import Pairmotron.ControllerHelpers
@@ -29,6 +32,7 @@ defmodule Pairmotron.PairController do
       stop_date: Timex.from_iso_triplet({year, week, 7})
   end
 
+  @spec fetch_pairs(%Plug.Conn{}, integer(), 1..53, Types.user) :: {%Plug.Conn{}, [{Types.group, Types.pair}]}
   defp fetch_pairs(conn, year, week, user) do
     user = user
       |> Repo.preload(:groups)
@@ -37,6 +41,7 @@ defmodule Pairmotron.PairController do
     {conn, Enum.zip(user.groups, pairs)}
   end
 
+  @spec pairs_for_user_groups(Types.user, %Plug.Conn{}, integer(), 1..53) :: {%Plug.Conn{}, [Types.pair]}
   defp pairs_for_user_groups(user, conn, year, week) do
     conn_and_pairs = {conn, []}
     user.groups
@@ -51,6 +56,7 @@ defmodule Pairmotron.PairController do
       end)
   end
 
+  @spec pairs_containing_user([Types.pair], Types.user) :: [Types.pair]
   defp pairs_containing_user(pairs, user) do
     pairs
       |> Enum.filter(fn(pair) ->
