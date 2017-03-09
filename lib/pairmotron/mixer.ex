@@ -6,7 +6,7 @@ defmodule Pairmotron.Mixer do
   @doc """
   Shuffles or applies the provided function to the provided list
   """
-  @spec mixify(List.t, Fun.t) :: List.t
+  @spec mixify(List.t, (List.t -> List.t)) :: List.t
   def mixify(things, function \\ &Enum.shuffle/1) do
     things |> function.()
   end
