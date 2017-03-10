@@ -37,6 +37,10 @@ defmodule Pairmotron.User do
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
+
+  Meant to only be used by administrators through an administrator interface as
+  this changeset allows all properties to be changed including the is_admin
+  field.
   """
   @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}) do
@@ -48,6 +52,13 @@ defmodule Pairmotron.User do
   @required_registration_params ~w(name email password password_confirmation)
   @optional_registration_params ~w(active)
 
+  @doc """
+  Builds a changeset based on the `struct` and `params`.
+
+  Used by the RegistrationController. Requires a password and
+  password_confirmation to be specified and does not allow the is_admin field
+  to be altered.
+  """
   @spec registration_changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def registration_changeset(struct, params \\ %{}) do
     struct
@@ -58,6 +69,14 @@ defmodule Pairmotron.User do
   @required_profile_params ~w(name email)
   @optional_profile_params ~w(active password password_confirmation)
 
+  @doc """
+  Builds a changeset based on the `struct` and `params`.
+
+  Used by the ProfileController. Does not require a password so that users can
+  modify their other attributes without being forced to change their password.
+  However, users can update their password using this changeset if they wish.
+  Does not allow the modification of the is_admin field.
+  """
   @spec profile_changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def profile_changeset(struct, params \\ %{}) do
     struct
