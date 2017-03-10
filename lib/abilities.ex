@@ -1,6 +1,7 @@
 defimpl Canada.Can, for: Pairmotron.User do
-  alias Pairmotron.{Group, PairRetro, Project, User}
+  alias Pairmotron.{Group, PairRetro, Project, Types, User}
 
+  @spec can?(Types.user, atom(), struct()) :: boolean()
   def can?(%User{is_admin: true}, _, _), do: true
 
   def can?(%User{id: user_id}, action, %PairRetro{user_id: user_id})
