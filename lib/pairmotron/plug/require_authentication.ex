@@ -1,4 +1,11 @@
 defmodule Pairmotron.Plug.RequireAuthentication do
+  @moduledoc """
+  Responsible for determining if the current user is logged in either because
+  they are already assigned to the :current_user field of the %Plug.Conn{} or
+  they have a valid Gaurdian JWT. If the user is found in either place, make
+  sure they still exist in the database, and if they do, assign them to the
+  :current_user assign on the %Plug.Conn{}.
+  """
   alias Pairmotron.Router.Helpers, as: Routes
   import Plug.Conn
 
