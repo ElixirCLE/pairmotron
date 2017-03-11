@@ -22,11 +22,13 @@ defmodule Pairmotron.PairBuilder do
   %Pair{}s may either not change or be deleted.
   """
 
+  alias Pairmotron.Types
 
   @doc """
   Find the dead pairs, remaining pairs, and available users given the previous %Pair{} records
   and the new list of %User{}s.
   """
+  @spec determify([Types.pair], [Types.user]) :: %Determination{}
   def determify(pairs, users) do
     dead_pairs = find_dead_pairs(pairs, users)
     %Determination{
@@ -36,6 +38,7 @@ defmodule Pairmotron.PairBuilder do
     }
   end
 
+  @spec find_dead_pairs([Types.pair], [Types.user]) :: [Types.pair]
   defp find_dead_pairs([], _), do: []
   defp find_dead_pairs(pairs, []), do: pairs
   defp find_dead_pairs(pairs, users) do
@@ -56,6 +59,7 @@ defmodule Pairmotron.PairBuilder do
       |> Enum.uniq
   end
 
+  @spec find_available_users([Types.pair], [Types.pair], [Types.user]) :: [Types.user]
   defp find_available_users(_, _, []), do: []
   defp find_available_users(dead_pairs, pairs, users) do
     unchanged_users_set = dead_pairs
@@ -68,6 +72,7 @@ defmodule Pairmotron.PairBuilder do
       |> MapSet.to_list
   end
 
+  @spec find_remaining_pairs([Types.pair], [Types.pair]) :: [Types.pair]
   defp find_remaining_pairs(dead_pairs, pairs) do
     pairs
       |> MapSet.new
@@ -75,5 +80,6 @@ defmodule Pairmotron.PairBuilder do
       |> MapSet.to_list
   end
 
+  @spec pair_users([Types.pair]) :: [Types.user]
   defp pair_users(pairs), do: pairs |> Enum.flat_map(fn(up) -> up.users end)
 end

@@ -1,11 +1,19 @@
 defmodule PairerResult do
+  @moduledoc """
+  Return struct for Pairmotron.Pairer.generate_pairs.
+  """
   defstruct user_pair: nil, pairs: []
 end
 
 defmodule Pairmotron.Pairer do
+  @moduledoc """
+  Responsible for pairing up a list of users into pairs and returning this as a
+  PairerResult.
+  """
 
-  alias Pairmotron.{UserPair, Pair}
+  alias Pairmotron.{Pair, Types, UserPair}
 
+  @spec generate_pairs([Types.user], [Types.pair]) :: [Types.pair]
   def generate_pairs(users, []), do: generate_pairs(users)
   def generate_pairs(users, pairs) do
     users
@@ -16,6 +24,7 @@ defmodule Pairmotron.Pairer do
       |> unlonelify(pairs |> Enum.sort_by(fn(p) -> length(p.users) end) |> Enum.reverse)
   end
 
+  @spec generate_pairs([Types.user]) :: %PairerResult{pairs: [Types.pair]}
   def generate_pairs(users) do
     users
       |> chunk

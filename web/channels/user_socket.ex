@@ -20,6 +20,7 @@ defmodule Pairmotron.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
+  @spec connect(map(), %Phoenix.Socket{}) :: {:ok, %Phoenix.Socket{}} | :error
   def connect(_params, socket) do
     {:ok, socket}
   end
@@ -34,5 +35,6 @@ defmodule Pairmotron.UserSocket do
   #     Pairmotron.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
+  @spec id(%Phoenix.Socket{}) :: nil | binary()
   def id(_socket), do: nil
 end

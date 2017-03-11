@@ -4,6 +4,7 @@ defmodule Pairmotron do
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
+  @spec start(atom(), map()) :: Supervisor.on_start
   def start(_type, _args) do
     import Supervisor.Spec
 
@@ -25,6 +26,7 @@ defmodule Pairmotron do
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
+  @spec config_change(map(), map(), map()) :: :ok
   def config_change(changed, _new, removed) do
     Pairmotron.Endpoint.config_change(changed, removed)
     :ok
