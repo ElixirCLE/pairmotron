@@ -46,7 +46,8 @@ defmodule Pairmotron.Mixfile do
      {:canada, "~> 1.0.1"},
      {:canary, "~> 1.1.0"},
      {:ex_admin, "~> 0.8"},
-     {:credo, "~> 0.5", only: [:dev, :test]}]
+     {:credo, "~> 0.5", only: [:dev, :test]},
+     {:dialyxir, "~> 0.5", only: [:dev], runtime: false}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
