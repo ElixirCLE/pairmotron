@@ -11,7 +11,7 @@ defimpl ExAdmin.Authentication, for: Plug.Conn do
 
   @spec current_user_name(%Plug.Conn{}) :: binary()
   def current_user_name(conn) do
-    case Auth.current_user(conn).name do
+    case Auth.current_user(conn) do
       nil -> ""
       user -> user.name
     end
