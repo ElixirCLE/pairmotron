@@ -13,7 +13,7 @@ defmodule Pairmotron.Pairer do
 
   alias Pairmotron.{Pair, Types, UserPair}
 
-  @spec generate_pairs([Types.user], [Types.pair]) :: [Types.pair]
+  @spec generate_pairs([Types.user], [Types.pair]) :: %PairerResult{}
   def generate_pairs(users, []), do: generate_pairs(users)
   def generate_pairs(users, pairs) do
     users
