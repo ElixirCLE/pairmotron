@@ -8,8 +8,12 @@ defmodule Pairmotron.ExAdmin.User do
       selectable_column()
 
       column :id
-      column :name
-      column :email
+      column :name, fn(user) ->
+        Phoenix.HTML.safe_to_string(Phoenix.HTML.Tag.content_tag(:p, user.name))
+      end
+      column :email, fn(user) ->
+        Phoenix.HTML.safe_to_string(Phoenix.HTML.Tag.content_tag(:p, user.email))
+      end
       column :active, toggle: true
       column :is_admin, toggle: true
     end
@@ -17,8 +21,12 @@ defmodule Pairmotron.ExAdmin.User do
     show user do
       attributes_table do
         row :id
-        row :name
-        row :email
+        row :name, fn(user) ->
+          Phoenix.HTML.safe_to_string(Phoenix.HTML.Tag.content_tag(:p, user.name))
+        end
+        row :email, fn(user) ->
+          Phoenix.HTML.safe_to_string(Phoenix.HTML.Tag.content_tag(:p, user.email))
+        end
         row :active, toggle: true
         row :is_admin, toggle: true
         row :inserted_at
