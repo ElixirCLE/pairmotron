@@ -23,6 +23,7 @@ defmodule Pairmotron.Web do
       import Ecto.{Changeset, Query}
 
       alias Pairmotron.Types
+      alias Pairmotron.Sanitizer
     end
   end
 
