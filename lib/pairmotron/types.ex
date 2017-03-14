@@ -1,4 +1,4 @@
-defmodule Pairmtron.Types do
+defmodule Pairmotron.Types do
   @moduledoc false
 
   # Ecto Schema Types
