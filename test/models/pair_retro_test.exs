@@ -42,6 +42,89 @@ defmodule Pairmotron.PairRetroTest do
       changeset = PairRetro.changeset(%PairRetro{}, @invalid_attrs, nil, nil)
       refute changeset.valid?
     end
+
+    test "changeset sanitizes subject" do
+      user = insert(:user)
+      group = insert(:group, %{owner: user})
+      pair = insert(:pair, %{users: [user], group: group})
+      attrs = Map.merge(@valid_attrs, %{user_id: user.id,
+                                        pair_id: pair.id,
+                                        subject: "<h1>subject</h1>"})
+      changeset = PairRetro.changeset(%PairRetro{}, attrs, pair, nil)
+      assert "subject" == changeset.changes.subject
+    end
+
+    test "changeset sanitizes reflection" do
+      user = insert(:user)
+      group = insert(:group, %{owner: user})
+      pair = insert(:pair, %{users: [user], group: group})
+      attrs = Map.merge(@valid_attrs, %{user_id: user.id,
+                                        pair_id: pair.id,
+                                        reflection: "<p>reflection</p>"})
+      changeset = PairRetro.changeset(%PairRetro{}, attrs, pair, nil)
+      assert "reflection" == changeset.changes.reflection
+    end
+  end
+
+  describe "update changeset" do
+    test "changeset with valid attributes" do
+      user = insert(:user)
+      group = insert(:group, %{owner: user})
+      pair = insert(:pair, %{users: [user], group: group})
+      attrs = Map.merge(@valid_attrs, %{user_id: user.id,
+                                        pair_id: pair.id})
+      changeset = PairRetro.update_changeset(%PairRetro{}, attrs, pair, nil)
+      assert changeset.valid?
+    end
+
+    test "changeset with a pair that occurred after the pair_date is invalid" do
+      user = insert(:user)
+      group = insert(:group, %{owner: user})
+      pair = insert(:pair, %{users: [user], group: group, year: 2016, week: 1})
+      attrs = Map.merge(@valid_attrs, %{pair_date: ~D(2011-01-01),
+                                        user_id: user.id,
+                                        pair_id: pair.id})
+      changeset = PairRetro.update_changeset(%PairRetro{}, attrs, pair, nil)
+      refute changeset.valid?
+    end
+
+    test "changeset with a pair_date in the future is invalid" do
+      user = insert(:user)
+      group = insert(:group, %{owner: user})
+      pair = insert(:pair, %{users: [user], group: group})
+      attrs = Map.merge(@valid_attrs, %{pair_date: Timex.shift(Timex.today, days: 1),
+                                        user_id: user.id,
+                                        pair_id: pair.id})
+      changeset = PairRetro.update_changeset(%PairRetro{}, attrs, pair, nil)
+      refute changeset.valid?
+    end
+
+    test "changeset with invalid attributes" do
+      changeset = PairRetro.update_changeset(%PairRetro{}, @invalid_attrs, nil, nil)
+      refute changeset.valid?
+    end
+
+    test "changeset sanitizes subject" do
+      user = insert(:user)
+      group = insert(:group, %{owner: user})
+      pair = insert(:pair, %{users: [user], group: group})
+      attrs = Map.merge(@valid_attrs, %{user_id: user.id,
+                                        pair_id: pair.id,
+                                        subject: "<h1>subject</h1>"})
+      changeset = PairRetro.update_changeset(%PairRetro{}, attrs, pair, nil)
+      assert "subject" == changeset.changes.subject
+    end
+
+    test "changeset sanitizes reflection" do
+      user = insert(:user)
+      group = insert(:group, %{owner: user})
+      pair = insert(:pair, %{users: [user], group: group})
+      attrs = Map.merge(@valid_attrs, %{user_id: user.id,
+                                        pair_id: pair.id,
+                                        reflection: "<p>reflection</p>"})
+      changeset = PairRetro.update_changeset(%PairRetro{}, attrs, pair, nil)
+      assert "reflection" == changeset.changes.reflection
+    end
   end
 
   describe ".retro_for_user_and_week" do

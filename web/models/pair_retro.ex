@@ -44,6 +44,7 @@ defmodule Pairmotron.PairRetro do
   def changeset(struct, params \\ %{}, pair, project) do
     struct
     |> cast(params, @required_fields, @optional_fields)
+    |> Sanitizer.sanitize([:subject, :reflection])
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:pair_id)
     |> foreign_key_constraint(:project_id)
@@ -70,6 +71,7 @@ defmodule Pairmotron.PairRetro do
   def update_changeset(struct, params \\ %{}, pair, project) do
     struct
     |> cast(params, @required_update_fields, @optional_fields)
+    |> Sanitizer.sanitize([:subject, :reflection])
     |> foreign_key_constraint(:project_id)
     |> validate_date_is_not_before_pair(:pair_date, pair)
     |> validate_field_is_not_in_future(:pair_date)
