@@ -87,6 +87,7 @@ defmodule Pairmotron.User do
   @spec common_changeset(%Ecto.Changeset{}) :: %Ecto.Changeset{}
   defp common_changeset(changeset) do
     changeset
+    |> Sanitizer.sanitize([:name, :email])
     |> unique_constraint(:email)
     |> validate_length(:password, min: @minimum_password_length)
     |> validate_length(:password_confirmation, min: @minimum_password_length)
