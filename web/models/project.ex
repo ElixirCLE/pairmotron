@@ -30,6 +30,7 @@ defmodule Pairmotron.Project do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_params, @optional_params)
+    |> Sanitizer.sanitize([:name, :description, :url])
     |> validate_url(:url)
   end
 
@@ -40,6 +41,7 @@ defmodule Pairmotron.Project do
   def changeset_for_create(struct, params \\ %{}, users_groups) do
     struct
     |> cast(params, @required_create_params, @optional_change_params)
+    |> Sanitizer.sanitize([:name, :description, :url])
     |> validate_url(:url)
     |> validate_user_is_in_group(:group_id, users_groups)
   end
@@ -48,6 +50,7 @@ defmodule Pairmotron.Project do
   def changeset_for_update(struct, params \\ %{}) do
     struct
     |> cast(params, @required_params, @optional_change_params)
+    |> Sanitizer.sanitize([:name, :description, :url])
     |> validate_url(:url)
   end
 

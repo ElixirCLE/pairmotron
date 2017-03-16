@@ -32,6 +32,7 @@ defmodule Pairmotron.Group do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
+    |> Sanitizer.sanitize([:name, :description])
     |> foreign_key_constraint(:owner_id)
   end
 
@@ -42,8 +43,7 @@ defmodule Pairmotron.Group do
   @spec changeset_for_create(map() | %Ecto.Changeset{}, map(), list(Types.user)) :: %Ecto.Changeset{}
   def changeset_for_create(struct, params \\ %{}, users) do
     struct
-    |> cast(params, @required_fields, @optional_fields)
-    |> foreign_key_constraint(:owner_id)
+    |> changeset(params)
     |> put_assoc(:users, users)
   end
 

@@ -47,7 +47,8 @@ defmodule Pairmotron.Mixfile do
      {:canary, "~> 1.1.0"},
      {:ex_admin, github: "ericworkman/ex_admin", branch: "cross"},
      {:credo, "~> 0.5", only: [:dev, :test]},
-     {:dialyxir, "~> 0.5", only: [:dev], runtime: false}]
+     {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+     {:html_sanitize_ex, "~> 1.0.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

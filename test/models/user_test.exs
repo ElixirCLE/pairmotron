@@ -65,6 +65,20 @@ defmodule Pairmotron.UserTest do
       assert changeset.valid?
     end
 
+    test "sanitizes name" do
+      attrs = Map.merge(@valid_attrs, %{name: "<h1>name</h1>"})
+      changeset = User.changeset(%User{}, attrs)
+      assert changeset.valid?
+      assert "name" == changeset.changes.name
+    end
+
+    test "sanitizes email" do
+      attrs = Map.merge(@valid_attrs, %{email: "ex<p>ample</p>@<script>example.org"})
+      changeset = User.changeset(%User{}, attrs)
+      assert changeset.valid?
+      assert "example@example.org" == changeset.changes.email
+    end
+
     test "with invalid attributes is invalid" do
       changeset = User.changeset(%User{}, @invalid_attrs)
       refute changeset.valid?
