@@ -21,6 +21,6 @@
     <a href=<%= group_path(@conn, :edit, @group) %>>
       <button class="btn btn-primary btn-sm">Edit</button>
     </a>
-    <%= link "Delete", to: group_path(@conn, :delete, @group), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-sm" %>
+    <%= link "Delete", to: group_path(@conn, :delete, @group), method: :delete, data: [confirm: "Are you sure? Deleting a group will irreversibly remove all users, pairs, and projects from that group."], class: "btn btn-danger btn-sm" %>
   <%= end %>
 </div>
