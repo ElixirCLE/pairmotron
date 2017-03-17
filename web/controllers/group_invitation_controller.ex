@@ -118,6 +118,26 @@ defmodule Pairmotron.GroupInvitationController do
     end
   end
 
+  @spec delete(%Plug.Conn{}, map()) :: %Plug.Conn{}
+  def delete(conn, %{"id" => id}) do
+    group_membership_request = Repo.get!(GroupMembershipRequest, id) |> Repo.preload(:group)
+    current_user = conn.assigns.current_user
+
+    if user_can_delete_invite(current_user, group_membership_request) do
+      Repo.delete!(group_membership_request)
+      conn
+      |> put_flash(:info, "Group Invite deleted successfully.")
+      |> redirect(to: group_invitation_path(conn, :index, group_membership_request.group_id))
+    else
+      redirect_and_flash_error(conn, "You cannot delete that group invitation", group_membership_request.group_id)
+    end
+  end
+
+  @spec user_can_delete_invite(Types.user, Types.group_membership_request) :: boolean()
+  defp user_can_delete_invite(user, group_membership_request) do
+    user.id in [group_membership_request.user_id, group_membership_request.group.owner_id]
+  end
+
   @spec redirect_and_flash_error(%Plug.Conn{}, binary(), integer()) :: %Plug.Conn{}
   defp redirect_and_flash_error(conn, message, group_id) do
     conn
