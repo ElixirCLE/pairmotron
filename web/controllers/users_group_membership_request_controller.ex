@@ -13,10 +13,14 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
   must have been created by the group. If this succeeds, the
   GroupMembershipRequest is deleted, and the User is now a member of that
   group.
+
+  The :delete action deletes an invitation and redirects to the user's list of
+  invitations.
   """
   use Pairmotron.Web, :controller
 
   alias Pairmotron.{Group, GroupMembershipRequest, UserGroup}
+  alias Pairmotron.InviteDeleteHelper
   import Pairmotron.ControllerHelpers
 
   plug :load_resource, model: GroupMembershipRequest, only: [:update]
@@ -84,6 +88,13 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
             redirect_and_flash_error(conn, "Error adding user to group")
         end
     end
+  end
+
+  @spec delete(%Plug.Conn{}, map()) :: %Plug.Conn{}
+  def delete(conn, %{"id" => id}) do
+    group_membership_request = GroupMembershipRequest |> Repo.get!(id) |> Repo.preload(:group)
+    redirect_path = users_group_membership_request_path(conn, :index)
+    InviteDeleteHelper.delete_invite(conn, group_membership_request, redirect_path)
   end
 
   @spec user_is_in_group?(Types.user, group_id :: integer() | binary()) :: boolean()

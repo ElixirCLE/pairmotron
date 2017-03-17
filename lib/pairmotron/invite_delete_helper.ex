@@ -20,7 +20,7 @@ defmodule Pairmotron.InviteDeleteHelper do
       Repo.delete!(group_membership_request)
       conn
       |> put_flash(:info, "Group Invite deleted successfully.")
-      |> redirect(to: group_invitation_path(conn, :index, group_membership_request.group_id))
+      |> redirect(to: redirect_path)
     else
       redirect_and_flash_error(conn, "You cannot delete that group invitation", redirect_path)
     end

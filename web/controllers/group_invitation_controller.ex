@@ -14,6 +14,9 @@ defmodule Pairmotron.GroupInvitationController do
   The :update action accepts a user's  request to join a group. This invitation
   must have been created by that user. If this succeeds, the
   GroupMembershipRequest is deleted and that User is now part of this group.
+
+  The :delete action deletes an invitation and redirects to the group's list of
+  invitations.
   """
   use Pairmotron.Web, :controller
 
@@ -121,7 +124,7 @@ defmodule Pairmotron.GroupInvitationController do
 
   @spec delete(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def delete(conn, %{"id" => id}) do
-    group_membership_request = Repo.get!(GroupMembershipRequest, id) |> Repo.preload(:group)
+    group_membership_request = GroupMembershipRequest |> Repo.get!(id) |> Repo.preload(:group)
     redirect_path = group_invitation_path(conn, :index, group_membership_request.group_id)
     InviteDeleteHelper.delete_invite(conn, group_membership_request, redirect_path)
   end
