@@ -5,6 +5,7 @@
     <tr>
       <th>User</th>
       <th>Status</th>
+      <th/>
     </tr>
   </thead>
   <tbody>
@@ -22,6 +23,11 @@
         <%= else %>
           <td>Awaiting Response</td>
         <%= end %>
+        <td>
+          <%= if @group.owner_id == @conn.assigns.current_user.id do %>
+          <%= link "Delete", to: group_invitation_path(@conn, :delete, group_membership_request.group_id, group_membership_request), method: :delete, class: "btn btn-danger" %>
+          <%= end %>
+        </td>
       </tr>
     <%= end %>
   </tbody>
