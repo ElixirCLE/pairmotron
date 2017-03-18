@@ -9,8 +9,8 @@ defmodule Pairmotron.UserPair do
     belongs_to :user, Pairmotron.User
     belongs_to :pair, Pairmotron.Pair
 
-    @required_fields ~w(pair_id user_id)
-    @optional_fields ~w()
+    @all_fields ~w(pair_id user_id)
+    @required_fields [:pair_id, :user_id]
 
     timestamps()
   end
@@ -21,6 +21,7 @@ defmodule Pairmotron.UserPair do
   @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @all_fields)
+    |> validate_required(@required_fields)
   end
 end
