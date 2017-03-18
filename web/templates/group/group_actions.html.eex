@@ -21,6 +21,11 @@
     <a href=<%= group_path(@conn, :edit, @group) %>>
       <button class="btn btn-primary btn-sm">Edit</button>
     </a>
+  <%= end %>
+  <%= if current_user_in_group?(@conn, @group) do %>
+    <%= link "Leave Group", to: user_group_path(@conn, :delete, @group, @conn.assigns.current_user), method: :delete, data: [confirm: "Are you sure you want to leave this group?"], class: "btn btn-danger btn-sm" %>
+  <%= end %>
+  <%= if current_user_can_edit_group?(@conn, @group) do %>
     <% delete_warning = "Are you sure? Deleting a group will irreversibly remove all users, pairs, and projects from that group." %>
     <%= link "Delete", to: group_path(@conn, :delete, @group), method: :delete, data: [confirm: delete_warning], class: "btn btn-danger btn-sm" %>
   <%= end %>
