@@ -22,8 +22,8 @@ defmodule Pairmotron.Group do
     timestamps()
   end
 
-  @required_fields ~w(name owner_id)
-  @optional_fields ~w(description)
+  @all_fields ~w(name owner_id description)
+  @required_fields [:name, :owner_id]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -31,7 +31,8 @@ defmodule Pairmotron.Group do
   @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @all_fields)
+    |> validate_required(@required_fields)
     |> Sanitizer.sanitize([:name, :description])
     |> foreign_key_constraint(:owner_id)
   end
