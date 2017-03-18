@@ -32,8 +32,8 @@ defmodule Pairmotron.User do
 
   @minimum_password_length 8
 
-  @required_params ~w(name email)
-  @optional_params ~w(password password_confirmation active is_admin)
+  @all_params ~w(name email password password_confirmation active is_admin)
+  @required_params [:name, :email]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -45,12 +45,13 @@ defmodule Pairmotron.User do
   @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @all_params)
+    |> validate_required(@required_params)
     |> common_changeset
   end
 
-  @required_registration_params ~w(name email password password_confirmation)
-  @optional_registration_params ~w(active)
+  @all_registration_params ~w(name email password password_confirmation active)
+  @required_registration_params [:name, :email, :password, :password_confirmation]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -62,12 +63,13 @@ defmodule Pairmotron.User do
   @spec registration_changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def registration_changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_registration_params, @optional_registration_params)
+    |> cast(params, @all_registration_params)
+    |> validate_required(@required_registration_params)
     |> common_changeset
   end
 
-  @required_profile_params ~w(name email)
-  @optional_profile_params ~w(active password password_confirmation)
+  @all_profile_params ~w(name email active password password_confirmation)
+  @required_profile_params [:name, :email]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -80,7 +82,8 @@ defmodule Pairmotron.User do
   @spec profile_changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def profile_changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_profile_params, @optional_profile_params)
+    |> cast(params, @all_profile_params)
+    |> validate_required(@required_profile_params)
     |> common_changeset
   end
 
