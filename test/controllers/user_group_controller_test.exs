@@ -1,4 +1,4 @@
-defmodule Pairmotron.GroupInvitationControllerTest do
+defmodule Pairmotron.UserGroupControllerTest do
   use Pairmotron.ConnCase
 
   alias Pairmotron.UserGroup
