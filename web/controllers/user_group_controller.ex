@@ -19,7 +19,7 @@ defmodule Pairmotron.UserGroupController do
   @spec delete(Plug.Conn.t, map()) :: Plug.Conn.t
   def delete(conn, %{"group_id" => group_id, "user_id" => user_id}) do
     #user_group = UserGroup |> Repo.get!(id) |> Repo.preload(:group)
-    user_group = UserGroup.user_group_for_user_and_group(user_id, group_id) |> Repo.one
+    user_group = user_id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
 
     current_user = conn.assigns.current_user
     cond do
