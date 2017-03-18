@@ -54,6 +54,7 @@ defmodule Pairmotron.PairRetro do
     |> validate_project_is_for_group(:project_id, pair, project)
   end
 
+  @all_update_fields ~w(pair_date subject reflection project_id)
   @required_update_fields [:pair_date]
 
   @doc """
@@ -71,7 +72,7 @@ defmodule Pairmotron.PairRetro do
   @spec update_changeset(map() | %Ecto.Changeset{}, map(), Types.pair, Types.project) :: %Ecto.Changeset{}
   def update_changeset(struct, params \\ %{}, pair, project) do
     struct
-    |> cast(params, @all_fields)
+    |> cast(params, @all_update_fields)
     |> validate_required(@required_update_fields)
     |> Sanitizer.sanitize([:subject, :reflection])
     |> foreign_key_constraint(:project_id)
