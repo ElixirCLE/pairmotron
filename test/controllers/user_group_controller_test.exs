@@ -55,5 +55,24 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       assert redirected_to(conn) == group_path(conn, :show, group)
       assert Repo.get(UserGroup, user_group.id)
     end
+
+    test "fails and redirects if user in route doesn't exist", %{conn: conn} do
+      group = insert(:group)
+      conn = delete conn, user_group_path(conn, :delete, group, 123)
+      assert redirected_to(conn) == pair_path(conn, :index)
+    end
+
+    test "fails and redirects if group in route doesn't exist", %{conn: conn} do
+      other_user = insert(:user)
+      conn = delete conn, user_group_path(conn, :delete, 123, other_user)
+      assert redirected_to(conn) == pair_path(conn, :index)
+    end
+
+    test "fails and redirects if specified user is not in group", %{conn: conn} do
+      group = insert(:group)
+      other_user = insert(:user)
+      conn = delete conn, user_group_path(conn, :delete, group, other_user)
+      assert redirected_to(conn) == pair_path(conn, :index)
+    end
   end
 end

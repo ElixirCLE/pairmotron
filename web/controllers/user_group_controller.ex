@@ -23,6 +23,10 @@ defmodule Pairmotron.UserGroupController do
 
     current_user = conn.assigns.current_user
     cond do
+      is_nil(user_group) ->
+        conn
+        |> put_flash(:error, "User's Group Membership record does not exist")
+        |> redirect(to: pair_path(conn, :index))
       current_user.id == user_group.user_id ->
         delete_user_group_and_redirect(conn, user_group, profile_path(conn, :show))
       current_user.id == user_group.group.owner_id ->
