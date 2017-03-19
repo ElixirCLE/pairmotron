@@ -5,6 +5,7 @@
     <tr>
       <th>Group</th>
       <th>Status</th>
+      <th/>
     </tr>
   </thead>
   <tbody>
@@ -22,6 +23,9 @@
                   action: users_group_membership_request_path(@conn, :update, group_membership_request) %>
           </td>
         <%= end %>
+        <td>
+          <%= link "Decline", to: users_group_membership_request_path(@conn, :delete, group_membership_request), method: :delete, class: "btn btn-danger" %>
+        </td>
       </tr>
     <%= end %>
   </tbody>

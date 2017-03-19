@@ -249,6 +249,40 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       assert Repo.get(GroupMembershipRequest, group_membership_request.id)
       refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
     end
+  end
 
+  describe "using :delete while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "deletes invite if user is the user on the invite", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      group_membership_request = insert(:group_membership_request, %{user: user, group: group, initiated_by_user: true})
+
+      conn = delete conn, group_invitation_path(conn, :delete, group, group_membership_request)
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      refute Repo.get(GroupMembershipRequest, group_membership_request.id)
+    end
+
+    test "deletes invite if user is the owner of the invite's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user})
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{user: other_user, group: group, initiated_by_user: true})
+
+      conn = delete conn, group_invitation_path(conn, :delete, group, group_membership_request)
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      refute Repo.get(GroupMembershipRequest, group_membership_request.id)
+    end
+
+    test "fails if user is not on the invite or the owner of the group on the invite", %{conn: conn} do
+      group = insert(:group)
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{user: other_user, group: group, initiated_by_user: true})
+
+      conn = delete conn, group_invitation_path(conn, :delete, group, group_membership_request)
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      assert Repo.get(GroupMembershipRequest, group_membership_request.id)
+    end
   end
 end
