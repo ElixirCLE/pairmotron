@@ -20,8 +20,8 @@ defmodule Pairmotron.Project do
     timestamps()
   end
 
-  @required_params ~w(name)
-  @optional_params ~w(description url group_id created_by_id)
+  @all_params ~w(name description url group_id created_by_id)
+  @required_params [:name]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -29,27 +29,33 @@ defmodule Pairmotron.Project do
   @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @all_params)
+    |> validate_required(@required_params)
     |> Sanitizer.sanitize([:name, :description, :url])
     |> validate_url(:url)
   end
 
-  @required_create_params ~w(name group_id created_by_id)
-  @optional_change_params ~w(description url)
+  @all_create_params ~w(name group_id created_by_id description url)
+  @required_create_params [:name, :group_id, :created_by_id]
 
   @spec changeset_for_create(map() | %Ecto.Changeset{}, map(), [Types.group]) :: %Ecto.Changeset{}
   def changeset_for_create(struct, params \\ %{}, users_groups) do
     struct
-    |> cast(params, @required_create_params, @optional_change_params)
+    |> cast(params, @all_create_params)
+    |> validate_required(@required_create_params)
     |> Sanitizer.sanitize([:name, :description, :url])
     |> validate_url(:url)
     |> validate_user_is_in_group(:group_id, users_groups)
   end
 
+  @all_change_params ~w(name description url)
+  @required_change_params [:name]
+
   @spec changeset_for_update(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset_for_update(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_params, @optional_change_params)
+    |> cast(params, @all_change_params)
+    |> validate_required(@required_change_params)
     |> Sanitizer.sanitize([:name, :description, :url])
     |> validate_url(:url)
   end

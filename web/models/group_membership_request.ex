@@ -28,8 +28,8 @@ defmodule Pairmotron.GroupMembershipRequest do
     timestamps()
   end
 
-  @required_params ~w(initiated_by_user user_id group_id)
-  @optional_params ~w()
+  @all_params ~w(initiated_by_user user_id group_id)
+  @required_params [:initiated_by_user, :user_id, :group_id]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -37,7 +37,8 @@ defmodule Pairmotron.GroupMembershipRequest do
   @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @all_params)
+    |> validate_required(@required_params)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:group_id)
     |> unique_constraint(:user_id_group_id, [message: "User is already invited to this group"])

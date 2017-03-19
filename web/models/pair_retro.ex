@@ -25,8 +25,8 @@ defmodule Pairmotron.PairRetro do
     timestamps()
   end
 
-  @required_fields ~w(pair_date user_id pair_id)
-  @optional_fields ~w(subject reflection project_id)
+  @all_fields ~w(pair_date user_id pair_id subject reflection project_id)
+  @required_fields [:pair_date, :user_id, :pair_id]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -43,7 +43,8 @@ defmodule Pairmotron.PairRetro do
   @spec changeset(map() | %Ecto.Changeset{}, map(), Types.pair, Types.project) :: %Ecto.Changeset{}
   def changeset(struct, params \\ %{}, pair, project) do
     struct
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @all_fields)
+    |> validate_required(@required_fields)
     |> Sanitizer.sanitize([:subject, :reflection])
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:pair_id)
@@ -53,7 +54,8 @@ defmodule Pairmotron.PairRetro do
     |> validate_project_is_for_group(:project_id, pair, project)
   end
 
-  @required_update_fields ~w(pair_date)
+  @all_update_fields ~w(pair_date subject reflection project_id)
+  @required_update_fields [:pair_date]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -70,7 +72,8 @@ defmodule Pairmotron.PairRetro do
   @spec update_changeset(map() | %Ecto.Changeset{}, map(), Types.pair, Types.project) :: %Ecto.Changeset{}
   def update_changeset(struct, params \\ %{}, pair, project) do
     struct
-    |> cast(params, @required_update_fields, @optional_fields)
+    |> cast(params, @all_update_fields)
+    |> validate_required(@required_update_fields)
     |> Sanitizer.sanitize([:subject, :reflection])
     |> foreign_key_constraint(:project_id)
     |> validate_date_is_not_before_pair(:pair_date, pair)
