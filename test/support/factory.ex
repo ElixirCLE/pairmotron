@@ -70,4 +70,11 @@ defmodule Pairmotron.Factory do
       pair: build(:pair)
     }
   end
+
+  def user_group_factory do
+    %Pairmotron.UserGroup{
+      user: build(:user),
+      group: build(:group)
+    }
+  end
 end

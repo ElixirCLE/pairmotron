@@ -25,4 +25,18 @@ defmodule Pairmotron.UserGroup do
     |> validate_required(@required_fields)
     |> unique_constraint(:user_id_group_id, [:user_id, :group_id])
   end
+
+  @doc """
+  Returns a query to retrieve the UserGroup associated with the user and group
+  along with the :user and :group associations preloaded.
+  """
+  @spec user_group_for_user_and_group(integer() | binary(), integer() | binary()) :: Ecto.Query.t
+  def user_group_for_user_and_group(user_id, group_id) do
+    from user_group in Pairmotron.UserGroup,
+    join: user in assoc(user_group, :user),
+    join: group in assoc(user_group, :group),
+    where: user.id == ^user_id,
+    where: group.id == ^group_id,
+    preload: [user: user, group: group]
+  end
 end
