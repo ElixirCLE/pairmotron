@@ -6,7 +6,7 @@ defmodule Pairmotron.UserGroupControllerTest do
   test "redirects to sign-in when not logged in", %{conn: conn} do
     group = insert(:group)
     other_user = insert(:user)
-    user_group = insert(:user_group, %{group: group, user: other_user})
+    insert(:user_group, %{group: group, user: other_user})
     conn = delete conn, user_group_path(conn, :delete, group, other_user)
     assert redirected_to(conn) == session_path(conn, :new)
   end
