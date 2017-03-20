@@ -12,7 +12,6 @@ defmodule Pairmotron.PairController do
     {year, week} = Timex.iso_week(Timex.today)
     user = conn.assigns[:current_user]
     {conn, groups_and_pairs} = conn
-      |> assign_current_user_pair_retro_for_week(year, week)
       |> fetch_pairs(year, week, user)
     render conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
       start_date: Timex.from_iso_triplet({year, week, 1}),
@@ -25,7 +24,6 @@ defmodule Pairmotron.PairController do
     {week, _} = w |> Integer.parse
     user = conn.assigns[:current_user]
     {conn, groups_and_pairs} = conn
-      |> assign_current_user_pair_retro_for_week(year, week)
       |> fetch_pairs(year, week, user)
     render conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
       start_date: Timex.from_iso_triplet({year, week, 1}),
