@@ -14,11 +14,6 @@ defmodule Pairmotron.PairView do
     end
   end
 
-  @spec user_retro(%Plug.Conn{}) :: Types.retro
-  def user_retro(conn) do
-    conn.assigns[:current_user_retro_for_week]
-  end
-
   @spec past_week?(1..53, integer()) :: boolean()
   def past_week?(week, year) do
     Pairmotron.Calendar.past_week?(week, year, Timex.today)
