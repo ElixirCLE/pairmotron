@@ -240,10 +240,10 @@ defmodule Pairmotron.GroupControllerTest do
       assert html_response(conn, 200) =~ users_group_membership_request_path(conn, :update, group_membership_request)
     end
 
-    test "renders page not found when id is nonexistent", %{conn: conn} do
-      assert_error_sent 404, fn ->
-        get conn, group_path(conn, :show, -1)
-      end
+    test "redirects to group index with error if id is nonexistent", %{conn: conn} do
+      conn = get conn, group_path(conn, :show, -1)
+      assert redirected_to(conn) == group_path(conn, :index)
+      assert %{private: %{phoenix_flash: %{"error" => "Group does not exist"}}} = conn
     end
   end
 
@@ -504,10 +504,10 @@ defmodule Pairmotron.GroupControllerTest do
       assert html_response(conn, 200) =~ users_group_membership_request_path(conn, :update, group_membership_request)
     end
 
-    test "renders page not found when id is nonexistent", %{conn: conn} do
-      assert_error_sent 404, fn ->
-        get conn, group_path(conn, :show, -1)
-      end
+    test "redirects to group index with error if id is nonexistent", %{conn: conn} do
+      conn = get conn, group_path(conn, :show, -1)
+      assert redirected_to(conn) == group_path(conn, :index)
+      assert %{private: %{phoenix_flash: %{"error" => "Group does not exist"}}} = conn
     end
   end
 
