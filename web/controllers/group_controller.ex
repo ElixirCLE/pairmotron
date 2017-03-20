@@ -42,11 +42,17 @@ defmodule Pairmotron.GroupController do
 
   @spec show(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def show(conn, %{"id" => id}) do
-    group = Group |> Repo.get!(id) |> Repo.preload(:owner)
-    invite_changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{group_id: id})
-    current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
-    conn = conn |> Plug.Conn.assign(:current_user, current_user)
-    render(conn, "show.html", group: group, invite_changeset: invite_changeset)
+    group = id |> Group.group_with_owner_and_users |> Repo.one
+    if is_nil(group) do
+      conn
+      |> put_flash(:error, "Group does not exist")
+      |> redirect(to: group_path(conn, :index))
+    else
+      invite_changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{group_id: id})
+      current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
+      conn = conn |> Plug.Conn.assign(:current_user, current_user)
+      render(conn, "show.html", group: group, invite_changeset: invite_changeset)
+    end
   end
 
   @spec edit(%Plug.Conn{}, map()) :: %Plug.Conn{}

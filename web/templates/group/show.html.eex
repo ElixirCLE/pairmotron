@@ -13,3 +13,21 @@
 </h2>
 <p><%= @group.description %></p>
 <%= render "group_actions.html", conn: @conn, group: @group %>
+<h2>Members</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th />
+    </tr>
+  </thead>
+  <tbody>
+    <%= for user <- @group.users do %>
+      <tr>
+        <td>
+          <%= user.name %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

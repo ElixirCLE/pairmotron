@@ -48,6 +48,19 @@ defmodule Pairmotron.Group do
     |> put_assoc(:users, users)
   end
 
+  @doc """
+  Returns a query that returns the group with the given group id, and the
+  :owner and :users associations preloaded. Executes in a single database call.
+  """
+  @spec group_with_owner_and_users(integer() | binary()) :: Ecto.Query.t
+  def group_with_owner_and_users(group_id) do
+    from group in Pairmotron.Group,
+    left_join: owner in assoc(group, :owner),
+    left_join: users in assoc(group, :users),
+    where: group.id == ^group_id,
+    preload: [owner: owner, users: users]
+  end
+
   @spec groups_for_user(Types.user) :: %Ecto.Query{}
   def groups_for_user(user) do
     from group in Pairmotron.Group,
