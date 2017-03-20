@@ -32,7 +32,8 @@
         <%= if project.group do %>
           <%= if user_can_edit_project?(project, @conn.assigns.current_user) do %>
             <%= link "Edit", to: project_path(@conn, :edit, project), class: "btn btn-default btn-xs" %>
-            <%= link "Delete", to: project_path(@conn, :delete, project), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+            <% delete_alert = "Are you sure? All retrospectives associated with this project will no longer be linked." %>
+            <%= link "Delete", to: project_path(@conn, :delete, project), method: :delete, data: [confirm: delete_alert], class: "btn btn-danger btn-xs" %>
           <%= end %>
         <%= end %>
       </td>
