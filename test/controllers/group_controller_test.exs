@@ -240,6 +240,20 @@ defmodule Pairmotron.GroupControllerTest do
       assert html_response(conn, 200) =~ users_group_membership_request_path(conn, :update, group_membership_request)
     end
 
+    test "lists a user that is in the group", %{conn: conn} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [other_user]})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ other_user.name
+    end
+
+    test "does not list a user that is not in the group", %{conn: conn} do
+      other_user = insert(:user)
+      group = insert(:group)
+      conn = get conn, group_path(conn, :show, group)
+      refute html_response(conn, 200) =~ other_user.name
+    end
+
     test "redirects to group index with error if id is nonexistent", %{conn: conn} do
       conn = get conn, group_path(conn, :show, -1)
       assert redirected_to(conn) == group_path(conn, :index)
