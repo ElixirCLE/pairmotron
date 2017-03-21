@@ -6,7 +6,7 @@ defmodule Pairmotron.PairController do
 
   alias Pairmotron.PairMaker
 
-  @spec index(%Plug.Conn{}, map()) :: %Plug.Conn{}
+  @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
     {year, week} = Timex.iso_week(Timex.today)
     user = conn.assigns[:current_user]
@@ -17,7 +17,7 @@ defmodule Pairmotron.PairController do
     |> render_index(year, week, groups_and_pairs)
   end
 
-  @spec show(%Plug.Conn{}, map()) :: %Plug.Conn{}
+  @spec show(Plug.Conn.t, map()) :: Plug.Conn.t
   def show(conn, %{"year" => y, "week" => w}) do
     {year, _} = y |> Integer.parse
     {week, _} = w |> Integer.parse
