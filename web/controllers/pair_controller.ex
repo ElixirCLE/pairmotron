@@ -4,20 +4,17 @@ defmodule Pairmotron.PairController do
   """
   use Pairmotron.Web, :controller
 
-  import Pairmotron.ControllerHelpers
   alias Pairmotron.PairMaker
 
   @spec index(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def index(conn, _params) do
     {year, week} = Timex.iso_week(Timex.today)
     user = conn.assigns[:current_user]
-    {groups_and_pairs, messages} = fetch_groups_and_pairs(year, week, user)
+    {groups_and_pairs, messages} = user |> fetch_groups_and_pairs(year, week)
 
     conn
     |> flash_messages(messages)
-    |> render("index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
-                start_date: Timex.from_iso_triplet({year, week, 1}),
-                stop_date: Timex.from_iso_triplet({year, week, 7}))
+    |> render_index(year, week, groups_and_pairs)
   end
 
   @spec show(%Plug.Conn{}, map()) :: %Plug.Conn{}
@@ -25,17 +22,22 @@ defmodule Pairmotron.PairController do
     {year, _} = y |> Integer.parse
     {week, _} = w |> Integer.parse
     user = conn.assigns[:current_user]
-    {groups_and_pairs, messages} = fetch_groups_and_pairs(year, week, user)
+    {groups_and_pairs, messages} = user |> fetch_groups_and_pairs(year, week)
 
     conn
     |> flash_messages(messages)
-    |> render("index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
-                start_date: Timex.from_iso_triplet({year, week, 1}),
-                stop_date: Timex.from_iso_triplet({year, week, 7}))
+    |> render_index(year, week, groups_and_pairs)
   end
 
-  @spec fetch_groups_and_pairs(integer(), 1..53, Types.user) :: {[{Types.group, Types.pair}], [String.t]}
-  defp fetch_groups_and_pairs(year, week, user) do
+  @spec render_index(Plug.Conn.t, integer(), 1..53, [{Types.group, Types.pair}]) :: Plug.Conn.t
+  defp render_index(conn, year, week, groups_and_pairs) do
+    render(conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
+              start_date: Timex.from_iso_triplet({year, week, 1}),
+              stop_date: Timex.from_iso_triplet({year, week, 7}))
+  end
+
+  @spec fetch_groups_and_pairs(Types.user, integer(), 1..53) :: {[{Types.group, Types.pair}], [String.t]}
+  defp fetch_groups_and_pairs(user, year, week) do
     user = user |> Repo.preload(:groups)
     {pairs, messages} = pairs_for_user_groups(user, year, week)
     {Enum.zip(user.groups, pairs), messages}
