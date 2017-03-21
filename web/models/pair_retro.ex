@@ -129,6 +129,13 @@ defmodule Pairmotron.PairRetro do
     where: p.week == ^week
   end
 
+  @spec retro_for_user_and_pair(Types.user, Types.pair) :: Ecto.Query.t
+  def retro_for_user_and_pair(user, pair) do
+    from retro in Pairmotron.PairRetro,
+    where: retro.user_id == ^user.id,
+    where: retro.pair_id == ^pair.id
+  end
+
   @spec users_retros(Types.user) :: %Ecto.Query{}
   def users_retros(user) do
     from retro in Pairmotron.PairRetro,
