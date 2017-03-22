@@ -29,30 +29,33 @@ defmodule Pairmotron.PairController do
     |> render_index(year, week, groups_and_pairs)
   end
 
-  @spec render_index(Plug.Conn.t, integer(), 1..53, [{Types.group, Types.pair}]) :: Plug.Conn.t
+  @spec render_index(Plug.Conn.t, integer(), 1..53, [{Types.group, [Types.pair]}]) :: Plug.Conn.t
   defp render_index(conn, year, week, groups_and_pairs) do
     render(conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
               start_date: Timex.from_iso_triplet({year, week, 1}),
               stop_date: Timex.from_iso_triplet({year, week, 7}))
   end
 
-  @spec fetch_groups_and_pairs(Types.user, integer(), 1..53) :: {[{Types.group, Types.pair}], [String.t]}
+  @spec fetch_groups_and_pairs(Types.user, integer(), 1..53) :: {[{Types.group, [Types.pair]}], [String.t]}
   defp fetch_groups_and_pairs(user, year, week) do
     user = user |> Repo.preload(:groups)
-    {pairs, messages} = pairs_for_user_groups(user, year, week)
-    {Enum.zip(user.groups, pairs), messages}
+    groups_with_pairs_for_user(user, year, week)
   end
 
-  @spec pairs_for_user_groups(Types.user, integer(), 1..53) :: {[Types.pair], [String.t]}
-  defp pairs_for_user_groups(user, year, week) do
+  @spec groups_with_pairs_for_user(Types.user, integer(), 1..53) :: {[{Types.group, [Types.pair]}], [String.t]}
+  defp groups_with_pairs_for_user(user, year, week) do
     Enum.reduce(user.groups, {[], []},
-      fn(group, pairs_and_messages) ->
-        {result_pairs, messages} = pairs_and_messages
+      fn(group, accum) ->
+        {groups_with_pairs, messages} = accum
         case PairMaker.fetch_or_gen(year, week, group.id) do
-          {:error, pairs, message} ->
-            {result_pairs ++ [pairs |> pairs_containing_user(user)], [message | messages]}
           {:ok, pairs} ->
-            {result_pairs ++ [pairs |> pairs_containing_user(user)], [messages]}
+            users_pairs = pairs_containing_user(pairs, user)
+            new_groups_with_pairs = groups_with_pairs ++ [{group, users_pairs}]
+            {new_groups_with_pairs, messages}
+          {:error, pairs, message} ->
+            users_pairs = pairs_containing_user(pairs, user)
+            new_groups_with_pairs = groups_with_pairs ++ [{group, users_pairs}]
+            {new_groups_with_pairs, [message | messages]}
         end
       end)
   end
