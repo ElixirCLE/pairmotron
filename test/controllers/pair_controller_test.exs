@@ -2,13 +2,11 @@ defmodule Pairmotron.PairControllerTest do
   use Pairmotron.ConnCase
 
   import Pairmotron.TestHelper,
-    only: [log_in: 2, create_retro: 2, create_pair_and_retro: 2]
+    only: [log_in: 2]
 
   describe "while authenticated and not belonging to any groups" do
     setup do
-      user = insert(:user)
-      conn = build_conn() |> log_in(user)
-      {:ok, [conn: conn, logged_in_user: user]}
+      login_user()
     end
 
     test "displays helpful message when there are no groups", %{conn: conn} do
@@ -53,7 +51,8 @@ defmodule Pairmotron.PairControllerTest do
 
     test "displays link to retro :show for pair and current user with retrospective",
       %{conn: conn, logged_in_user: user, group: group} do
-      {_pair, retro} = create_pair_and_retro(user, group)
+      pair = insert(:pair, %{group: group, users: [user]})
+      retro = insert(:retro, %{user: user, pair: pair})
       conn = get(conn, "/pairs")
       assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
@@ -61,8 +60,8 @@ defmodule Pairmotron.PairControllerTest do
     test "displays link to retro :show for pair and current user with retrospective for :show",
       %{conn: conn, logged_in_user: user, group: group} do
       {year, week} = Timex.iso_week(Timex.today)
-      pair = Pairmotron.TestHelper.create_pair([user], group, year, week)
-      retro = create_retro(user, pair) # create_retro function defines pair_date as Timex.today
+      pair = insert(:pair, %{group: group, users: [user], year: year, week: week}) 
+      retro = insert(:retro, %{user: user, pair: pair})
       conn = get conn, pair_path(conn, :show, year, week)
       assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
