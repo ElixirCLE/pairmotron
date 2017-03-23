@@ -3,14 +3,14 @@
   <div class="col-md-8 col-sm-12 col-xs-12">
     <ul class="list-group">
 
-      <%= for {group, pairs} <- @groups_and_pairs do %>
+      <%= for {group, pairs_with_retros} <- @groups_and_pairs do %>
         <h3><%= link group.name, to: group_pair_path(@conn, :show, group.id, @year, @week) %></h3>
-        <%= for pair <- pairs do %>
+        <%= for {pair, retro} <- pairs_with_retros do %>
           <li class="list-group-item">
             <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
           </li>
         <% end %>
-        <%= if Enum.empty?(pairs) do %>
+        <%= if Enum.empty?(pairs_with_retros) do %>
           <p>No pairs available</p>
         <% end %>
       <% end %>
