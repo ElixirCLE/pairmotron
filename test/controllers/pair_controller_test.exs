@@ -60,7 +60,7 @@ defmodule Pairmotron.PairControllerTest do
     test "displays link to retro :show for pair and current user with retrospective for :show",
       %{conn: conn, logged_in_user: user, group: group} do
       {year, week} = Timex.iso_week(Timex.today)
-      pair = insert(:pair, %{group: group, users: [user], year: year, week: week}) 
+      pair = insert(:pair, %{group: group, users: [user], year: year, week: week})
       retro = insert(:retro, %{user: user, pair: pair})
       conn = get conn, pair_path(conn, :show, year, week)
       assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
@@ -78,6 +78,72 @@ defmodule Pairmotron.PairControllerTest do
       assert html_response(conn, 200) =~ group.name
       assert html_response(conn, 200) =~ group2.name
       refute html_response(conn, 200) =~ user3.name
+    end
+  end
+
+  describe "when authenticated and in two groups" do
+    setup do
+      user = insert(:user)
+      group1 = insert(:group, %{owner: user, users: [user]})
+      group2 = insert(:group, %{owner: user, users: [user]})
+      conn = build_conn() |> log_in(user)
+      {:ok, [conn: conn, logged_in_user: user, groups: [group1, group2]]}
+    end
+
+    test "lists both groups", %{conn: conn, logged_in_user: user, groups: groups} do
+      [group1, group2] = groups
+      insert(:pair, %{group: group1, users: [user]})
+      insert(:pair, %{group: group2, users: [user]})
+
+      conn = get conn, pair_path(conn, :index)
+      assert html_response(conn, 200) =~ group1.name
+      assert html_response(conn, 200) =~ group2.name
+    end
+
+    test "lists other users in both pairs", %{conn: conn, logged_in_user: user, groups: groups} do
+      [group1, group2] = groups
+      user2 = insert(:user)
+      user3 = insert(:user)
+      insert(:pair, %{group: group1, users: [user, user2]})
+      insert(:pair, %{group: group2, users: [user, user3]})
+
+      conn = get conn, pair_path(conn, :index)
+      assert html_response(conn, 200) =~ user2.name
+      assert html_response(conn, 200) =~ user3.name
+    end
+
+    test "has links to create retros for both pairs if they do not exist", %{conn: conn, logged_in_user: user, groups: groups} do
+      [group1, group2] = groups
+      pair1 = insert(:pair, %{group: group1, users: [user]})
+      pair2 = insert(:pair, %{group: group2, users: [user]})
+
+      conn = get conn, pair_path(conn, :index)
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :new, pair1.id)
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :new, pair2.id)
+    end
+
+    test "links to edit retro for one group when it exists and create for the other that does not exist",
+      %{conn: conn, logged_in_user: user, groups: groups} do
+      [group1, group2] = groups
+      pair1 = insert(:pair, %{group: group1, users: [user]})
+      pair2 = insert(:pair, %{group: group2, users: [user]})
+      retro2 = insert(:retro, %{pair: pair2, user: user})
+
+      conn = get conn, pair_path(conn, :index)
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :new, pair1.id)
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :edit, retro2.id)
+    end
+
+    test "links to edit retro for both exists if both retros exist", %{conn: conn, logged_in_user: user, groups: groups} do
+      [group1, group2] = groups
+      pair1 = insert(:pair, %{group: group1, users: [user]})
+      pair2 = insert(:pair, %{group: group2, users: [user]})
+      retro1 = insert(:retro, %{pair: pair1, user: user})
+      retro2 = insert(:retro, %{pair: pair2, user: user})
+
+      conn = get conn, pair_path(conn, :index)
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :edit, retro1.id)
+      assert html_response(conn, 200) =~ pair_retro_path(conn, :edit, retro2.id)
     end
   end
 end
