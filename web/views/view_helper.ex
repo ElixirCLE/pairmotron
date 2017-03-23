@@ -29,4 +29,12 @@ defmodule Pairmotron.ViewHelpers do
       _ -> "error"
     end
   end
+
+  @doc """
+  Convenience function for outputting boolean values with an upper case first
+  letter rather than all lowercase.
+  """
+  @spec format_boolean(boolean()) :: String.t
+  def format_boolean(true), do: "True"
+  def format_boolean(false), do: "False"
 end

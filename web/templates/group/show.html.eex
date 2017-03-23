@@ -18,6 +18,7 @@
   <thead>
     <tr>
       <th>Name</th>
+      <th>Active</th>
       <th />
     </tr>
   </thead>
@@ -26,6 +27,9 @@
       <tr>
         <td>
           <%= user.name %>
+        </td>
+        <td>
+          <%= format_boolean(user.active) %>
         </td>
       </tr>
     <% end %>
