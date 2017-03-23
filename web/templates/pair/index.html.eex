@@ -8,6 +8,11 @@
         <%= for {pair, retro} <- pairs_with_retros do %>
           <li class="list-group-item">
             <%= render Pairmotron.SharedView, "pair.html", pair: pair, conn: @conn %>
+            <%= if is_nil(retro) do %>
+              <a href="<%= pair_retro_path(@conn, :new, pair.id) %>">Create Retrospective</a>
+            <%= else %>
+              <a href="<%= pair_retro_path(@conn, :edit, retro.id) %>">Retrospective</a>
+            <%= end %>
           </li>
         <% end %>
         <%= if Enum.empty?(pairs_with_retros) do %>
