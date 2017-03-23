@@ -62,22 +62,20 @@ defmodule Pairmotron.PairControllerTest do
       {year, week} = Timex.iso_week(Timex.today)
       pair = insert(:pair, %{group: group, users: [user], year: year, week: week})
       retro = insert(:retro, %{user: user, pair: pair})
+
       conn = get conn, pair_path(conn, :show, year, week)
       assert html_response(conn, 200) =~ pair_retro_path(conn, :show, retro.id)
     end
 
-    test "displays each of the user's groups' pairs (only the pairs including the user)", %{conn: conn, logged_in_user: user, group: group} do
-      {year, week} = Timex.iso_week(Timex.today)
-      user2 = insert(:user)
-      user3 = insert(:user)
-      group2 = insert(:group, %{owner: user, users: [user, user2, user3]})
-      Pairmotron.TestHelper.create_pair([user], group, year, week)
-      Pairmotron.TestHelper.create_pair([user, user2], group2, year, week)
-      Pairmotron.TestHelper.create_pair([user3], group2, year, week)
+    test "does not display pairs in user's group that the user is not in", %{conn: conn, logged_in_user: user, group: group} do
+      other_user_in_pair = insert(:user, %{groups: [group]})
+      other_user_not_in_pair = insert(:user, %{groups: [group]})
+      insert(:pair, %{group: group, users: [user, other_user_in_pair]})
+      insert(:pair, %{group: group, users: [other_user_not_in_pair]})
+
       conn = get conn, pair_path(conn, :index)
-      assert html_response(conn, 200) =~ group.name
-      assert html_response(conn, 200) =~ group2.name
-      refute html_response(conn, 200) =~ user3.name
+      assert html_response(conn, 200) =~ other_user_in_pair.name
+      refute html_response(conn, 200) =~ other_user_not_in_pair.name
     end
   end
 

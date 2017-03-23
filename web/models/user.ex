@@ -24,7 +24,7 @@ defmodule Pairmotron.User do
     field :password_hash, :string
 
     has_many :pair_retros, Pairmotron.PairRetro
-    many_to_many :groups, Pairmotron.Group, join_through: "users_groups"
+    many_to_many :groups, Pairmotron.Group, join_through: Pairmotron.UserGroup
     has_many :group_membership_requests, Pairmotron.GroupMembershipRequest
 
     timestamps()
