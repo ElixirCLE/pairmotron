@@ -31,6 +31,11 @@
         <td>
           <%= format_boolean(user.active) %>
         </td>
+        <td>
+          <%= if current_user_is_owner_or_admin_of_group?(@conn, @group, @user_group) do %> 
+            <%= link "Edit Membership", to: user_group_path(@conn, :edit, @group, user) %>
+          <%= end %>
+        </td>
       </tr>
     <% end %>
   </tbody>
