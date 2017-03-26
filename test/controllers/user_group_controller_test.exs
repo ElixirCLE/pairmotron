@@ -11,6 +11,19 @@ defmodule Pairmotron.UserGroupControllerTest do
     assert redirected_to(conn) == session_path(conn, :new)
   end
 
+  describe "using :edit while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "renders form for editing UserGroup if user is owner of group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      conn = get conn, user_group_path(conn, :edit, group, other_user)
+      assert html_response(conn, 200) =~ "Edit #{other_user.name}&#39;s membership in #{group.name}"
+    end
+  end
+
   describe "using :delete while authenticated" do
     setup do
       login_user()

@@ -1,0 +1,6 @@
+<h2><%= "Edit #{@user_group.user.name}'s membership in #{@user_group.group.name}" %></h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: user_group_path(@conn, :update, @user_group.group, @user_group.user) %>
+
+<%= link "Back to Group", to: group_path(@conn, :show, @user_group.group) %>

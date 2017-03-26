@@ -74,7 +74,8 @@ defmodule Pairmotron.Factory do
   def user_group_factory do
     %Pairmotron.UserGroup{
       user: build(:user),
-      group: build(:group)
+      group: build(:group),
+      is_admin: false
     }
   end
 end

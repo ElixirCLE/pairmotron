@@ -10,6 +10,19 @@ defmodule Pairmotron.UserGroupController do
   alias Pairmotron.UserGroup
   import Pairmotron.ControllerHelpers
 
+  @spec edit(Plug.Conn.t, map()) :: Plug.Conn.t
+  def edit(conn, %{"group_id" => group_id, "user_id" => user_id}) do
+    user_group = user_id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
+
+    changeset = UserGroup.changeset(user_group)
+    render(conn, "edit.html", changeset: changeset, user_group: user_group)
+  end
+
+  @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
+  def update(conn, %{"group_id" => group_id, "user_id" => user_id}) do
+    conn
+  end
+
   @doc """
   Deletes the specified UserGroup record if the logged in user is associated
   with the UserGroup or is the owner of the UserGroup's group association (or
