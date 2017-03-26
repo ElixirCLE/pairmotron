@@ -110,7 +110,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
       login_user()
     end
 
-    test "creates a group and deletes group_invite if group_invite exists and created by group", %{conn: conn, logged_in_user: user} do
+    test "creates a UserGroup and deletes group_invite if group_invite exists and created by group", %{conn: conn, logged_in_user: user} do
       group = insert(:group)
       group_membership_request = insert(:group_membership_request, %{group: group, user: user, initiated_by_user: false})
       conn = put conn, users_group_membership_request_path(conn, :update, group_membership_request), group_membership_request: %{}
@@ -118,6 +118,15 @@ defmodule Pairmotron.UsersGroupMembershipRequestControllerTest do
       assert redirected_to(conn) == users_group_membership_request_path(conn, :index)
       refute Repo.get(GroupMembershipRequest, group_membership_request.id)
       assert Repo.get_by(UserGroup, %{group_id: group.id, user_id: user.id})
+    end
+
+    test "upon success, user is not an admin in the group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      group_membership_request = insert(:group_membership_request, %{group: group, user: user, initiated_by_user: false})
+      put conn, users_group_membership_request_path(conn, :update, group_membership_request), group_membership_request: %{}
+
+      user_group = Repo.get_by(UserGroup, %{group_id: group.id, user_id: user.id})
+      assert user_group.is_admin == false
     end
 
     test "fails if group_membership_request doesn't exist", %{conn: conn, logged_in_user: user} do

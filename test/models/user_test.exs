@@ -3,7 +3,7 @@ defmodule Pairmotron.UserTest do
 
   alias Pairmotron.User
 
-  @valid_attrs %{email: "some content", name: "some content"}
+  @valid_attrs %{email: "some content", name: "some content", is_admin: false}
   @invalid_attrs %{}
 
   describe "changeset/2" do
