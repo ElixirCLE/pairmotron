@@ -6,6 +6,8 @@ defmodule Pairmotron.UserGroup do
   use Pairmotron.Web, :model
 
   schema "users_groups" do
+    field :is_admin, :boolean
+
     belongs_to :user, Pairmotron.User
     belongs_to :group, Pairmotron.Group
 
