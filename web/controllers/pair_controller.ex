@@ -47,19 +47,14 @@ defmodule Pairmotron.PairController do
     Enum.reduce(user.groups, {[], []},
       fn(group, accum) ->
         {groups_with_pairs, messages} = accum
-        case PairMaker.fetch_or_gen(year, week, group.id) do
-          {:ok, pairs} ->
-            pairs_and_retros = pairs
-              |> pairs_containing_user(user)
-              |> add_retros_to_pairs_for_user(user)
-            new_groups_with_pairs = groups_with_pairs ++ [{group, pairs_and_retros}]
-            {new_groups_with_pairs, messages}
-          {:error, pairs, message} ->
-            pairs_and_retros = pairs
-              |> pairs_containing_user(user)
-              |> add_retros_to_pairs_for_user(user)
-            new_groups_with_pairs = groups_with_pairs ++ [{group, pairs_and_retros}]
-            {new_groups_with_pairs, [message | messages]}
+        {_, pairs, message} = PairMaker.fetch_or_gen(year, week, group.id)
+        pairs_and_retros = pairs
+          |> pairs_containing_user(user)
+          |> add_retros_to_pairs_for_user(user)
+        new_groups_with_pairs = groups_with_pairs ++ [{group, pairs_and_retros}]
+        case message do
+          nil -> {new_groups_with_pairs, messages}
+          message -> {new_groups_with_pairs, [message | messages]}
         end
       end)
   end

@@ -9,14 +9,15 @@ defmodule Pairmotron.PairMaker do
   @doc """
   Retrieves pairs for a given period and group. Generates pairs if none are found.
   """
-  @spec fetch_or_gen(number, number, number) :: {:ok, List.t} | {:error, String.t}
+  @spec fetch_or_gen(number, number, number) :: {:ok, [Types.pair], nil} | {:error, [Types.pair], String.t}
   def fetch_or_gen(year, week, group_id) do
     case fetch_pairs(year, week, group_id) do
       []    -> generate_and_fetch_if_current_week(year, week, group_id)
-      pairs -> {:ok, pairs}
+      pairs -> {:ok, pairs, nil}
     end
   end
 
+  @spec generate_and_fetch_if_current_week(integer(), 1..53, integer()) :: {:error | :ok, [Types.pair], String.t | nil}
   defp generate_and_fetch_if_current_week(year, week, group_id) do
     case Pairmotron.Calendar.same_week?(year, week, Timex.today) do
       true ->
@@ -30,9 +31,11 @@ defmodule Pairmotron.PairMaker do
     end
   end
 
+  @spec prepare_result({:error, String.t} | {:ok, any()}, [Types.pair]) :: {:error | :ok, [Types.pair], String.t | nil}
   defp prepare_result({:error, message}, pairs), do: {:error, pairs, message}
-  defp prepare_result({:ok, _}, pairs), do: {:ok, pairs}
+  defp prepare_result({:ok, _}, pairs), do: {:ok, pairs, nil}
 
+  @spec fetch_pairs(integer(), 1..53, integer()) :: [Types.pair]
   defp fetch_pairs(year, week, group_id) do
     Pair
       |> where(year: ^year, week: ^week, group_id: ^group_id)

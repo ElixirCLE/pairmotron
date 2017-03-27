@@ -54,7 +54,7 @@ defmodule Pairmotron.GroupPairController do
     case PairMaker.fetch_or_gen(year, week, group_id) do
       {:error, pairs, message} ->
         {conn |> put_flash(:error, message), pairs}
-      {:ok, pairs} ->
+      {:ok, pairs, _} ->
         {conn, pairs}
     end
   end
