@@ -7,7 +7,6 @@ defmodule Pairmotron.ControllerHelpers do
 
   import Plug.Conn
   import Phoenix.Controller
-  alias Pairmotron.{Repo, PairRetro}
 
   @doc """
   Renders a 404 message.
@@ -60,15 +59,5 @@ defmodule Pairmotron.ControllerHelpers do
   @spec is_admin?(Types.user) :: boolean()
   def is_admin?(user) do
     user.is_admin
-  end
-
-  @doc """
-  Assigns a retro to the current user for a given year and week
-  """
-  @spec assign_current_user_pair_retro_for_week(%Plug.Conn{}, integer(), 1..53) :: %Plug.Conn{}
-  def assign_current_user_pair_retro_for_week(conn, year, week) do
-    current_user = conn.assigns[:current_user]
-    retro = Repo.one(PairRetro.retro_for_user_and_week(current_user, year, week))
-    Plug.Conn.assign(conn, :current_user_retro_for_week, retro)
   end
 end

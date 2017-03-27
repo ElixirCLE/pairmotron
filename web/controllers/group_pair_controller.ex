@@ -45,7 +45,7 @@ defmodule Pairmotron.GroupPairController do
   end
 
   defp authorized?(group, user) do
-    group = group |> Pairmotron.Repo.preload(:users)
+    group = group |> Repo.preload(:users)
     group.users
       |> Enum.any?(fn guser -> guser.id == user.id end)
   end
@@ -66,5 +66,12 @@ defmodule Pairmotron.GroupPairController do
       {:ok, _} ->
         conn |> put_flash(:info, "Repairified")
     end
+  end
+
+  @spec assign_current_user_pair_retro_for_week(%Plug.Conn{}, integer(), 1..53) :: %Plug.Conn{}
+  defp assign_current_user_pair_retro_for_week(conn, year, week) do
+    current_user = conn.assigns[:current_user]
+    retro = Repo.one(Pairmotron.PairRetro.retro_for_user_and_week(current_user, year, week))
+    Plug.Conn.assign(conn, :current_user_retro_for_week, retro)
   end
 end
