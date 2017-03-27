@@ -20,6 +20,24 @@ defmodule Pairmotron.UserGroupTest do
     end
   end
 
+  describe "update_changeset/2" do
+    test "can change the is_admin field" do
+      changeset = UserGroup.update_changeset(%UserGroup{}, %{is_admin: true})
+      assert changeset.valid?
+      assert %{changes: %{is_admin: true}} = changeset
+    end
+
+    test "cannot change the user_id field" do
+      changeset = UserGroup.update_changeset(%UserGroup{}, %{user_id: 123})
+      assert %{changes: %{}} = changeset
+    end
+
+    test "cannot change the group_id field" do
+      changeset = UserGroup.update_changeset(%UserGroup{}, %{group_id: 123})
+      assert %{changes: %{}} = changeset
+    end
+  end
+
   describe "user_group_for_user_and_group/2" do
     test "returns user_group with :user and :group preloaded when it exists" do
       user = insert(:user)

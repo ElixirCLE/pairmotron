@@ -11,7 +11,7 @@ defmodule Pairmotron.UserGroup do
     belongs_to :user, Pairmotron.User
     belongs_to :group, Pairmotron.Group
 
-    @all_fields ~w(group_id user_id)
+    @all_fields ~w(group_id user_id is_admin)
     @required_fields [:group_id, :user_id]
 
     timestamps()
