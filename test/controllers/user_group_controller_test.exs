@@ -71,6 +71,90 @@ defmodule Pairmotron.UserGroupControllerTest do
     end
   end
 
+  describe "using :update while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "updates the is_admin property of a UserGroup if logged in user is owner of group",
+      %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      assert Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id, is_admin: true})
+    end
+
+    test "does not update the user_id of a UserGroup", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      other_user_not_in_group = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      attrs = %{user_id: other_user_not_in_group.id}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user_not_in_group.id})
+    end
+
+    test "does not update the group_id of a UserGroup", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      other_group = insert(:group)
+      attrs = %{group_id: other_group.id}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get_by(UserGroup, %{group_id: other_group.id, user_id: other_user.id})
+    end
+
+    test "fails if logged in user is group admin", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [other_user]})
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      assert Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id, is_admin: true})
+    end
+
+    test "fails if logged in user is not group admin or owner", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [user, other_user]})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id, is_admin: true})
+    end
+
+    test "fails if logged in user is not in group", %{conn: conn} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [other_user]})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id, is_admin: true})
+    end
+
+    test "fails if user in route does not exit", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, 123), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+    end
+
+    test "fails if group in route does not exist", %{conn: conn, logged_in_user: user} do
+      attrs = %{is_admin: true}
+      conn = put conn, user_group_path(conn, :update, 123, user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, 123)
+    end
+  end
+
   describe "using :delete while authenticated" do
     setup do
       login_user()
