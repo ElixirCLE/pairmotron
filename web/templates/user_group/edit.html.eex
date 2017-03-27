@@ -3,4 +3,5 @@
 <%= render "form.html", changeset: @changeset,
                         action: user_group_path(@conn, :update, @user_group.group, @user_group.user) %>
 
-<%= link "Back to Group", to: group_path(@conn, :show, @user_group.group) %>
+<% delete_alert = "Are you sure you want to remove #{@user_group.user.name} from the #{@user_group.group.name} group?" %>
+<%= link "Remove from group", to: user_group_path(@conn, :delete, @user_group.group, @user_group.user), method: :delete, class: "btn btn-danger", data: [confirm: delete_alert] %>

@@ -13,7 +13,24 @@ defmodule Pairmotron.UserGroupController do
   @spec edit(Plug.Conn.t, map()) :: Plug.Conn.t
   def edit(conn, %{"group_id" => group_id, "user_id" => user_id}) do
     user_group = user_id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
+    user = conn.assigns.current_user
+    logged_in_users_user_group = user.id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
 
+    cond do
+      is_nil(user_group) ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+      is_nil(logged_in_users_user_group) ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+      user_group.group.owner_id == user.id ->
+        render_edit(conn, user_group)
+      logged_in_users_user_group.is_admin ->
+        render_edit(conn, user_group)
+      true ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+    end
+  end
+
+  defp render_edit(conn, user_group) do
     changeset = UserGroup.changeset(user_group)
     render(conn, "edit.html", changeset: changeset, user_group: user_group)
   end
