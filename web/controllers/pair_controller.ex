@@ -6,6 +6,8 @@ defmodule Pairmotron.PairController do
 
   alias Pairmotron.PairMaker
 
+  @typep pair_session :: [{Types.group, [{Type.pair, Types.retro | nil}]}]
+
   @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
     {year, week} = Timex.iso_week(Timex.today)
@@ -29,20 +31,20 @@ defmodule Pairmotron.PairController do
     |> render_index(year, week, groups_and_pairs)
   end
 
-  @spec render_index(Plug.Conn.t, integer(), 1..53, [{Types.group, [{Types.pair, Types.retro | nil}]}]) :: Plug.Conn.t
+  @spec render_index(Plug.Conn.t, integer(), 1..53, pair_session) :: Plug.Conn.t
   defp render_index(conn, year, week, groups_and_pairs) do
     render(conn, "index.html", year: year, week: week, groups_and_pairs: groups_and_pairs,
               start_date: Timex.from_iso_triplet({year, week, 1}),
               stop_date: Timex.from_iso_triplet({year, week, 7}))
   end
 
-  @spec fetch_groups_and_pairs(Types.user, integer(), 1..53) :: {[{Types.group, [{Types.pair, Types.retro | nil}]}], [String.t]}
+  @spec fetch_groups_and_pairs(Types.user, integer(), 1..53) :: {pair_session, [String.t]}
   defp fetch_groups_and_pairs(user, year, week) do
     user = user |> Repo.preload(:groups)
     groups_with_pairs_for_user(user, year, week)
   end
 
-  @spec groups_with_pairs_for_user(Types.user, integer(), 1..53) :: {[{Types.group, [{Types.pair, Types.retro | nil}]}], [String.t]}
+  @spec groups_with_pairs_for_user(Types.user, integer(), 1..53) :: {pair_session, [String.t]}
   defp groups_with_pairs_for_user(user, year, week) do
     Enum.reduce(user.groups, {[], []},
       fn(group, accum) ->
