@@ -25,6 +25,8 @@ defmodule Pairmotron.UserGroupController do
         render_edit(conn, user_group)
       logged_in_users_user_group.is_admin ->
         render_edit(conn, user_group)
+      user.is_admin ->
+        render_edit(conn, user_group)
       true ->
         redirect_not_authorized(conn, group_path(conn, :show, group_id))
     end
