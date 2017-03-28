@@ -240,16 +240,16 @@ defmodule Pairmotron.GroupControllerTest do
       assert html_response(conn, 200) =~ users_group_membership_request_path(conn, :update, group_membership_request)
     end
 
-    test "lists a user that is in the group", %{conn: conn} do
+    test "lists a user that is in the group", %{conn: conn, logged_in_user: user} do
       other_user = insert(:user)
-      group = insert(:group, %{users: [other_user]})
+      group = insert(:group, %{owner: user, users: [user, other_user]})
       conn = get conn, group_path(conn, :show, group)
       assert html_response(conn, 200) =~ other_user.name
     end
 
-    test "does not list a user that is not in the group", %{conn: conn} do
+    test "does not list a user that is not in the group", %{conn: conn, logged_in_user: user} do
       other_user = insert(:user)
-      group = insert(:group)
+      group = insert(:group, %{owner: user, users: [user]})
       conn = get conn, group_path(conn, :show, group)
       refute html_response(conn, 200) =~ other_user.name
     end
@@ -258,6 +258,31 @@ defmodule Pairmotron.GroupControllerTest do
       conn = get conn, group_path(conn, :show, -1)
       assert redirected_to(conn) == group_path(conn, :index)
       assert %{private: %{phoenix_flash: %{"error" => "Group does not exist"}}} = conn
+    end
+
+    test "links to edit a UserGroup if user is owner of group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ user_group_path(conn, :edit, group, other_user)
+      assert html_response(conn, 200) =~ "Edit Membership"
+    end
+
+    test "links to edit a UserGroup if user is an admin of group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [other_user]})
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ user_group_path(conn, :edit, group, other_user)
+      assert html_response(conn, 200) =~ "Edit Membership"
+    end
+
+    test "does not link to edit a UserGroup if user is not owner or admin of group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [user, other_user]})
+      conn = get conn, group_path(conn, :show, group)
+      refute html_response(conn, 200) =~ user_group_path(conn, :edit, group, other_user)
+      refute html_response(conn, 200) =~ "Edit Membership"
     end
   end
 

@@ -8,6 +8,14 @@ defmodule Pairmotron.GroupView do
     user.id == group.owner_id or user.is_admin
   end
 
+  @spec current_user_is_owner_or_admin_of_group?(Plug.Conn.t, Types.group, Types.user_group) :: boolean()
+  def current_user_is_owner_or_admin_of_group?(%{assigns: %{current_user: user}}, group, nil) do
+    user.id == group.owner_id or user.is_admin
+  end
+  def current_user_is_owner_or_admin_of_group?(%{assigns: %{current_user: user}}, group, user_group) do
+    user.id == group.owner_id or user_group.is_admin or user.is_admin
+  end
+
   @spec current_user_in_group?(%Plug.Conn{}, Types.group) :: boolean()
   def current_user_in_group?(conn, group) do
     conn.assigns.current_user.groups

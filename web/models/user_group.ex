@@ -6,10 +6,12 @@ defmodule Pairmotron.UserGroup do
   use Pairmotron.Web, :model
 
   schema "users_groups" do
+    field :is_admin, :boolean
+
     belongs_to :user, Pairmotron.User
     belongs_to :group, Pairmotron.Group
 
-    @all_fields ~w(group_id user_id)
+    @all_fields ~w(group_id user_id is_admin)
     @required_fields [:group_id, :user_id]
 
     timestamps()
@@ -18,12 +20,27 @@ defmodule Pairmotron.UserGroup do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  @spec changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
+  @spec changeset(map() | Ecto.Changeset.t, map()) :: Ecto.Changeset.t
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @all_fields)
     |> validate_required(@required_fields)
     |> unique_constraint(:user_id_group_id, [:user_id, :group_id])
+  end
+
+  @all_update_fields ~w(is_admin)
+  @required_update_fields [:is_admin]
+
+  @doc """
+  Builds a changeset for use when updating an existing UserGroup entry.
+  
+  Does not allow the modification of the associated user or group.
+  """
+  @spec update_changeset(map() | Ecto.Changeset.t, map()) :: Ecto.Changeset.t
+  def update_changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @all_update_fields)
+    |> validate_required(@required_update_fields) 
   end
 
   @doc """

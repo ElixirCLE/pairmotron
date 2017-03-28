@@ -11,6 +11,150 @@ defmodule Pairmotron.UserGroupControllerTest do
     assert redirected_to(conn) == session_path(conn, :new)
   end
 
+  describe "using :edit while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "renders form for editing UserGroup if user is owner of group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      conn = get conn, user_group_path(conn, :edit, group, other_user)
+      assert html_response(conn, 200) =~ "Edit #{other_user.name}&#39;s membership in #{group.name}"
+    end
+
+    test "renders form for editing UserGroup is user is admin in group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [other_user]})
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, user_group_path(conn, :edit, group, other_user)
+      assert html_response(conn, 200) =~ "Edit #{other_user.name}&#39;s membership in #{group.name}"
+    end
+
+    test "rendered form has link to remove user from group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      conn = get conn, user_group_path(conn, :edit, group, other_user)
+      assert html_response(conn, 200) =~ "Remove from group"
+    end
+
+    test "fails if user is not oner or admin of group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [user, other_user]})
+      conn = get conn, user_group_path(conn, :edit, group, other_user)
+      assert redirected_to(conn) == group_path(conn, :show, group)
+    end
+
+    test "fails if logged in user is not in group", %{conn: conn} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [other_user]})
+      conn = get conn, user_group_path(conn, :edit, group, other_user)
+      assert redirected_to(conn) == group_path(conn, :show, group)
+    end
+
+    test "fails if user to be edited is not in group", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user]})
+      conn = get conn, user_group_path(conn, :edit, group, other_user)
+      assert redirected_to(conn) == group_path(conn, :show, group)
+    end
+
+    test "fails if group in route does not exist", %{conn: conn, logged_in_user: user} do
+      conn = get conn, user_group_path(conn, :edit, 123, user)
+      assert redirected_to(conn) == group_path(conn, :show, 123)
+    end
+
+    test "fails is user in route does not exist", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      conn = get conn, user_group_path(conn, :edit, group, 123)
+      assert redirected_to(conn) == group_path(conn, :show, group)
+    end
+  end
+
+  describe "using :update while authenticated" do
+    setup do
+      login_user()
+    end
+
+    test "updates the is_admin property of a UserGroup if logged in user is owner of group",
+      %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      assert Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id, is_admin: true})
+    end
+
+    test "does not update the user_id of a UserGroup", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      other_user_not_in_group = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      attrs = %{user_id: other_user_not_in_group.id}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user_not_in_group.id})
+    end
+
+    test "does not update the group_id of a UserGroup", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{owner: user, users: [user, other_user]})
+      other_group = insert(:group)
+      attrs = %{group_id: other_group.id}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get_by(UserGroup, %{group_id: other_group.id, user_id: other_user.id})
+    end
+
+    test "fails if logged in user is group admin", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [other_user]})
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      assert Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id, is_admin: true})
+    end
+
+    test "fails if logged in user is not group admin or owner", %{conn: conn, logged_in_user: user} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [user, other_user]})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id, is_admin: true})
+    end
+
+    test "fails if logged in user is not in group", %{conn: conn} do
+      other_user = insert(:user)
+      group = insert(:group, %{users: [other_user]})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, other_user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id, is_admin: true})
+    end
+
+    test "fails if user in route does not exit", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      attrs = %{is_admin: true}
+
+      conn = put conn, user_group_path(conn, :update, group, 123), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, group)
+    end
+
+    test "fails if group in route does not exist", %{conn: conn, logged_in_user: user} do
+      attrs = %{is_admin: true}
+      conn = put conn, user_group_path(conn, :update, 123, user), user_group: attrs
+      assert redirected_to(conn) == group_path(conn, :show, 123)
+    end
+  end
+
   describe "using :delete while authenticated" do
     setup do
       login_user()

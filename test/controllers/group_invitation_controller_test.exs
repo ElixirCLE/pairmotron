@@ -196,6 +196,16 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       assert Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
     end
 
+    test "upon success, user is not an admin in group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{group: group, user: other_user, initiated_by_user: true})
+      put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
+
+      user_group = Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
+      assert user_group.is_admin == false
+    end
+
     test "fails if group_membership_request doesn't exist", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       other_user = insert(:user)

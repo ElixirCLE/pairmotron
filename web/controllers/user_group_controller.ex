@@ -10,6 +10,68 @@ defmodule Pairmotron.UserGroupController do
   alias Pairmotron.UserGroup
   import Pairmotron.ControllerHelpers
 
+  @spec edit(Plug.Conn.t, map()) :: Plug.Conn.t
+  def edit(conn, %{"group_id" => group_id, "user_id" => user_id}) do
+    user_group = user_id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
+    user = conn.assigns.current_user
+    logged_in_users_user_group = user.id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
+
+    cond do
+      is_nil(user_group) ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+      is_nil(logged_in_users_user_group) ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+      user_group.group.owner_id == user.id ->
+        render_edit(conn, user_group)
+      logged_in_users_user_group.is_admin ->
+        render_edit(conn, user_group)
+      user.is_admin ->
+        render_edit(conn, user_group)
+      true ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+    end
+  end
+
+  defp render_edit(conn, user_group) do
+    changeset = UserGroup.update_changeset(user_group)
+    render(conn, "edit.html", changeset: changeset, user_group: user_group)
+  end
+
+  @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
+  def update(conn, %{"group_id" => group_id, "user_id" => user_id, "user_group" => user_group_params}) do
+    user_group = user_id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
+    user = conn.assigns.current_user
+    logged_in_users_user_group = user.id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
+
+    cond do
+      is_nil(user_group) ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+      is_nil(logged_in_users_user_group) ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+      logged_in_users_user_group.is_admin ->
+        update_user_group(conn, user_group, user_group_params)
+      user_group.group.owner_id == user.id ->
+        update_user_group(conn, user_group, user_group_params)
+      user.is_admin ->
+        update_user_group(conn, user_group, user_group_params)
+      true ->
+        redirect_not_authorized(conn, group_path(conn, :show, group_id))
+    end
+  end
+
+  @spec update_user_group(Plug.Conn.t, Ecto.Changeset.t, Types.user_group) :: Plug.Conn.t
+  defp update_user_group(conn, user_group, params) do
+    changeset = UserGroup.update_changeset(user_group, params)
+    case Repo.update(changeset) do
+      {:ok, _user_group} ->
+        conn
+        |> put_flash(:info, "User's membership updated successfully.")
+        |> redirect(to: group_path(conn, :show, user_group.group_id))
+      {:error, changeset} ->
+        render(conn, "edit.html", changeset: changeset, user_group: user_group)
+    end
+  end
+
   @doc """
   Deletes the specified UserGroup record if the logged in user is associated
   with the UserGroup or is the owner of the UserGroup's group association (or
