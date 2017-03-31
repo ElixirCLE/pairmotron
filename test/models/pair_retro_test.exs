@@ -165,6 +165,47 @@ defmodule Pairmotron.PairRetroTest do
     end
   end
 
+  describe ".retro_for_user_and_pair" do
+    test "returns the retro for the user and pair" do
+      user = insert(:user)
+      pair = insert(:pair, %{users: [user]})
+      insert(:retro, %{user: user, pair: pair})
+
+      assert Repo.one(PairRetro.retro_for_user_and_pair(user, pair))
+    end
+
+    test "returns the retro for the user and pair out of two pairs and retros" do
+      user = insert(:user)
+      pair = insert(:pair, %{users: [user]})
+      retro = insert(:retro, %{user: user, pair: pair})
+      other_pair = insert(:pair, %{users: [user]})
+      _other_retro = insert(:retro, %{user: user, pair: other_pair})
+
+      returned_retros = Repo.all(PairRetro.retro_for_user_and_pair(user, pair))
+      assert [returned_retro] = returned_retros
+      assert returned_retro.id == retro.id
+    end
+
+    test "returns the retro for the pair and user out of two users and retros" do
+      user = insert(:user)
+      other_user = insert(:user)
+      pair = insert(:pair, %{users: [user, other_user]})
+      retro = insert(:retro, %{user: user, pair: pair})
+      _other_retro = insert(:retro, %{user: other_user, pair: pair})
+
+      returned_retros = Repo.all(PairRetro.retro_for_user_and_pair(user, pair))
+      assert [returned_retro] = returned_retros
+      assert returned_retro.id == retro.id
+    end
+
+    test "returns no retro if there are no retros" do
+      user = insert(:user)
+      pair = insert(:pair, %{users: [user]})
+
+      refute Repo.one(PairRetro.retro_for_user_and_pair(user, pair))
+    end
+  end
+
   describe ".users_retros" do
     test "returns nil when there are no retros" do
       user = insert(:user)

@@ -124,7 +124,7 @@ defmodule Pairmotron.PairMakerTest do
       {year, week} = Timex.iso_week(Timex.today)
       assert [] = Repo.all(Pair)
       PairMaker.generate_pairs(year, week, group.id)
-      {:ok, [%Pair{users: [fetched]}]} = PairMaker.fetch_or_gen(year, week, group.id)
+      {:ok, [%Pair{users: [fetched]}], nil} = PairMaker.fetch_or_gen(year, week, group.id)
       assert user.id == fetched.id
       assert [%Pair{}] = Repo.all(Pair)
       [userpair] = Repo.all(UserPair)
@@ -134,7 +134,7 @@ defmodule Pairmotron.PairMakerTest do
     test "generates pairs when current week", %{group: group, user: user} do
       {year, week} = Timex.iso_week(Timex.today)
       assert [] = Repo.all(Pair)
-      {:ok, [%Pair{users: [fetched]}]} = PairMaker.fetch_or_gen(year, week, group.id)
+      {:ok, [%Pair{users: [fetched]}], nil} = PairMaker.fetch_or_gen(year, week, group.id)
       assert user.id == fetched.id
       assert [%Pair{}] = Repo.all(Pair)
       [userpair] = Repo.all(UserPair)
