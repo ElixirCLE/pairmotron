@@ -1,0 +1,29 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= label f, :group_id, "Group", class: "control-label" %>
+    <%= select f, :group_id, data_as_select_with_ids(@groups), prompt: "(none)", class: "form-control" %>
+    <%= error_tag f, :group_id %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :user_id, "Created by", class: "control-label" %>
+    <%= select f, :user_id, data_as_select_with_ids(@users), prompt: "(none)", class: "form-control" %>
+    <%= error_tag f, :user_id %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :initiated_by_user, "Initiated by user", class: "control-label" %>
+    <%= checkbox f, :initiated_by_user, class: "form-control" %>
+    <%= error_tag f, :initiated_by_user %>
+  </div>
+
+  <div class="form-group">
+    <%= submit "Submit", class: "btn btn-primary" %>
+  </div>
+<% end %>

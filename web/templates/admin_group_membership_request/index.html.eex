@@ -1,0 +1,42 @@
+<h2>Listing Group Membership Requests</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>Group</th>
+      <th>User</th>
+      <th>Initiated by user?</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for group_membership_request <- @group_membership_requests do %>
+    <tr>
+      <td><%= group_membership_request.id %></td>
+      <td>
+        <%= if is_nil(group_membership_request.group) do %>
+          (none)
+        <%= else %>
+          <%= link group_membership_request.group.name, to: admin_group_path(@conn, :show, group_membership_request.group) %>
+        <%= end %>
+      </td>
+      <td>
+        <%= if is_nil(group_membership_request.user) do %>
+          (none)
+        <%= else %>
+          <%= link group_membership_request.user.name, to: admin_user_path(@conn, :show, group_membership_request.user) %>
+        <%= end %>
+      </td>
+      <td><%= group_membership_request.initiated_by_user %></td>
+      <td class="text-right">
+        <%= link "Show", to: admin_group_membership_request_path(@conn, :show, group_membership_request), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: admin_group_membership_request_path(@conn, :edit, group_membership_request), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: admin_group_membership_request_path(@conn, :delete, group_membership_request), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "New group_membership_request", to: admin_group_membership_request_path(@conn, :new) %>

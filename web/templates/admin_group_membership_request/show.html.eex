@@ -1,0 +1,36 @@
+<h2>Show Group Membership Request</h2>
+
+<ul>
+
+  <li>
+    <strong>id:</strong>
+    <%= @group_membership_request.id %>
+  </li>
+
+  <li>
+    <strong>User:</strong>
+    <%= if is_nil(@group_membership_request.user) do %>
+      (none)
+    <%= else %>
+      <%= link @group_membership_request.user.name, to: admin_user_path(@conn, :show, @group_membership_request.user) %>
+    <%= end %>
+  </li>
+
+  <li>
+    <strong>Group:</strong>
+    <%= if is_nil(@group_membership_request.group) do %>
+      (none)
+    <%= else %>
+      <%= link @group_membership_request.group.name, to: admin_group_path(@conn, :show, @group_membership_request.group) %>
+    <%= end %>
+  </li>
+
+  <li>
+    <strong>Initiated by user</strong>
+    <%= @group_membership_request.initiated_by_user %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: admin_group_membership_request_path(@conn, :edit, @group_membership_request) %>
+<%= link "Back", to: admin_group_membership_request_path(@conn, :index) %>
