@@ -297,6 +297,13 @@ defmodule Pairmotron.GroupControllerTest do
       assert html_response(conn, 200) =~ "Edit group"
     end
 
+    test "renders form form if user is group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, group_path(conn, :edit, group)
+      assert html_response(conn, 200) =~ "Edit group"
+    end
+
     test "does not allow editing a group not owned by logged in user", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :edit, group)
