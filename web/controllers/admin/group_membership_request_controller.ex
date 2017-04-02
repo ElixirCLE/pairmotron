@@ -3,11 +3,13 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
 
   alias Pairmotron.GroupMembershipRequest
 
+  @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
-    group_membership_requests = Repo.all(GroupMembershipRequest) |> Repo.preload([:group, :user])
+    group_membership_requests = GroupMembershipRequest |> Repo.all |> Repo.preload([:group, :user])
     render(conn, "index.html", group_membership_requests: group_membership_requests)
   end
 
+  @spec new(Plug.Conn.t, map()) :: Plug.Conn.t
   def new(conn, _params) do
     changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{})
     groups = Repo.all(Pairmotron.Group)
@@ -15,6 +17,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     render(conn, "new.html", changeset: changeset, groups: groups, users: users)
   end
 
+  @spec create(Plug.Conn.t, map()) :: Plug.Conn.t
   def create(conn, %{"group_membership_request" => group_membership_request_params}) do
     changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, group_membership_request_params)
     groups = Repo.all(Pairmotron.Group)
@@ -30,11 +33,13 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     end
   end
 
+  @spec show(Plug.Conn.t, map()) :: Plug.Conn.t
   def show(conn, %{"id" => id}) do
-    group_membership_request = Repo.get!(GroupMembershipRequest, id) |> Repo.preload([:group, :user])
+    group_membership_request = GroupMembershipRequest |> Repo.get!(id) |> Repo.preload([:group, :user])
     render(conn, "show.html", group_membership_request: group_membership_request)
   end
 
+  @spec edit(Plug.Conn.t, map()) :: Plug.Conn.t
   def edit(conn, %{"id" => id}) do
     group_membership_request = Repo.get!(GroupMembershipRequest, id)
     changeset = GroupMembershipRequest.changeset(group_membership_request)
@@ -43,6 +48,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     render(conn, "edit.html", group_membership_request: group_membership_request, changeset: changeset, groups: groups, users: users)
   end
 
+  @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
   def update(conn, %{"id" => id, "group_membership_request" => group_membership_request_params}) do
     group_membership_request = Repo.get!(GroupMembershipRequest, id)
     changeset = GroupMembershipRequest.changeset(group_membership_request, group_membership_request_params)
@@ -59,6 +65,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     end
   end
 
+  @spec delete(Plug.Conn.t, map()) :: Plug.Conn.t
   def delete(conn, %{"id" => id}) do
     group_membership_request = Repo.get!(GroupMembershipRequest, id)
 

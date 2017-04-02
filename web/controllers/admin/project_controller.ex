@@ -3,11 +3,13 @@ defmodule Pairmotron.AdminProjectController do
 
   alias Pairmotron.Project
 
+  @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
-    projects = Repo.all(Project) |> Repo.preload([:group, :created_by])
+    projects = Project |> Repo.all |> Repo.preload([:group, :created_by])
     render(conn, "index.html", projects: projects)
   end
 
+  @spec new(Plug.Conn.t, map()) :: Plug.Conn.t
   def new(conn, _params) do
     changeset = Project.changeset(%Project{})
     groups = Repo.all(Pairmotron.Group)
@@ -15,6 +17,7 @@ defmodule Pairmotron.AdminProjectController do
     render(conn, "new.html", changeset: changeset, groups: groups, users: users)
   end
 
+  @spec create(Plug.Conn.t, map()) :: Plug.Conn.t
   def create(conn, %{"project" => project_params}) do
     changeset = Project.changeset(%Project{}, project_params)
     groups = Repo.all(Pairmotron.Group)
@@ -30,11 +33,13 @@ defmodule Pairmotron.AdminProjectController do
     end
   end
 
+  @spec show(Plug.Conn.t, map()) :: Plug.Conn.t
   def show(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id) |> Repo.preload([:group, :created_by])
+    project = Project |> Repo.get!(id) |> Repo.preload([:group, :created_by])
     render(conn, "show.html", project: project)
   end
 
+  @spec edit(Plug.Conn.t, map()) :: Plug.Conn.t
   def edit(conn, %{"id" => id}) do
     project = Repo.get!(Project, id)
     changeset = Project.changeset(project)
@@ -43,6 +48,7 @@ defmodule Pairmotron.AdminProjectController do
     render(conn, "edit.html", project: project, changeset: changeset, groups: groups, users: users)
   end
 
+  @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
   def update(conn, %{"id" => id, "project" => project_params}) do
     project = Repo.get!(Project, id)
     changeset = Project.changeset(project, project_params)
@@ -59,6 +65,7 @@ defmodule Pairmotron.AdminProjectController do
     end
   end
 
+  @spec delete(Plug.Conn.t, map()) :: Plug.Conn.t
   def delete(conn, %{"id" => id}) do
     project = Repo.get!(Project, id)
 

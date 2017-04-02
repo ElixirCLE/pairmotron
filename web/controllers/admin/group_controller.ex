@@ -3,17 +3,20 @@ defmodule Pairmotron.AdminGroupController do
 
   alias Pairmotron.Group
 
+  @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
-    groups = Repo.all(Group) |> Repo.preload(:owner)
+    groups = Group |> Repo.all |> Repo.preload(:owner)
     render(conn, "index.html", groups: groups)
   end
 
+  @spec new(Plug.Conn.t, map()) :: Plug.Conn.t
   def new(conn, _params) do
     changeset = Group.changeset(%Group{})
     users = Repo.all(Pairmotron.User)
     render(conn, "new.html", changeset: changeset, users: users)
   end
 
+  @spec create(Plug.Conn.t, map()) :: Plug.Conn.t
   def create(conn, %{"group" => group_params}) do
     changeset = Group.changeset(%Group{}, group_params)
     users = Repo.all(Pairmotron.User)
@@ -28,11 +31,13 @@ defmodule Pairmotron.AdminGroupController do
     end
   end
 
+  @spec show(Plug.Conn.t, map()) :: Plug.Conn.t
   def show(conn, %{"id" => id}) do
-    group = Repo.get!(Group, id) |> Repo.preload(:owner)
+    group = Group |> Repo.get!(id) |> Repo.preload(:owner)
     render(conn, "show.html", group: group)
   end
 
+  @spec edit(Plug.Conn.t, map()) :: Plug.Conn.t
   def edit(conn, %{"id" => id}) do
     group = Repo.get!(Group, id)
     changeset = Group.changeset(group)
@@ -40,6 +45,7 @@ defmodule Pairmotron.AdminGroupController do
     render(conn, "edit.html", group: group, changeset: changeset, users: users)
   end
 
+  @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
   def update(conn, %{"id" => id, "group" => group_params}) do
     group = Repo.get!(Group, id)
     changeset = Group.changeset(group, group_params)
@@ -55,6 +61,7 @@ defmodule Pairmotron.AdminGroupController do
     end
   end
 
+  @spec delete(Plug.Conn.t, map()) :: Plug.Conn.t
   def delete(conn, %{"id" => id}) do
     group = Repo.get!(Group, id)
 

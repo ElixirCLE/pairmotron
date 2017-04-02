@@ -3,11 +3,13 @@ defmodule Pairmotron.AdminUserGroupController do
 
   alias Pairmotron.UserGroup
 
+  @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
-    user_groups = Repo.all(UserGroup) |> Repo.preload([:group, :user])
+    user_groups = UserGroup |> Repo.all |> Repo.preload([:group, :user])
     render(conn, "index.html", user_groups: user_groups)
   end
 
+  @spec new(Plug.Conn.t, map()) :: Plug.Conn.t
   def new(conn, _params) do
     changeset = UserGroup.changeset(%UserGroup{})
     groups = Repo.all(Pairmotron.Group)
@@ -15,6 +17,7 @@ defmodule Pairmotron.AdminUserGroupController do
     render(conn, "new.html", changeset: changeset, groups: groups, users: users)
   end
 
+  @spec create(Plug.Conn.t, map()) :: Plug.Conn.t
   def create(conn, %{"user_group" => user_group_params}) do
     changeset = UserGroup.changeset(%UserGroup{}, user_group_params)
     groups = Repo.all(Pairmotron.Group)
@@ -30,11 +33,13 @@ defmodule Pairmotron.AdminUserGroupController do
     end
   end
 
+  @spec show(Plug.Conn.t, map()) :: Plug.Conn.t
   def show(conn, %{"id" => id}) do
-    user_group = Repo.get!(UserGroup, id) |> Repo.preload([:group, :user])
+    user_group = UserGroup |> Repo.get!(id) |> Repo.preload([:group, :user])
     render(conn, "show.html", user_group: user_group)
   end
 
+  @spec edit(Plug.Conn.t, map()) :: Plug.Conn.t
   def edit(conn, %{"id" => id}) do
     user_group = Repo.get!(UserGroup, id)
     changeset = UserGroup.changeset(user_group)
@@ -43,6 +48,7 @@ defmodule Pairmotron.AdminUserGroupController do
     render(conn, "edit.html", user_group: user_group, changeset: changeset, groups: groups, users: users)
   end
 
+  @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
   def update(conn, %{"id" => id, "user_group" => user_group_params}) do
     user_group = Repo.get!(UserGroup, id)
     changeset = UserGroup.changeset(user_group, user_group_params)
@@ -59,6 +65,7 @@ defmodule Pairmotron.AdminUserGroupController do
     end
   end
 
+  @spec delete(Plug.Conn.t, map()) :: Plug.Conn.t
   def delete(conn, %{"id" => id}) do
     user_group = Repo.get!(UserGroup, id)
 
