@@ -1,0 +1,36 @@
+<h2>Show user_group</h2>
+
+<ul>
+
+  <li>
+    <strong>id:</strong>
+    <%= @user_group.id %>
+  </li>
+
+  <li>
+    <strong>User:</strong>
+    <%= if is_nil(@user_group.user) do %>
+      (none)
+    <%= else %>
+      <%= link @user_group.user.name, to: admin_user_path(@conn, :show, @user_group.user) %>
+    <%= end %>
+  </li>
+
+  <li>
+    <strong>Group:</strong>
+    <%= if is_nil(@user_group.group) do %>
+      (none)
+    <%= else %>
+      <%= link @user_group.group.name, to: admin_group_path(@conn, :show, @user_group.group) %>
+    <%= end %>
+  </li>
+
+  <li>
+    <strong>Admin:</strong>
+    <%= @user_group.is_admin %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: admin_user_group_path(@conn, :edit, @user_group) %>
+<%= link "Back", to: admin_user_group_path(@conn, :index) %>

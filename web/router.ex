@@ -47,6 +47,7 @@ defmodule Pairmotron.Router do
     resources "/users", AdminUserController
     resources "/groups", AdminGroupController
     resources "/projects", AdminProjectController
+    resources "/user_groups", AdminUserGroupController
   end
 
   scope "/", Pairmotron do
