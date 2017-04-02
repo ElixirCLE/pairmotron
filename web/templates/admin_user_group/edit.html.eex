@@ -1,4 +1,4 @@
-<h2>Edit UserGroup</h2>
+<h2>Edit UserGroup (Admin)</h2>
 
 <%= render "form.html", changeset: @changeset,
                         action: admin_user_group_path(@conn, :update, @user_group),

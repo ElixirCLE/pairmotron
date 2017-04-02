@@ -1,4 +1,4 @@
-<h2>New project</h2>
+<h2>New Project (Admin)</h2>
 
 <%= render "form.html", changeset: @changeset,
                         action: admin_project_path(@conn, :create),

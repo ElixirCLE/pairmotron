@@ -1,4 +1,4 @@
-<h2>New group</h2>
+<h2>New Group (Admin)</h2>
 
 <%= render "form.html", changeset: @changeset,
                         action: admin_group_path(@conn, :create),
