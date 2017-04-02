@@ -19,7 +19,7 @@
             </small>
           </h4>
           <p><%= truncate(group.description, 110) %></p>
-          <%= render "group_actions.html", conn: @conn, group: group %>
+          <%= render "group_actions.html", conn: @conn, group: group, user_group: user_group_associated_with_group(group, @user_groups) %>
         </li>
       <% end %>
     </ul>

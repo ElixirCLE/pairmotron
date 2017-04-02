@@ -11,10 +11,11 @@ defmodule Pairmotron.GroupController do
 
   @spec index(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def index(conn, _params) do
-    groups = Group |> order_by(:name) |> Repo.all
     current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
+    groups = Group |> order_by(:name) |> Repo.all
+    user_groups = UserGroup.user_groups_for_user_with_group(current_user.id) |> Repo.all
     conn = conn |> Plug.Conn.assign(:current_user, current_user)
-    render(conn, "index.html", groups: groups)
+    render(conn, "index.html", groups: groups, user_groups: user_groups)
   end
 
   @spec new(%Plug.Conn{}, map()) :: %Plug.Conn{}

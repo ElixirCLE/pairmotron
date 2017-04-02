@@ -14,7 +14,7 @@
     <%= true -> %>
   <%= end %>
 
-  <%= if current_user_can_edit_group?(@conn, @group) do %>
+  <%= if current_user_is_owner_or_admin_of_group?(@conn, @group, @user_group) do %>
     <a href=<%= group_invitation_path(@conn, :index, @group) %>>
       <button class="btn btn-primary btn-sm">Invitations</button>
     </a>
