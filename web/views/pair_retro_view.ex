@@ -9,11 +9,4 @@ defmodule Pairmotron.PairRetroView do
   @spec format_project(nil | Types.project) :: binary()
   def format_project(nil), do: "(none)"
   def format_project(%Pairmotron.Project{name: name}), do: name
-
-  @spec projects_as_select([Types.project]) :: [{binary(), integer()}]
-  def projects_as_select(projects) do
-    projects
-    |> Enum.map(&["#{&1.name}": &1.id])
-    |> List.flatten
-  end
 end
