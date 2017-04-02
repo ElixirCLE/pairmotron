@@ -14,7 +14,11 @@
 
   <li>
     <strong>Owner:</strong>
-    <%= link @group.owner.name, to: admin_user_path(@conn, :show, @group.owner) %>
+    <%= if is_nil(@group.owner) do %>
+      (none)
+    <%= else %>
+      <%= link @group.owner.name, to: admin_user_path(@conn, :show, @group.owner) %></td>
+    <%= end %>
   </li>
 
 </ul>
