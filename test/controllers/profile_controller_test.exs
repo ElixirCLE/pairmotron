@@ -42,10 +42,29 @@ defmodule Pairmotron.ProfileControllerTest do
       assert html_response(conn, 200) =~ "Find a group"
     end
 
-    test "links to group edit if current user is owner", %{conn: conn, logged_in_user: user} do
-      group1 = insert(:group, %{owner: user, users: [user]})
+    test "links to group invitations if current user is owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
       conn = get conn, profile_path(conn, :show)
-      assert html_response(conn, 200) =~ group_path(conn, :edit, group1)
+      assert html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "links to group invitations if current user is group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, profile_path(conn, :show)
+      assert html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "does not link to group invitations if current user is not owner or admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
+      conn = get conn, profile_path(conn, :show)
+      refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "links to group edit if current user is owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      conn = get conn, profile_path(conn, :show)
+      assert html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
 
     test "links to group edit if current user is group admin", %{conn: conn, logged_in_user: user} do
@@ -55,10 +74,10 @@ defmodule Pairmotron.ProfileControllerTest do
       assert html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
 
-    test "doesn't link to group edit if current user is not owner", %{conn: conn, logged_in_user: user} do
-      group1 = insert(:group, %{users: [user]})
+    test "doesn't link to group edit if current user is not owner or admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{users: [user]})
       conn = get conn, profile_path(conn, :show)
-      refute html_response(conn, 200) =~ group_path(conn, :edit, group1)
+      refute html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
   end
 
