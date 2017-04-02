@@ -6,17 +6,6 @@ defmodule Pairmotron.ProjectView do
   def format_group(nil), do: "(none)"
   def format_group(%Pairmotron.Group{name: name}), do: name
 
-  @spec groups_for_select(%Plug.Conn{}) :: [{binary(), integer()}]
-  def groups_for_select(conn) do
-    case conn.assigns[:groups] do
-      nil -> []
-      groups ->
-        groups
-        |> Enum.map(&["#{&1.name}": &1.id])
-        |> List.flatten
-    end
-  end
-
   @doc """
   True if the given user is the creator of the project or is the owner of the
   group associated with the project. False otherwise.

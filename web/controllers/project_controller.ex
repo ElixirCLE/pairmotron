@@ -30,9 +30,8 @@ defmodule Pairmotron.ProjectController do
       [] ->
         render(conn, "no_groups.html")
       groups ->
-        conn = assign(conn, :groups, groups)
         changeset = Project.changeset_for_create(%Project{}, %{}, groups)
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset, groups: groups)
     end
   end
 
@@ -53,8 +52,7 @@ defmodule Pairmotron.ProjectController do
         |> put_flash(:info, "Project created successfully.")
         |> redirect(to: project_path(conn, :index))
       {:error, changeset} ->
-        conn = assign(conn, :groups, groups)
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset, groups: groups)
     end
   end
 
