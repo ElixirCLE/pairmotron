@@ -1,6 +1,5 @@
 defmodule Pairmotron.Router do
   use Pairmotron.Web, :router
-  use ExAdmin.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
