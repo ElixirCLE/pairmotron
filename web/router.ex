@@ -42,6 +42,11 @@ defmodule Pairmotron.Router do
     admin_routes()
   end
 
+  scope "/admin_test", Pairmotron do
+    pipe_through [:browser, :authenticate, :admin]
+    resources "/users", AdminUserController
+  end
+
   scope "/", Pairmotron do
     pipe_through [:browser, :authenticate]
 
