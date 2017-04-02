@@ -1,0 +1,23 @@
+<h2>Show group</h2>
+
+<ul>
+
+  <li>
+    <strong>id:</strong>
+    <%= @group.id %>
+  </li>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @group.name %>
+  </li>
+
+  <li>
+    <strong>Owner:</strong>
+    <%= link @group.owner.name, to: admin_user_path(@conn, :show, @group.owner) %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: admin_group_path(@conn, :edit, @group) %>
+<%= link "Back", to: admin_group_path(@conn, :index) %>

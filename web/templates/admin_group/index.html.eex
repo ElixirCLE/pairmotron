@@ -1,0 +1,28 @@
+<h2>Listing groups</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>Name</th>
+      <th>Owner</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for group <- @groups do %>
+    <tr>
+      <td><%= group.id %></td>
+      <td><%= group.name %></td>
+      <td><%= link group.owner.name, to: admin_user_path(@conn, :show, group.owner) %></td>
+      <td class="text-right">
+        <%= link "Show", to: admin_group_path(@conn, :show, group), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: admin_group_path(@conn, :edit, group), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: admin_group_path(@conn, :delete, group), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "New group", to: admin_group_path(@conn, :new) %>
