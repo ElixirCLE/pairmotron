@@ -13,7 +13,7 @@ defmodule Pairmotron.GroupController do
   def index(conn, _params) do
     current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
     groups = Group |> order_by(:name) |> Repo.all
-    user_groups = UserGroup.user_groups_for_user_with_group(current_user.id) |> Repo.all
+    user_groups = current_user.id |> UserGroup.user_groups_for_user_with_group |> Repo.all
     conn = conn |> Plug.Conn.assign(:current_user, current_user)
     render(conn, "index.html", groups: groups, user_groups: user_groups)
   end
