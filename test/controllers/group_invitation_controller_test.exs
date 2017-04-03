@@ -49,6 +49,13 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       assert html_response(conn, 200) =~ "There are no active invitations for this group at this time"
     end
 
+    test "lists invitations if user is a group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, group_invitation_path(conn, :index, group)
+      assert html_response(conn, 200) =~ "Listing Group Invitations"
+    end
+
     test "does not list invitations if user is not owner of group", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_invitation_path(conn, :index, group)
@@ -68,6 +75,14 @@ defmodule Pairmotron.GroupInvitationControllerTest do
 
     test "renders invitation form if user is owner of group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
+      conn = get conn, group_invitation_path(conn, :new, group)
+      assert html_response(conn, 200) =~ "Invite user to"
+      assert html_response(conn, 200) =~ group.name
+    end
+
+    test "renders invitation form if user is admin of group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
       conn = get conn, group_invitation_path(conn, :new, group)
       assert html_response(conn, 200) =~ "Invite user to"
       assert html_response(conn, 200) =~ group.name
@@ -107,6 +122,17 @@ defmodule Pairmotron.GroupInvitationControllerTest do
 
     test "can create a group_membership_request if current_user is owner of group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user)
+      attrs = %{user_id: other_user.id}
+      conn = post conn, group_invitation_path(conn, :create, group), group_membership_request: attrs
+
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      assert Repo.get_by(GroupMembershipRequest, %{group_id: group.id, user_id: other_user.id, initiated_by_user: false})
+    end
+
+    test "can create a group_membership_request if current_user is admin of group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
       other_user = insert(:user)
       attrs = %{user_id: other_user.id}
       conn = post conn, group_invitation_path(conn, :create, group), group_membership_request: attrs
@@ -196,8 +222,19 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       assert Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
     end
 
-    test "upon success, user is not an admin in group", %{conn: conn, logged_in_user: user} do
+    test "succeeds when user is an owner of the group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{group: group, user: other_user, initiated_by_user: true})
+      put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
+
+      user_group = Repo.get_by(UserGroup, %{group_id: group.id, user_id: other_user.id})
+      assert user_group.is_admin == false
+    end
+
+    test "succeeds when user is an admin of the group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
       other_user = insert(:user)
       group_membership_request = insert(:group_membership_request, %{group: group, user: other_user, initiated_by_user: true})
       put conn, group_invitation_path(conn, :update, group, group_membership_request), group_membership_request: %{}
@@ -277,6 +314,17 @@ defmodule Pairmotron.GroupInvitationControllerTest do
 
     test "deletes invite if user is the owner of the invite's group", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user})
+      other_user = insert(:user)
+      group_membership_request = insert(:group_membership_request, %{user: other_user, group: group, initiated_by_user: true})
+
+      conn = delete conn, group_invitation_path(conn, :delete, group, group_membership_request)
+      assert redirected_to(conn) == group_invitation_path(conn, :index, group)
+      refute Repo.get(GroupMembershipRequest, group_membership_request.id)
+    end
+
+    test "deletes invite if user is an admin of the invite's group", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
       other_user = insert(:user)
       group_membership_request = insert(:group_membership_request, %{user: other_user, group: group, initiated_by_user: true})
 

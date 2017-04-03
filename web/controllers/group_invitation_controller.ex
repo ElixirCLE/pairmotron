@@ -28,9 +28,11 @@ defmodule Pairmotron.GroupInvitationController do
 
   @spec index(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def index(conn, %{"group_id" => group_id}) do
+    current_user = conn.assigns.current_user
     group = Repo.get(Group, group_id)
     if group do
-      if group.owner_id == conn.assigns.current_user.id do
+      user_group = current_user.id |> UserGroup.user_group_for_user_and_group(group.id) |> Repo.one
+      if user_can_access_invitations_for_group(current_user, group, user_group) do
         group = group |> Repo.preload([{:group_membership_requests, :user}])
         render(conn, "index.html", group_membership_requests: group.group_membership_requests, group: group)
       else
@@ -44,12 +46,14 @@ defmodule Pairmotron.GroupInvitationController do
   @spec new(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def new(conn, %{"group_id" => group_id}) do
     group = Repo.get!(Group, group_id)
-    if group.owner_id != conn.assigns.current_user.id do
-      redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
-    else
+    current_user = conn.assigns.current_user
+    user_group = current_user.id |> UserGroup.user_group_for_user_and_group(group.id) |> Repo.one
+    if user_can_access_invitations_for_group(current_user, group, user_group) do
       changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, %{})
       invitable_users = invitable_users_for_select(group)
       render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
+    else
+      redirect_and_flash_error(conn, "You must be the owner or admin of a group to invite user to that group", group_id)
     end
   end
 
@@ -60,12 +64,12 @@ defmodule Pairmotron.GroupInvitationController do
     {group_id_int, _} = Integer.parse(group_id)
     group = Group |> Repo.get!(group_id_int) |> Repo.preload(:users)
 
+    user_group = current_user.id |> UserGroup.user_group_for_user_and_group(group.id) |> Repo.one
+
     user_id = parameter_as_integer(group_membership_request_params, "user_id")
     user = Repo.get!(User, user_id)
 
-    if group.owner_id != current_user.id do
-      redirect_and_flash_error(conn, "You must be the owner of a group to invite user to that group", group_id)
-    else
+    if user_can_access_invitations_for_group(current_user, group, user_group) do
       implicit_params = %{"initiated_by_user" => false, "group_id" => group_id}
       final_params = Map.merge(group_membership_request_params, implicit_params)
       changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, final_params, group)
@@ -79,6 +83,8 @@ defmodule Pairmotron.GroupInvitationController do
           invitable_users = invitable_users_for_select(group)
           render(conn, "new.html", changeset: changeset, group: group, invitable_users: invitable_users)
       end
+    else
+      redirect_and_flash_error(conn, "You must be the owner or admin of a group to invite user to that group", group_id)
     end
   end
 
@@ -97,8 +103,12 @@ defmodule Pairmotron.GroupInvitationController do
     user = group_membership_request.user
     group = group_membership_request.group
 
+    current_user = conn.assigns.current_user
+
+    user_group = current_user.id |> UserGroup.user_group_for_user_and_group(group.id) |> Repo.one
+
     cond do
-      group.owner_id != conn.assigns.current_user.id ->
+      !user_can_access_invitations_for_group(current_user, group, user_group) ->
         redirect_and_flash_error(conn, "You are not authorized to accept invitations for this group", group.id)
       group_membership_request.initiated_by_user == false ->
         redirect_and_flash_error(conn, "Cannot accept invitation created by group", group.id)
@@ -125,8 +135,12 @@ defmodule Pairmotron.GroupInvitationController do
   @spec delete(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def delete(conn, %{"id" => id}) do
     group_membership_request = GroupMembershipRequest |> Repo.get!(id) |> Repo.preload(:group)
+    group = group_membership_request.group
+    current_user = conn.assigns.current_user
+    user_group = current_user.id |> UserGroup.user_group_for_user_and_group(group.id) |> Repo.one
+
     redirect_path = group_invitation_path(conn, :index, group_membership_request.group_id)
-    InviteDeleteHelper.delete_invite(conn, group_membership_request, redirect_path)
+    InviteDeleteHelper.delete_invite(conn, group_membership_request, redirect_path, user_group)
   end
 
   @spec redirect_and_flash_error(%Plug.Conn{}, binary(), integer()) :: %Plug.Conn{}
@@ -141,5 +155,13 @@ defmodule Pairmotron.GroupInvitationController do
     Ecto.Multi.new
     |> Ecto.Multi.delete(:group_membership_request, group_membership_request)
     |> Ecto.Multi.insert(:user_group, user_group_changeset)
+  end
+
+  @spec user_can_access_invitations_for_group(Types.user, Types.group, Types.user_group | nil) :: boolean()
+  defp user_can_access_invitations_for_group(user, group, nil) do
+    user.id == group.owner_id or user.is_admin
+  end
+  defp user_can_access_invitations_for_group(user, group, user_group) do
+    user_group.is_admin or user.id == group.owner_id or user.is_admin
   end
 end
