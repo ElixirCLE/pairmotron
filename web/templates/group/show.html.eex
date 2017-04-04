@@ -12,7 +12,7 @@
   </small>
 </h2>
 <p><%= @group.description %></p>
-<%= render "group_actions.html", conn: @conn, group: @group %>
+<%= render "group_actions.html", conn: @conn, group: @group , user_group: @user_group%>
 <h2>Members</h2>
 <table class="table">
   <thead>

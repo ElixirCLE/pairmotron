@@ -94,7 +94,7 @@ defmodule Pairmotron.UsersGroupMembershipRequestController do
   def delete(conn, %{"id" => id}) do
     group_membership_request = GroupMembershipRequest |> Repo.get!(id) |> Repo.preload(:group)
     redirect_path = users_group_membership_request_path(conn, :index)
-    InviteDeleteHelper.delete_invite(conn, group_membership_request, redirect_path)
+    InviteDeleteHelper.delete_invite(conn, group_membership_request, redirect_path, nil)
   end
 
   @spec user_is_in_group?(Types.user, group_id :: integer() | binary()) :: boolean()

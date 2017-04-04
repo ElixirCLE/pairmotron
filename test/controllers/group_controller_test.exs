@@ -33,10 +33,41 @@ defmodule Pairmotron.GroupControllerTest do
       refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
     end
 
+    test "shows group invitations link if user is group owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user})
+      conn = get conn, group_path(conn, :index)
+      assert html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "shows group invitations link if user is group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, group_path(conn, :index)
+      assert html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "does not show group invitations link if user is group owner or admin", %{conn: conn} do
+      group = insert(:group)
+      conn = get conn, group_path(conn, :index)
+      refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "shows edit group link if user is group owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user})
+      conn = get conn, group_path(conn, :index)
+      assert html_response(conn, 200) =~ group_path(conn, :edit, group)
+    end
+
+    test "shows edit group link if user is group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, group_path(conn, :index)
+      assert html_response(conn, 200) =~ group_path(conn, :edit, group)
+    end
+
     test "does not show edit group link if user is not group owner", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :index)
-      refute html_response(conn, 200) =~ "Edit"
       refute html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
 
@@ -155,7 +186,20 @@ defmodule Pairmotron.GroupControllerTest do
       assert html_response(conn, 200) =~ group.name
     end
 
-    test "does not show invitations link if user is not group owner", %{conn: conn} do
+    test "shows group invitations link if user is group owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "shows group invitations link if user is group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
+    end
+
+    test "does not show group invitations link if user is group owner or admin", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :show, group)
       refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
@@ -167,10 +211,22 @@ defmodule Pairmotron.GroupControllerTest do
       refute html_response(conn, 200) =~ group_invitation_path(conn, :index, group)
     end
 
+    test "shows link to edit group if user is group owner", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ group_path(conn, :edit, group)
+    end
+
+    test "shows link to edit group if user is group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
+      conn = get conn, group_path(conn, :show, group)
+      assert html_response(conn, 200) =~ group_path(conn, :edit, group)
+    end
+
     test "does not show edit group link if user is not group owner", %{conn: conn} do
       group = insert(:group)
       conn = get conn, group_path(conn, :show, group)
-      refute html_response(conn, 200) =~ "Edit"
       refute html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
 
@@ -189,7 +245,6 @@ defmodule Pairmotron.GroupControllerTest do
     test "shows edit link when user is group owner", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
       conn = get conn, group_path(conn, :show, group)
-      assert html_response(conn, 200) =~ "Edit"
       assert html_response(conn, 200) =~ group_path(conn, :edit, group)
     end
 
@@ -293,6 +348,13 @@ defmodule Pairmotron.GroupControllerTest do
 
     test "renders form for editing chosen resource", %{conn: conn, logged_in_user: user} do
       group = insert(:group, owner: user)
+      conn = get conn, group_path(conn, :edit, group)
+      assert html_response(conn, 200) =~ "Edit group"
+    end
+
+    test "renders form form if user is group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{user: user, group: group, is_admin: true})
       conn = get conn, group_path(conn, :edit, group)
       assert html_response(conn, 200) =~ "Edit group"
     end

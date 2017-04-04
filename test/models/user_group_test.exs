@@ -76,4 +76,24 @@ defmodule Pairmotron.UserGroupTest do
       assert is_nil(user_group)
     end
   end
+
+  describe "user_groups_for_user_and_group/1" do
+    test "returns user_group with :user and :group preloaded" do
+      user = insert(:user)
+      insert(:group, %{users: [user]})
+      [user_group] = UserGroup.user_groups_for_user_with_group(user.id) |> Repo.all
+      assert Ecto.assoc_loaded?(user_group.user)
+      assert Ecto.assoc_loaded?(user_group.group)
+    end
+
+    test "returns [] if user is not in a group" do
+      user = insert(:user)
+      insert(:group)
+      assert [] = UserGroup.user_groups_for_user_with_group(user.id) |> Repo.all
+    end
+
+    test "returns [] if user does not exist" do
+      assert [] = UserGroup.user_groups_for_user_with_group(123) |> Repo.all
+    end
+  end
 end

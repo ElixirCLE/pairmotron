@@ -49,4 +49,14 @@ defmodule Pairmotron.GroupView do
       string
     end
   end
+
+  @doc """
+  Returns the user_group in the list of user_groups passed in whose group_id
+  matches the passed in group. If there is no associated user_group associaed
+  with the passed in group, then nil is returned
+  """
+  @spec user_group_associated_with_group(Types.group, [Types.user_group]) :: Types.user_group | nil
+  def user_group_associated_with_group(group, user_groups) do
+    Enum.find(user_groups, &(&1.group_id == group.id))
+  end
 end

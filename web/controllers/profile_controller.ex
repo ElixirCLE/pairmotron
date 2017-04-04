@@ -4,13 +4,14 @@ defmodule Pairmotron.ProfileController do
   """
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.User
+  alias Pairmotron.{User, UserGroup}
 
   @spec show(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def show(conn, _params) do
     current_user = conn.assigns.current_user |> Repo.preload([:groups, :group_membership_requests])
+    user_groups = current_user.id |> UserGroup.user_groups_for_user_with_group |> Repo.all
     conn = conn |> Plug.Conn.assign(:current_user, current_user)
-    render(conn, "show.html", user: current_user)
+    render(conn, "show.html", user: current_user, user_groups: user_groups)
   end
 
   @spec edit(%Plug.Conn{}, map()) :: %Plug.Conn{}

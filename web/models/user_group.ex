@@ -33,14 +33,14 @@ defmodule Pairmotron.UserGroup do
 
   @doc """
   Builds a changeset for use when updating an existing UserGroup entry.
-  
+
   Does not allow the modification of the associated user or group.
   """
   @spec update_changeset(map() | Ecto.Changeset.t, map()) :: Ecto.Changeset.t
   def update_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @all_update_fields)
-    |> validate_required(@required_update_fields) 
+    |> validate_required(@required_update_fields)
   end
 
   @doc """
@@ -54,6 +54,19 @@ defmodule Pairmotron.UserGroup do
     join: group in assoc(user_group, :group),
     where: user.id == ^user_id,
     where: group.id == ^group_id,
+    preload: [user: user, group: group]
+  end
+
+  @doc """
+  Returns a query to retrieve all of a users UserGroups with the :user and
+  :group associations preloaded.
+  """
+  @spec user_groups_for_user_with_group(integer() | binary()) :: Ecto.Query.t
+  def user_groups_for_user_with_group(user_id) do
+    from user_groups in Pairmotron.UserGroup,
+    join: user in assoc(user_groups, :user),
+    join: group in assoc(user_groups, :group),
+    where: user.id == ^user_id,
     preload: [user: user, group: group]
   end
 end

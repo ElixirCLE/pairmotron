@@ -27,7 +27,7 @@
     <%= for group <- @user.groups do %>
       <li class="list-group-item">
         <h4><%= group.name %></h4>
-        <%= render Pairmotron.GroupView, "group_actions.html", conn: @conn, group: group %>
+        <%= render Pairmotron.GroupView, "group_actions.html", conn: @conn, group: group, user_group: Pairmotron.GroupView.user_group_associated_with_group(group, @user_groups) %>
       </li>
     <% end %>
     <%= if Enum.empty?(@user.groups) do %>
