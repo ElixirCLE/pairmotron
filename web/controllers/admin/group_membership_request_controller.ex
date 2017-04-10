@@ -1,7 +1,9 @@
 defmodule Pairmotron.AdminGroupMembershipRequestController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.GroupMembershipRequest
+  alias Pairmotron.{Group, GroupMembershipRequest}
+
+  import Pairmotron.ControllerHelpers
 
   @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
@@ -19,7 +21,9 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
 
   @spec create(Plug.Conn.t, map()) :: Plug.Conn.t
   def create(conn, %{"group_membership_request" => group_membership_request_params}) do
-    changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, group_membership_request_params)
+    group_id = parameter_as_integer(group_membership_request_params, "group_id")
+    group = Group.group_with_users(group_id) |> Repo.one
+    changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, group_membership_request_params, group)
     groups = Repo.all(Pairmotron.Group)
     users = Repo.all(Pairmotron.User)
 
