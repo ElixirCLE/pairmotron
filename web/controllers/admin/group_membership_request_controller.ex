@@ -19,7 +19,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
 
   @spec create(Plug.Conn.t, map()) :: Plug.Conn.t
   def create(conn, %{"group_membership_request" => group_membership_request_params}) do
-    changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{}, group_membership_request_params)
+    changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, group_membership_request_params)
     groups = Repo.all(Pairmotron.Group)
     users = Repo.all(Pairmotron.User)
 
@@ -51,7 +51,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
   @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
   def update(conn, %{"id" => id, "group_membership_request" => group_membership_request_params}) do
     group_membership_request = Repo.get!(GroupMembershipRequest, id)
-    changeset = GroupMembershipRequest.changeset(group_membership_request, group_membership_request_params)
+    changeset = GroupMembershipRequest.users_changeset(group_membership_request, group_membership_request_params)
     groups = Repo.all(Pairmotron.Group)
     users = Repo.all(Pairmotron.User)
 
