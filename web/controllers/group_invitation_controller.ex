@@ -61,9 +61,7 @@ defmodule Pairmotron.GroupInvitationController do
   def create(conn, %{"group_id" => group_id, "group_membership_request" => group_membership_request_params}) do
     current_user = conn.assigns.current_user
 
-    {group_id_int, _} = Integer.parse(group_id)
-    group = Group |> Repo.get!(group_id_int) |> Repo.preload(:users)
-
+    group = group_id |> Group.group_with_users |> Repo.one
     user_group = current_user.id |> UserGroup.user_group_for_user_and_group(group.id) |> Repo.one
 
     user_id = parameter_as_integer(group_membership_request_params, "user_id")

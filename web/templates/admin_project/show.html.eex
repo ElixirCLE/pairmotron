@@ -1,0 +1,46 @@
+<h2>Show Project (Admin)</h2>
+
+<ul>
+
+  <li>
+    <strong>id:</strong>
+    <%= @project.id %>
+  </li>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @project.name %>
+  </li>
+
+  <li>
+    <strong>Description:</strong>
+    <%= @project.description %>
+  </li>
+
+  <li>
+    <strong>URL:</strong>
+    <%= @project.url %>
+  </li>
+
+  <li>
+    <strong>Created by:</strong>
+    <%= if is_nil(@project.created_by) do %>
+      (none)
+    <%= else %>
+      <%= link @project.created_by.name, to: admin_user_path(@conn, :show, @project.created_by) %>
+    <%= end %>
+  </li>
+
+  <li>
+    <strong>Group:</strong>
+    <%= if is_nil(@project.group) do %>
+      (none)
+    <%= else %>
+      <%= link @project.group.name, to: admin_group_path(@conn, :show, @project.group) %>
+    <%= end %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: admin_project_path(@conn, :edit, @project) %>
+<%= link "Back", to: admin_project_path(@conn, :index) %>

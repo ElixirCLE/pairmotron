@@ -37,6 +37,28 @@ defmodule Pairmotron.GroupTest do
     end
   end
 
+  describe "group_with_users/1" do
+    test "returns group with users preloaded" do
+      user = insert(:user)
+      group = insert(:group, %{users: [user]})
+
+      returned_group = Group.group_with_users(group.id) |> Repo.one
+      assert returned_group.id == group.id
+      assert Ecto.assoc_loaded?(returned_group.users)
+      [returned_user] = returned_group.users
+      assert returned_user.id == user.id
+    end
+
+    test "returns group when the group has no users" do
+      group = insert(:group)
+      assert Repo.one(Group.group_with_users(group.id))
+    end
+
+    test "returns nil when group doesn't exist" do
+      assert is_nil(Repo.one(Group.group_with_users(123)))
+    end
+  end
+
   describe "group_with_owner_and_users/1" do
     test "returns group with users and owner preloaded" do
       owner_user = insert(:user)

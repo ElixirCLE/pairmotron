@@ -1,0 +1,7 @@
+<h2>Edit Group Membership Request (Admin)</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: admin_group_membership_request_path(@conn, :update, @group_membership_request),
+                        groups: @groups, users: @users %>
+
+<%= link "Back", to: admin_group_membership_request_path(@conn, :index) %>

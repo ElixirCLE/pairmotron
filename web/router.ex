@@ -1,6 +1,5 @@
 defmodule Pairmotron.Router do
   use Pairmotron.Web, :router
-  use ExAdmin.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -37,9 +36,14 @@ defmodule Pairmotron.Router do
     delete "/logout", SessionController, :delete # Exadmin logout needs this
   end
 
-  scope "/admin", ExAdmin do
+  scope "/admin", Pairmotron do
     pipe_through [:browser, :authenticate, :admin]
-    admin_routes()
+    get "/", AdminController, :index
+    resources "/users", AdminUserController
+    resources "/groups", AdminGroupController
+    resources "/projects", AdminProjectController
+    resources "/user_groups", AdminUserGroupController
+    resources "/group_membership_requests", AdminGroupMembershipRequestController
   end
 
   scope "/", Pairmotron do

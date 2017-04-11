@@ -25,8 +25,14 @@
 
   <div class="form-group">
     <%= label f, :group_id, "Group", class: "control-label" %>
-    <%= select f, :group_id, data_as_select(@groups), prompt: "(none)", class: "form-control" %>
+    <%= select f, :group_id, data_as_select_with_ids(@groups), prompt: "(none)", class: "form-control" %>
     <%= error_tag f, :group_id %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :created_by_id, "Created by", class: "control-label" %>
+    <%= select f, :created_by_id, data_as_select_with_ids(@users), prompt: "(none)", class: "form-control" %>
+    <%= error_tag f, :created_by_id %>
   </div>
 
   <div class="form-group">

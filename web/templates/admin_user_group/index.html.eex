@@ -1,0 +1,42 @@
+<h2>Listing UserGroups (Admin)</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>Group</th>
+      <th>User</th>
+      <th>Admin</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for user_group <- @user_groups do %>
+    <tr>
+      <td><%= user_group.id %></td>
+      <td>
+        <%= if is_nil(user_group.group) do %>
+          (none)
+        <%= else %>
+          <%= link user_group.group.name, to: admin_group_path(@conn, :show, user_group.group) %>
+        <%= end %>
+      </td>
+      <td>
+        <%= if is_nil(user_group.user) do %>
+          (none)
+        <%= else %>
+          <%= link user_group.user.name, to: admin_user_path(@conn, :show, user_group.user) %>
+        <%= end %>
+      </td>
+      <td><%= user_group.is_admin %></td>
+      <td class="text-right">
+        <%= link "Show", to: admin_user_group_path(@conn, :show, user_group), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: admin_user_group_path(@conn, :edit, user_group), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: admin_user_group_path(@conn, :delete, user_group), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "New user_group", to: admin_user_group_path(@conn, :new) %>

@@ -37,4 +37,31 @@ defmodule Pairmotron.ViewHelpers do
   @spec format_boolean(boolean()) :: String.t
   def format_boolean(true), do: "True"
   def format_boolean(false), do: "False"
+
+  @doc """
+  Takes a list of Ecto structs, and outputs a list suitable for a select
+  element on a Phoenix.HTML.form. The Ecto schema for the struct passed in must
+  have a name property and an id property.
+  """
+  @spec data_as_select(List.t) :: [{binary(), integer()}]
+  def data_as_select(data) do
+    data
+    |> Enum.map(&["#{&1.name}": &1.id])
+    |> List.flatten
+  end
+
+  @doc """
+  Takes a list of Ecto structs, and outputs a list suitable for a select
+  element on a Phoenix.HTML.form. The Ecto schema for the struct passed in must
+  have a name property and an id property.
+
+  The only difference between this and data_as_select is that this also
+  displays the id in the dropdown for use in admin routes.
+  """
+  @spec data_as_select_with_ids(List.t) :: [{binary(), integer()}]
+  def data_as_select_with_ids(data) do
+    data
+    |> Enum.map(&["#{&1.id}: #{&1.name}": &1.id])
+    |> List.flatten
+  end
 end

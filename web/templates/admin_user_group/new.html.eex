@@ -1,0 +1,7 @@
+<h2>New UserGroup (Admin)</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: admin_user_group_path(@conn, :create),
+                        groups: @groups, users: @users %>
+
+<%= link "Back", to: admin_user_group_path(@conn, :index) %>

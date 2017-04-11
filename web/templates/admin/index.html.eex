@@ -1,0 +1,6 @@
+<h2>Listing Admin Resources</h2>
+<p><%= link "Users", to: admin_user_path(@conn, :index) %></p>
+<p><%= link "Groups", to: admin_group_path(@conn, :index) %></p>
+<p><%= link "UserGroups", to: admin_user_group_path(@conn, :index) %></p>
+<p><%= link "GroupMembershipRequests", to: admin_group_membership_request_path(@conn, :index) %></p>
+<p><%= link "Projects", to: admin_project_path(@conn, :index) %></p>
