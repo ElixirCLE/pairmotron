@@ -6,6 +6,13 @@ defmodule Pairmotron.GroupTest do
   @valid_attrs %{name: "some content", owner_id: 1, description: "group description"}
   @invalid_attrs %{}
 
+  describe "anchor/0" do
+    test "provides a Monday" do
+      group = insert(:group)
+      assert 1 = Date.day_of_week(group.anchor)
+    end
+  end
+
   describe "changeset/2" do
     test "with valid attributes" do
       changeset = Group.changeset(%Group{}, @valid_attrs)

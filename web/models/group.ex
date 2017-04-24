@@ -14,6 +14,7 @@ defmodule Pairmotron.Group do
   schema "groups" do
     field :name, :string
     field :description, :string
+    field :anchor, Ecto.Date, virtual: true, default: ~D[2000-01-03]
     belongs_to :owner, Pairmotron.User
     many_to_many :users, Pairmotron.User, join_through: Pairmotron.UserGroup
     has_many :projects, Pairmotron.Project
