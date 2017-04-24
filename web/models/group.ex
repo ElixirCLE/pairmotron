@@ -15,6 +15,7 @@ defmodule Pairmotron.Group do
     field :name, :string
     field :description, :string
     field :anchor, Ecto.Date, virtual: true, default: ~D[2000-01-03]
+    field :period_length, :integer, default: 7
     belongs_to :owner, Pairmotron.User
     many_to_many :users, Pairmotron.User, join_through: Pairmotron.UserGroup
     has_many :projects, Pairmotron.Project
@@ -23,8 +24,8 @@ defmodule Pairmotron.Group do
     timestamps()
   end
 
-  @all_fields ~w(name owner_id description)
-  @required_fields [:name, :owner_id]
+  @all_fields ~w(name owner_id description period_length)
+  @required_fields [:name, :owner_id, :period_length]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -36,6 +37,7 @@ defmodule Pairmotron.Group do
     |> validate_required(@required_fields)
     |> Sanitizer.sanitize([:name, :description])
     |> foreign_key_constraint(:owner_id)
+    |> validate_inclusion(:period_length, [1, 7, 14, 21, 28])
   end
 
   @doc """

@@ -6,6 +6,8 @@ defmodule Pairmotron.GroupTest do
   @valid_attrs %{name: "some content", owner_id: 1, description: "group description"}
   @invalid_attrs %{}
 
+  @invalid_period_length %{name: "s", owner_id: 1, description: "d", period_length: 5}
+
   describe "anchor/0" do
     test "provides a Monday" do
       group = insert(:group)
@@ -19,8 +21,13 @@ defmodule Pairmotron.GroupTest do
       assert changeset.valid?
     end
 
-    test " with invalid attributes" do
+    test "with invalid attributes" do
       changeset = Group.changeset(%Group{}, @invalid_attrs)
+      refute changeset.valid?
+    end
+
+    test "with invalid period_length" do
+      changeset = Group.changeset(%Group{}, @invalid_period_length)
       refute changeset.valid?
     end
 
