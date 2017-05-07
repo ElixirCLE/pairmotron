@@ -1,4 +1,4 @@
-defmodule Pairmotron.ForgottenPasswordController do
+defmodule Pairmotron.ForgotPasswordController do
   @moduledoc """
   Handles users requesting a password reset email. Renders a form for entering
   which email to send a password reset token to, as well as generating that
