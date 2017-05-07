@@ -20,4 +20,11 @@ defmodule Pairmotron.PasswordResetToken do
     |> validate_required(@required_fields)
     |> unique_constraint(:token)
   end
+
+  def token_by_email_and_token_string(email, token) do
+    from password_reset_token in Pairmotron.PasswordResetToken,
+    join: user in assoc(password_reset_token, :user),
+    where: user.email == ^email,
+    where: password_reset_token.token == ^token
+  end
 end

@@ -52,9 +52,25 @@ defmodule Pairmotron.PasswordResetTokenService do
     end
   end
 
-  def random_urlsafe_base64() do
+  @spec random_urlsafe_base64() :: String.t
+  defp random_urlsafe_base64() do
     :crypto.strong_rand_bytes(@token_length)
     |> Base.url_encode64
     |> binary_part(0, @token_length)
+  end
+
+  @doc """
+  verify_token/2 returns {:ok, token} if a token exists with the given
+  token_string and a user containing the passed in email.
+
+  verify_token/2 returns {:error, :token_not_found} if no token is found with
+  the given token string or email
+  """
+  @spec verify_token(String.t, String.t) :: {:ok, Types.password_reset_token} | {:error, :token_not_found}
+  def verify_token(email, token_string) do
+    case email |> PasswordResetToken.token_by_email_and_token_string(token_string) |> Repo.one do
+      nil -> {:error, :token_not_found}
+      %PasswordResetToken{} = valid_token -> {:ok, valid_token}
+    end
   end
 end
