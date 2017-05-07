@@ -18,5 +18,6 @@ defmodule Pairmotron.PasswordResetToken do
     struct
     |> cast(params, @all_fields)
     |> validate_required(@required_fields)
+    |> unique_constraint(:token)
   end
 end

@@ -9,5 +9,6 @@ defmodule Pairmotron.Repo.Migrations.CreatePasswordResetToken do
       timestamps()
     end
 
+    create unique_index(:password_reset_tokens, [:token])
   end
 end

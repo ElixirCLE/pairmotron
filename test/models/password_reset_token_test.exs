@@ -25,6 +25,14 @@ defmodule Pairmotron.PasswordResetTokenTest do
       changeset = PasswordResetToken.changeset(%PasswordResetToken{}, %{})
       refute changeset.valid?
     end
+
+    test "properly handles a violation of the token unique constraint" do
+      user = insert(:user)
+      changeset = PasswordResetToken.changeset(%PasswordResetToken{}, %{user_id: user.id, token: "abc123"})
+      Repo.insert!(changeset)
+      assert {:error, changeset} = Repo.insert(changeset)
+      assert %{errors: [token: {"has already been taken", []}]} = changeset
+    end
   end
 
 end
