@@ -1,6 +1,4 @@
 defmodule Pairmotron.PasswordResetTokenServiceTest do
-  #use ExUnit.Case, async: true
-
   use Pairmotron.ModelCase
 
   import Pairmotron.Factory

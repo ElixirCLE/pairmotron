@@ -29,8 +29,8 @@ defmodule Pairmotron.Router do
     pipe_through :browser
 
     resources "/registration", RegistrationController, only: [:new, :create]
-    get "/forgot_password", ForgotPasswordController, :new
-    post "/forgot_password", ForgotPasswordController, :create
+    get "/forgot_password", PasswordResetController, :new
+    post "/forgot_password", PasswordResetController, :create
 
     get "/", SessionController, :new
     post "/login", SessionController, :create

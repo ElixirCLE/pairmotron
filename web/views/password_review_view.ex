@@ -1,4 +1,4 @@
-defmodule Pairmotron.ForgotPasswordView do
+defmodule Pairmotron.PasswordResetView do
   @moduledoc false
   use Pairmotron.Web, :view
 end
