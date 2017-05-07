@@ -6,11 +6,16 @@ defmodule Pairmotron.ForgottenPasswordController do
   """
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.PasswordResetToken
+  alias Pairmotron.{PasswordResetToken, PasswordResetTokenService}
 
   @spec new(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def new(conn, _params) do
     changeset = PasswordResetToken.changeset(%PasswordResetToken{}, %{})
     render(conn, "new.html", changeset: changeset)
+  end
+
+  def create(conn, %{"password_reset_token" => %{"email" => email}}) do
+    PasswordResetTokenService.generate_token(email)
+    render(conn, "email_sent.html")
   end
 end

@@ -1,6 +1,6 @@
-<h3>Forgot your Email?</h3>
+<h3>Forgot Password</h3>
 
-<p class="lead">To reset your password, submit your email below, and a password reset email will be sent if an account with that email exists.</p>
+<p class="lead">Enter the email associated with your account and an email with instructions for resetting your password will be sent.</p>
 
 <%= form_for @changeset, forgotten_password_path(@conn, :create), fn f -> %>
   <%= if @changeset.action do %>

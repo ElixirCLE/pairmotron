@@ -10,4 +10,18 @@ defmodule Pairmotron.ForgottenPasswordControllerTest do
     end
   end
 
+  describe "using the create action" do
+    test "creates a PasswordResetToken if user with the given email exists", %{conn: conn} do
+      user = insert(:user)
+      conn = post conn, forgotten_password_path(conn, :create), password_reset_token: %{email: user.email}
+      assert Repo.get_by(PasswordResetToken, user_id: user.id)
+      assert html_response(conn, 200) =~ "An email with password reset instructions has been sent"
+    end
+
+    test "does not create a PasswordResetToken if user does not exist with given email", %{conn: conn} do
+      conn = post conn, forgotten_password_path(conn, :create), password_reset_token: %{email: "null@email.com"}
+      assert [] = Repo.all(PasswordResetToken)
+      assert html_response(conn, 200) =~ "An email with password reset instructions has been sent"
+    end
+  end
 end
