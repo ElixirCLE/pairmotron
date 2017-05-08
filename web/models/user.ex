@@ -87,6 +87,21 @@ defmodule Pairmotron.User do
     |> common_changeset
   end
 
+  @password_reset_params [:password, :password_confirmation]
+
+  @doc """
+  Changeset for use in the PasswordResetController when a user is submitting a
+  new password. Only allows the password to be changed, and also required it to
+  be changed.
+  """
+  @spec password_reset_changeset(map() | %Ecto.Changeset{}, map()) :: %Ecto.Changeset{}
+  def password_reset_changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @password_reset_params)
+    |> validate_required(@password_reset_params)
+    |> common_changeset
+  end
+
   @spec common_changeset(%Ecto.Changeset{}) :: %Ecto.Changeset{}
   defp common_changeset(changeset) do
     changeset

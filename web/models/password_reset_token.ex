@@ -21,10 +21,20 @@ defmodule Pairmotron.PasswordResetToken do
     |> unique_constraint(:token)
   end
 
+  @spec token_by_email_and_token_string(String.t, String.t) :: Ecto.Query.t
   def token_by_email_and_token_string(email, token) do
     from password_reset_token in Pairmotron.PasswordResetToken,
     join: user in assoc(password_reset_token, :user),
     where: user.email == ^email,
-    where: password_reset_token.token == ^token
+    where: password_reset_token.token == ^token,
+    preload: [user: user]
+  end
+
+  @spec token_by_token_string(String.t) :: Ecto.Query.t
+  def token_by_token_string(token) do
+    from password_reset_token in Pairmotron.PasswordResetToken,
+    join: user in assoc(password_reset_token, :user),
+    where: password_reset_token.token == ^token,
+    preload: [user: user]
   end
 end

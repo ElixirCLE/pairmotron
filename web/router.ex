@@ -31,6 +31,8 @@ defmodule Pairmotron.Router do
     resources "/registration", RegistrationController, only: [:new, :create]
     get "/forgot_password", PasswordResetController, :new
     post "/forgot_password", PasswordResetController, :create
+    get "/forgot_password/reset/:token_string", PasswordResetController, :edit
+    put "/forgot_password/reset/:token_string", PasswordResetController, :update
 
     get "/", SessionController, :new
     post "/login", SessionController, :create
