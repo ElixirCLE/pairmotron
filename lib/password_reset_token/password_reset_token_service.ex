@@ -11,6 +11,7 @@ defmodule Pairmotron.PasswordResetTokenService do
   alias Pairmotron.{PasswordResetToken, Repo, Types, User}
 
   @token_length 64
+  @token_hour_lifetime 24
 
   @doc """
   Returns a password reset token for the user with the given email. When
@@ -60,17 +61,31 @@ defmodule Pairmotron.PasswordResetTokenService do
   end
 
   @doc """
-  verify_token/2 returns {:ok, token} if a token exists with the given
-  token_string and a user containing the passed in email.
+  verify_token/1 returns {:ok, token} if a token exists with the given
+  token_string that has not expired.
 
-  verify_token/2 returns {:error, :token_not_found} if no token is found with
-  the given token string or email
+  verify_token/1 returns {:error, :invalid_token} if no token with that
+  token_string is currently in the database, and {:error, :token_expired} if a
+  token does exist but it has expired.
+
+  Token are valid for 24 hours after they are created, and then they can no
+  longer be used to reset passwords.
   """
-  @spec verify_token(String.t, String.t) :: {:ok, Types.password_reset_token} | {:error, :token_not_found}
-  def verify_token(email, token_string) do
-    case email |> PasswordResetToken.token_by_email_and_token_string(token_string) |> Repo.one do
+  @spec verify_token(String.t) :: {:ok, Types.password_reset_token} | {:error, :token_not_found | :token_expired}
+  def verify_token(token_string) do
+    case token_string |> PasswordResetToken.token_by_token_string |> Repo.one do
       nil -> {:error, :token_not_found}
-      %PasswordResetToken{} = valid_token -> {:ok, valid_token}
+      %PasswordResetToken{} = valid_token ->
+        if token_has_expired(valid_token) do
+          {:error, :token_expired}
+        else
+          {:ok, valid_token}
+        end
     end
+  end
+
+  @spec token_has_expired(Types.password_reset_token) :: boolean()
+  defp token_has_expired(password_reset_token) do
+    Timex.diff(NaiveDateTime.utc_now, password_reset_token.inserted_at, :hours) > @token_hour_lifetime
   end
 end

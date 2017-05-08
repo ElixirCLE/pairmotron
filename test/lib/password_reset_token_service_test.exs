@@ -21,33 +21,25 @@ defmodule Pairmotron.PasswordResetTokenServiceTest do
     end
   end
 
-  describe "verify_token/2" do
-    test "returns {:ok, token} if a token exists" do
+  describe "verify_token/1" do
+    test "returns {:ok, token if a token exists and has not expired" do
       password_reset_token = insert(:password_reset_token)
-      email = password_reset_token.user.email
-      token = password_reset_token.token
+      token_string = password_reset_token.token
 
-      assert {:ok, valid_token} = PasswordResetTokenService.verify_token(email, token)
-      assert valid_token.user_id == password_reset_token.user.id
+      assert {:ok, valid_token} = PasswordResetTokenService.verify_token(token_string)
       assert valid_token.token == password_reset_token.token
     end
 
-    test "returns {:error, :token_not_found} when there is no user with the given email" do
-      password_reset_token = insert(:password_reset_token)
-      token = password_reset_token.token
-
-      assert {:error, :token_not_found} = PasswordResetTokenService.verify_token("bad_email", token)
-    end
-
     test "returns {:error, :token_not_found} when there is no token with the given token string" do
-      password_reset_token = insert(:password_reset_token)
-      email = password_reset_token.user.email
-
-      assert {:error, :token_not_found} = PasswordResetTokenService.verify_token(email, "abc123")
+      assert {:error, :token_not_found} = PasswordResetTokenService.verify_token("abc123")
     end
 
-    test "returns {:error, :token_not_found} when there is no token or email" do
-      assert {:error, :token_not_found} = PasswordResetTokenService.verify_token("bad_email", "abc123")
+    test "returns {:error, :token_expired} when the token has expired" do
+      long_ago = Ecto.DateTime.cast!({{2000, 1, 1}, {0, 0, 0}})
+      password_reset_token = insert(:password_reset_token, %{inserted_at: long_ago})
+      token_string = password_reset_token.token
+
+      assert {:error, :token_expired} = PasswordResetTokenService.verify_token(token_string)
     end
   end
 end
