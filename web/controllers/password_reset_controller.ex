@@ -22,14 +22,18 @@ defmodule Pairmotron.PasswordResetController do
 
   @spec edit(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def edit(conn, %{"token_string" => token_string}) do
-    case token_string |> PasswordResetToken.token_by_token_string |> Repo.one do
-      nil ->
+    case PasswordResetTokenService.verify_token(token_string) do
+      {:ok, _valid_token} ->
+        changeset = User.password_reset_changeset(%User{})
+        render(conn, "reset.html", changeset: changeset, token_string: token_string)
+      {:error, :token_not_found} ->
         conn
         |> put_flash(:error, "Sorry, that is not a valid password reset token")
         |> redirect(to: session_path(conn, :new))
-      %PasswordResetToken{} ->
-        changeset = User.password_reset_changeset(%User{})
-        render(conn, "reset.html", changeset: changeset, token_string: token_string)
+      {:error, :token_expired} ->
+        conn
+        |> put_flash(:error, "Sorry, that password reset token has expired.")
+        |> redirect(to: session_path(conn, :new))
     end
   end
 

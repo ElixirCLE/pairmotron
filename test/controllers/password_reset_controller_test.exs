@@ -37,5 +37,14 @@ defmodule Pairmotron.PasswordResetControllerTest do
       assert redirected_to(conn) == session_path(conn, :new)
       assert get_flash(conn, :error) == "Sorry, that is not a valid password reset token"
     end
+
+    test "renders an error and redirects to login if the token has expired", %{conn: conn} do
+      long_ago = Ecto.DateTime.cast!({{2000, 1, 1}, {0, 0, 0}})
+      password_reset_token = insert(:password_reset_token, %{inserted_at: long_ago})
+
+      conn = get conn, password_reset_path(conn, :edit, password_reset_token.token)
+      assert redirected_to(conn) == session_path(conn, :new)
+      assert get_flash(conn, :error) == "Sorry, that password reset token has expired."
+    end
   end
 end
