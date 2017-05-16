@@ -49,7 +49,7 @@ defmodule Pairmotron.PasswordResetControllerTest do
   end
 
   describe "using the update action" do
-    test "resets the user password and deletes the token when the token is valid", %{conn: conn} do
+    test "resets the user password, deletes token, and logs in user when the token is valid", %{conn: conn} do
       user = insert(:user)
       password_reset_token = insert(:password_reset_token, %{user: user})
 
@@ -60,6 +60,7 @@ defmodule Pairmotron.PasswordResetControllerTest do
       refute Repo.get(PasswordResetToken, password_reset_token.id)
       updated_user = Repo.get(Pairmotron.User, user.id)
       refute user.password_hash == updated_user.password_hash
+      assert Guardian.Plug.current_resource(conn)
     end
 
     test "errors when the token does not exist", %{conn: conn} do

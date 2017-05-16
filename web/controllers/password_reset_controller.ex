@@ -46,6 +46,7 @@ defmodule Pairmotron.PasswordResetController do
           {:ok, project} ->
             Repo.delete!(valid_token)
             conn
+            |> Guardian.Plug.sign_in(valid_token.user)
             |> put_flash(:info, "Password successfully reset")
             |> redirect(to: pair_path(conn, :index))
           {:error, changeset} ->
