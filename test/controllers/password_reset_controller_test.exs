@@ -47,4 +47,55 @@ defmodule Pairmotron.PasswordResetControllerTest do
       assert get_flash(conn, :error) == "Sorry, that password reset token has expired."
     end
   end
+
+  describe "using the update action" do
+    test "resets the user password and deletes the token when the token is valid", %{conn: conn} do
+      user = insert(:user)
+      password_reset_token = insert(:password_reset_token, %{user: user})
+
+      attrs = %{password: "password", password_confirmation: "password"}
+      conn = put conn, password_reset_path(conn, :update, password_reset_token.token), user: attrs
+
+      assert redirected_to(conn) == pair_path(conn, :index)
+      refute Repo.get(PasswordResetToken, password_reset_token.id)
+      updated_user = Repo.get(Pairmotron.User, user.id)
+      refute user.password_hash == updated_user.password_hash
+    end
+
+    test "errors when the token does not exist", %{conn: conn} do
+      attrs = %{password: "password", password_confirmation: "password"}
+      conn = put conn, password_reset_path(conn, :update, "nonexistent_token"), user: attrs
+
+      assert redirected_to(conn) == session_path(conn, :new)
+      assert get_flash(conn, :error) == "Sorry, that is not a valid password reset token"
+    end
+
+    test "errors when the token has expired", %{conn: conn} do
+      user = insert(:user)
+      long_ago = Ecto.DateTime.cast!({{2000, 1, 1}, {0, 0, 0}})
+      password_reset_token = insert(:password_reset_token, %{inserted_at: long_ago, user: user})
+
+      attrs = %{password: "password", password_confirmation: "password"}
+      conn = put conn, password_reset_path(conn, :update, password_reset_token.token), user: attrs
+
+      assert redirected_to(conn) == session_path(conn, :new)
+      assert get_flash(conn, :error) == "Sorry, that password reset token has expired."
+      assert Repo.get(PasswordResetToken, password_reset_token.id)
+      hopefully_not_updated_user = Repo.get(Pairmotron.User, user.id)
+      assert user.password_hash == hopefully_not_updated_user.password_hash
+    end
+
+    test "errors and rerenders reset form if the password and the password confirmation do not match", %{conn: conn} do
+      user = insert(:user)
+      password_reset_token = insert(:password_reset_token, %{user: user})
+
+      attrs = %{password: "password", password_confirmation: "different_password"}
+      conn = put conn, password_reset_path(conn, :update, password_reset_token.token), user: attrs
+
+      assert html_response(conn, 200) =~ "Enter new password"
+      assert Repo.get(PasswordResetToken, password_reset_token.id)
+      hopefully_not_updated_user = Repo.get(Pairmotron.User, user.id)
+      assert user.password_hash == hopefully_not_updated_user.password_hash
+    end
+  end
 end

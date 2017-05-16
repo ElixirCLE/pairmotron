@@ -1,6 +1,6 @@
 <p class="lead">Enter new password</p>
 
-<%= form_for @changeset, password_reset_path(@conn, :update, @token_string), fn f -> %>
+<%= form_for @changeset, password_reset_path(@conn, :update, @token_string), [method: :put], fn f -> %>
   <%= if @changeset.action do %>
     <div class="alert alert-danger">
       <p>There was a problem resetting your password.</p>
