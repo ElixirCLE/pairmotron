@@ -17,3 +17,6 @@ config :pairmotron, Pairmotron.Repo,
   database: "pairmotron_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :pairmotron, Pairmotron.Mailer,
+  adapter: Bamboo.TestAdapter
