@@ -16,8 +16,16 @@ defmodule Pairmotron.PasswordResetController do
 
   @spec create(%Plug.Conn{}, map()) :: %Plug.Conn{}
   def create(conn, %{"password_reset_token" => %{"email" => email}}) do
-    PasswordResetTokenService.generate_token(email)
+    with {:ok, token} <- PasswordResetTokenService.generate_token(email),
+      do: send_password_reset_email(token)
     render(conn, "email_sent.html")
+  end
+
+  @spec send_password_reset_email(Types.password_reset_token) :: any
+  defp send_password_reset_email(token) do
+    token
+    |> Pairmotron.Email.password_reset_email
+    |> Pairmotron.Mailer.deliver_now
   end
 
   @spec edit(%Plug.Conn{}, map()) :: %Plug.Conn{}
@@ -43,7 +51,7 @@ defmodule Pairmotron.PasswordResetController do
       {:ok, valid_token} ->
         changeset = User.password_reset_changeset(valid_token.user, user_params)
         case Repo.update(changeset) do
-          {:ok, project} ->
+          {:ok, _user} ->
             Repo.delete!(valid_token)
             conn
             |> Guardian.Plug.sign_in(valid_token.user)

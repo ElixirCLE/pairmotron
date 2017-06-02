@@ -29,7 +29,8 @@ defmodule Pairmotron.PasswordResetTokenService do
   @spec generate_token(String.t) :: {:ok, Types.password_reset_token} | {:error, atom()}
   def generate_token(email) when is_binary(email) do
     with {:ok, user} <- get_user_with_email(email),
-      do: create_token(user)
+         {:ok, token} <- create_token(user),
+      do: {:ok, Repo.preload(token, :user)} # :( for extra database hit
   end
   def generate_token(_), do: {:error, :invalid_email}
 

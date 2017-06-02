@@ -5,7 +5,7 @@ defmodule Pairmotron.PasswordResetTokenServiceTest do
 
   alias Pairmotron.PasswordResetTokenService
 
-  describe "generate_token\1" do
+  describe "generate_token/1" do
     test "returns :ok and creates a token when given an email associated with a user" do
       user = insert(:user)
       assert {:ok, token} = PasswordResetTokenService.generate_token(user.email)

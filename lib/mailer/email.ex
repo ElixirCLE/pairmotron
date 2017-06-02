@@ -1,7 +1,7 @@
 defmodule Pairmotron.Email do
   import Bamboo.Email
 
-  alias Pairmotron.{Types, Endpoint}
+  alias Pairmotron.Types
   import Pairmotron.Router.Helpers
 
   @doc """

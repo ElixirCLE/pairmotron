@@ -1,5 +1,6 @@
 defmodule Pairmotron.PasswordResetControllerTest do
   use Pairmotron.ConnCase
+  use Bamboo.Test
 
   alias Pairmotron.PasswordResetToken
 
@@ -16,6 +17,13 @@ defmodule Pairmotron.PasswordResetControllerTest do
       conn = post conn, password_reset_path(conn, :create), password_reset_token: %{email: user.email}
       assert Repo.get_by(PasswordResetToken, user_id: user.id)
       assert html_response(conn, 200) =~ "An email with password reset instructions has been sent"
+    end
+
+    test "sends a password reset email if user with the given email exists", %{conn: conn} do
+      user = insert(:user)
+      post conn, password_reset_path(conn, :create), password_reset_token: %{email: user.email}
+      token = Repo.get_by(PasswordResetToken, user_id: user.id) |> Repo.preload(:user)
+      assert_delivered_email Pairmotron.Email.password_reset_email(token)
     end
 
     test "does not create a PasswordResetToken if user does not exist with given email", %{conn: conn} do
