@@ -1,4 +1,9 @@
 defmodule Pairmotron.PasswordResetToken do
+  @moduledoc """
+  The Pairmotron.PasswordResetToken module contains Ecto schema, changesets,
+  and queries for use when interfacing with the password_reset_tokens table in
+  the database.
+  """
   use Pairmotron.Web, :model
 
   schema "password_reset_tokens" do
@@ -14,6 +19,7 @@ defmodule Pairmotron.PasswordResetToken do
   @doc """
   Builds a changeset for a password reset token.
   """
+  @spec changeset(map() | Ecto.Changeset.t, map()) :: Ecto.Changeset.t
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @all_fields)

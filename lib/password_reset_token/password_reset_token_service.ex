@@ -56,7 +56,8 @@ defmodule Pairmotron.PasswordResetTokenService do
 
   @spec random_urlsafe_base64() :: String.t
   defp random_urlsafe_base64() do
-    :crypto.strong_rand_bytes(@token_length)
+    @token_length
+    |> :crypto.strong_rand_bytes
     |> Base.url_encode64
     |> binary_part(0, @token_length)
   end

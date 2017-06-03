@@ -1,4 +1,8 @@
 defmodule Pairmotron.Email do
+  @moduledoc """
+  The Pairmotron.Email module contains functions for generating standard emails
+  to be sent using Bamboo.
+  """
   import Bamboo.Email
 
   alias Pairmotron.Types
