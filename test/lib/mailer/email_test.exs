@@ -1,10 +1,9 @@
 defmodule Pairmotron.EmailTest do
-  use Pairmotron.ModelCase
-
   use ExUnit.Case, async: true
 
   alias Pairmotron.Email
   import Pairmotron.Router.Helpers
+  import Pairmotron.Factory
 
   describe "password_reset_email/1" do
     setup do
