@@ -10,7 +10,7 @@ Pairmotron is an app powered by [Phoenix](http://www.phoenixframework.org/) that
 
   * Elixir >= 1.4.0
   * PostgreSQL
-  
+
 ### Running it
 
   * Install dependencies with `mix deps.get`
@@ -26,7 +26,13 @@ export PG_PASSWORD="example_password"
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? 
+## Ready to run in production?
 * Please [check the phoenix deployment guides](http://www.phoenixframework.org/docs/deployment).
-* Set the environment variable (SECRET_KEY_BASE) used for session cookies.
-* Set the environment variable (GUARDIAN_JWK_KEY) for the secret key which guardian uses for JWT tokens.
+
+### Environment Variables to set
+
+* SECRET_KEY_BASE - Used to generate session cookies.
+* GUARDIAN_JWK_KEY - Used to generate JWT tokens.
+* PAIRMOTRON_EMAIL_DOMAIN - The domain configured in Mailgun to send password reset email.
+* PAIRMOTRON_MAILGUN_API_KEY - The API key given by Mailgun for the configured domain.
+
