@@ -31,6 +31,11 @@ defmodule Pairmotron.PasswordResetControllerTest do
       assert [] = Repo.all(PasswordResetToken)
       assert html_response(conn, 200) =~ "An email with password reset instructions has been sent"
     end
+
+    test "does not send an email if user does not exist with the given email", %{conn: conn} do
+      post conn, password_reset_path(conn, :create), password_reset_token: %{email: "null@email.com"}
+      assert_no_emails_delivered()
+    end
   end
 
   describe "using the edit action" do
