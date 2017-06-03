@@ -50,14 +50,16 @@ defmodule Pairmotron.PasswordResetController do
     case PasswordResetTokenService.verify_token(token_string) do
       {:ok, valid_token} ->
         changeset = User.password_reset_changeset(valid_token.user, user_params)
-        case Repo.update(changeset) do
-          {:ok, _user} ->
-            Repo.delete!(valid_token)
+        transaction = update_transaction(changeset, valid_token)
+        case Repo.transaction(transaction) do
+          {:ok, _} ->
             conn
             |> Guardian.Plug.sign_in(valid_token.user)
             |> put_flash(:info, "Password successfully reset")
             |> redirect(to: pair_path(conn, :index))
-          {:error, changeset} ->
+          {:error, :user_update, changeset, _} ->
+            render(conn, "reset.html", changeset: changeset, token_string: token_string)
+          _ ->
             render(conn, "reset.html", changeset: changeset, token_string: token_string)
         end
       {:error, :token_not_found} ->
@@ -69,5 +71,12 @@ defmodule Pairmotron.PasswordResetController do
         |> put_flash(:error, "Sorry, that password reset token has expired.")
         |> redirect(to: session_path(conn, :new))
     end
+  end
+
+  @spec update_transaction(Ecto.Changeset.t, Types.password_reset_token) :: Ecto.Multi.t
+  defp update_transaction(user_changeset, token) do
+    Ecto.Multi.new
+    |> Ecto.Multi.update(:user_update, user_changeset)
+    |> Ecto.Multi.delete(:token_delete, token)
   end
 end
