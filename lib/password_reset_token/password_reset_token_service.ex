@@ -49,7 +49,6 @@ defmodule Pairmotron.PasswordResetTokenService do
 
     case Repo.insert(changeset) do
       {:ok, valid_token} -> {:ok, Repo.preload(valid_token, :user)}
-      {:error, %{errors: [token: {"has already been taken", _}]}} -> create_token(user)
       {:error, _} -> {:error, :invalid_token}
     end
   end
