@@ -17,6 +17,6 @@
 </div>
 
 <p>
-  <%= link("Forgot your password", to: password_reset_path(@conn, :new)) %>
+  <%= link("Forgot your password?", to: password_reset_path(@conn, :new)) %>
 </p>
 <% end %>

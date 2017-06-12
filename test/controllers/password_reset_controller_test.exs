@@ -93,7 +93,7 @@ defmodule Pairmotron.PasswordResetControllerTest do
       conn = put conn, password_reset_path(conn, :update, password_reset_token.token), user: attrs
 
       assert redirected_to(conn) == session_path(conn, :new)
-      assert get_flash(conn, :error) == "Sorry, that password reset token has expired."
+      assert get_flash(conn, :error) == "Sorry, that is not a valid password reset token"
       assert Repo.get(PasswordResetToken, password_reset_token.id)
       hopefully_not_updated_user = Repo.get(Pairmotron.User, user.id)
       assert user.password_hash == hopefully_not_updated_user.password_hash

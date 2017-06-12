@@ -30,7 +30,7 @@ defmodule Pairmotron.PasswordResetTokenService do
   def generate_token(email) when is_binary(email) do
     with {:ok, user} <- get_user_with_email(email),
          {:ok, token} <- create_token(user),
-      do: {:ok, Repo.preload(token, :user)} # :( for extra database hit
+      do: {:ok, token}
   end
   def generate_token(_), do: {:error, :invalid_email}
 
@@ -48,7 +48,7 @@ defmodule Pairmotron.PasswordResetTokenService do
     changeset = PasswordResetToken.changeset(%PasswordResetToken{}, %{user_id: user.id, token: token})
 
     case Repo.insert(changeset) do
-      {:ok, valid_token} -> {:ok, valid_token}
+      {:ok, valid_token} -> {:ok, Repo.preload(valid_token, :user)}
       {:error, %{errors: [token: {"has already been taken", _}]}} -> create_token(user)
       {:error, _} -> {:error, :invalid_token}
     end

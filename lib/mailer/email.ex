@@ -28,7 +28,8 @@ defmodule Pairmotron.Email do
   @spec password_reset_email_html_body(String.t) :: String.t
   defp password_reset_email_html_body(token_string) do
     """
-    It looks like you've requested a password reset.<br><br>
+    Someone requested a password change for your Pairmotron account. If this was requested by you, please set a new password here:
+    <br><br>
     <a href=#{reset_path(token_string)}>Click here to reset your password</a>
     """
   end
@@ -36,7 +37,8 @@ defmodule Pairmotron.Email do
   @spec password_reset_email_text_body(String.t) :: String.t
   defp password_reset_email_text_body(token_string) do
     """
-    It looks like you've requested a passwrod reset.\n\n
+    Someone requested a password change for your Pairmotron account. If this was requested by you, please set a new password here:
+    \n\n
     Follow this link to reset your password: #{reset_path(token_string)}
     """
   end

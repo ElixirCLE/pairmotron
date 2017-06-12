@@ -62,13 +62,9 @@ defmodule Pairmotron.PasswordResetController do
           _ ->
             render(conn, "reset.html", changeset: changeset, token_string: token_string)
         end
-      {:error, :token_not_found} ->
+      {:error, _} ->
         conn
         |> put_flash(:error, "Sorry, that is not a valid password reset token")
-        |> redirect(to: session_path(conn, :new))
-      {:error, :token_expired} ->
-        conn
-        |> put_flash(:error, "Sorry, that password reset token has expired.")
         |> redirect(to: session_path(conn, :new))
     end
   end
