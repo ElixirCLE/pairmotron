@@ -7,14 +7,23 @@ defmodule Pairmotron.Daterange do
    Based off https://gist.github.com/h0lyalg0rithm/54fdfb02fd2cf8e8196b71d832c49b1b
    """
 
-   alias Timex.Interval
+   alias Pairmotron.Interval
 
    @doc "To this custom type"
-   def cast(interval = %Interval{}) do
+   def cast(interval = %Interval{from: {_, _, _}, until: {_, _, _}}) do
      {:ok, interval}
    end
-   def cast([lower, upper]) do
+   def cast(%Interval{from: from, until: until, right_open: right_open, left_open: left_open}) do
+     {:ok, Interval.new(from: from |> Date.to_erl(),
+                        until: until |> Date.to_erl(),
+                        right_open: right_open,
+                        left_open: left_open)}
+   end
+   def cast([lower = {_, _, _}, upper = {_, _, _}]) do
      {:ok, Interval.new(from: lower, until: upper)}
+   end
+   def cast([lower = %Date{}, upper = %Date{}]) do
+     {:ok, Interval.new(from: lower |> Date.to_erl(), until: upper |> Date.to_erl())}
    end
    def cast(_), do: :error
 

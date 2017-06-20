@@ -1,17 +1,21 @@
 defmodule Pairmotron.DaterangeTest do
   use ExUnit.Case, async: true
 
-  alias Pairmotron.Daterange
-  alias Timex.Interval
+  alias Pairmotron.{Daterange, Interval}
 
   describe "cast/1" do
     test "supports Intervals" do
-      interval = Interval.new(from: ~D(2016-02-01), until: ~D(2016-02-02))
+      interval = Interval.new(from: {2016, 2, 1}, until: {2016, 2, 2})
       assert Daterange.cast(interval) == {:ok, interval}
     end
 
-    test "supports lower upper lists" do
-      interval = Interval.new(from: ~D(2016-02-01), until: ~D(2016-02-02))
+    test "supports lower upper erlang date lists" do
+      interval = Interval.new(from: {2016, 2, 1}, until: {2016, 2, 2})
+      assert Daterange.cast([{2016, 2, 1}, {2016, 2, 2}]) == {:ok, interval}
+    end
+
+    test "supports lower upper Date lists" do
+      interval = Interval.new(from: {2016, 2, 1}, until: {2016, 2, 2})
       assert Daterange.cast([~D(2016-02-01), ~D(2016-02-02)]) == {:ok, interval}
     end
 
@@ -27,8 +31,8 @@ defmodule Pairmotron.DaterangeTest do
       interval = Interval.new(from: ~D(2016-02-01),
                               until: ~D(2016-02-07),
                               left_open: true)
-      range = %Postgrex.Range{lower: ~N(2016-02-01 00:00:00),
-                              upper: ~N(2016-02-07 00:00:00),
+      range = %Postgrex.Range{lower: {2016, 2, 1},
+                              upper: {2016, 2, 7},
                               lower_inclusive: false,
                               upper_inclusive: false}
       assert Daterange.dump(interval) == {:ok, range}
@@ -47,8 +51,8 @@ defmodule Pairmotron.DaterangeTest do
       interval = Interval.new(from: ~D(2016-02-01),
                               until: ~D(2016-02-07),
                               left_open: true)
-      range = %Postgrex.Range{lower: ~N(2016-02-01 00:00:00),
-                              upper: ~N(2016-02-07 00:00:00),
+      range = %Postgrex.Range{lower: ~D(2016-02-01),
+                              upper: ~D(2016-02-07),
                               lower_inclusive: false,
                               upper_inclusive: false}
       assert Daterange.load(range) == {:ok, interval}
