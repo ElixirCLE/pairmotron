@@ -12,8 +12,9 @@ config :logger, level: :warn
 # Configure your database
 config :pairmotron, Pairmotron.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("PG_USER"),
-  password: System.get_env("PG_PASSWORD"),
+  username: System.get_env("DB_ENV_POSTGRES_USER"),
+  password: System.get_env("DB_ENV_POSTGRES_PASSWORD"),
   database: "pairmotron_test",
-  hostname: "localhost",
+  hostname: System.get_env("DB_ENV_POSTGRES_HOST"),
   pool: Ecto.Adapters.SQL.Sandbox
+

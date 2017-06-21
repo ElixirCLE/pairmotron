@@ -1,0 +1,28 @@
+web:
+  build: .
+  ports:
+    - "4000:4000"
+  command: mix phoenix.server
+  environment:
+    - MIX_ENV=dev
+    - PORT=4000
+  volumes:
+    - .:/app
+  links:
+    - db
+db:
+  image: postgres:9.5
+  environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_HOST=db
+test:
+  #this is foldername (default projectName) _web
+  image: testpair_web
+  command: mix test
+  environment:
+    - MIX_ENV=test
+  volumes_from:
+    - web
+  links:
+    - db
