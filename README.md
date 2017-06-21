@@ -24,7 +24,7 @@ export DB_ENV_POSTGRES_PASSWORD="example_password"
   * Install Node.js dependencies with `npm install`
   * Start Phoenix endpoint with `mix phoenix.server`
 
-##Developing and Testing with Docker
+## Developing and Testing with Docker
 
 Using this model of development allows you to not install anything other
 than docker.
@@ -35,6 +35,11 @@ than docker.
   * docker-compose run web mix ecto.create && mix ecto.migrate
   * docker-compose restart web
 
+### Run the Tests in Docker
+  * docker-compose run test
+  * Only test a specific test file
+    * docker-compose run test mix test/controllers/group_controller_test.exs
+  
 ## Check it out in a browser
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
@@ -45,7 +50,4 @@ Ready to run in production?
 * Set the environment variable (SECRET_KEY_BASE) used for session cookies.
 * Set the environment variable (GUARDIAN_JWK_KEY) for the secret key which guardian uses for JWT tokens.
 
-## Run the Tests in Docker
-  * docker-compose run test
-### Only a specific Test file
-  * docker-compose run test mix test/controllers/group_controller_test.exs
+
