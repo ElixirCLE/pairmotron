@@ -24,7 +24,7 @@ services:
       - POSTGRES_HOST=db
   test:
     #this is foldername (default projectName) _web
-    image: testpair_web
+    image: ${COMPOSE_PROJECT_NAME}_web
     command: mix test
     environment:
       - MIX_ENV=test
