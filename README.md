@@ -31,14 +31,16 @@ than docker.
 
 ### Running it
   * docker-compose up -d web
-  * docker-compose run web mix deps.get
-  * docker-compose run web mix ecto.create && mix ecto.migrate
+  * docker-compose exec web mix deps.get
+  * docker-compose exec web mix ecto.create 
+  * docker-compose exec web mix ecto.migrate
+  * docker-compose exec web npm install
   * docker-compose restart web
 
 ### Run the Tests in Docker
-  * docker-compose run test
+  * docker-compose run -e "MIX_ENV=test" web mix test 
   * Only test a specific test file
-    * docker-compose run test mix test/controllers/group_controller_test.exs
+    * docker-compose run -e "MIX_ENV=test" web mix test/controllers/group_controller_test.exs
   
 ## Check it out in a browser
 

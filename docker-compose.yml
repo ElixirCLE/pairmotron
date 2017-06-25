@@ -1,36 +1,19 @@
-version: "2.1"
-
-services:
-  web:
-    build: .
-    ports:
-      - "4000:4000"
-    command: bash -c "npm install && mix phoenix.server"
-    environment:
-      - MIX_ENV=dev
-      - PORT=4000
-    volumes:
-      - .:/app
-    working_dir: /app
-    links:
-      - db
-    depends_on:
-      - db
-  db:
-    image: postgres:9.5
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_HOST=db
-  test:
-    #this is foldername (default projectName) _web
-    image: ${COMPOSE_PROJECT_NAME}_web
-    command: mix test
-    environment:
-      - MIX_ENV=test
-    volumes_from:
-      - web
-    links:
-      - db
-    depends_on:
-      - db
+web:
+  build: .
+  ports:
+    - "4000:4000"
+  command: mix phoenix.server
+  environment:
+    - MIX_ENV=dev
+    - PORT=4000
+  volumes:
+    - .:/app
+  working_dir: /app
+  links:
+    - db
+db:
+  image: postgres:9.5
+  environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_HOST=db
