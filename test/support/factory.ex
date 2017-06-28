@@ -78,4 +78,11 @@ defmodule Pairmotron.Factory do
       is_admin: false
     }
   end
+
+  def password_reset_token_factory do
+    %Pairmotron.PasswordResetToken{
+      user: build(:user),
+      token: sequence(:token, &"token#{&1}")
+    }
+  end
 end

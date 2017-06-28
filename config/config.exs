@@ -41,6 +41,11 @@ config :canary,
   repo: Pairmotron.Repo,
   not_found_handler: {Pairmotron.ControllerHelpers, :handle_resource_not_found}
 
+config :pairmotron, Pairmotron.Mailer,
+  adapter: Bamboo.MailgunAdapter,
+  domain: System.get_env("PAIRMOTRON_EMAIL_DOMAIN"),
+  api_key: System.get_env("PAIRMOTRON_MAILGUN_API_KEY")
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"

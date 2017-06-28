@@ -1,7 +1,5 @@
-<p>
-  <strong>
-    It looks like you aren't in a group. Find a group to join or create your own!
-  </strong>
+<p class="lead">
+  It looks like you aren't in a group. Find a group to join or create your own!
 </p>
 
 <p>

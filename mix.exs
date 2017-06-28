@@ -19,7 +19,7 @@ defmodule Pairmotron.Mixfile do
   def application do
     [mod: {Pairmotron, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :timex, :ex_machina]]
+                    :phoenix_ecto, :postgrex, :timex, :ex_machina, :bamboo]]
   end
 
   # Specifies which paths to compile per environment.
@@ -47,7 +47,8 @@ defmodule Pairmotron.Mixfile do
      {:canary, "~> 1.1.0"},
      {:credo, "~> 0.5", only: [:dev, :test]},
      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
-     {:html_sanitize_ex, "~> 1.0.0"}]
+     {:html_sanitize_ex, "~> 1.0.0"},
+     {:bamboo, "~> 0.8"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
