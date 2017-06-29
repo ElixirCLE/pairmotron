@@ -32,7 +32,28 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 ### Environment Variables to set
 
 * SECRET_KEY_BASE - Used to generate session cookies.
-* GUARDIAN_JWK_KEY - Used to generate JWT tokens.
 * PAIRMOTRON_EMAIL_DOMAIN - The domain configured in Mailgun to send password reset email.
 * PAIRMOTRON_MAILGUN_API_KEY - The API key given by Mailgun for the configured domain.
 
+### JWT Key Configuration
+
+Pairmotron uses the ES512 algorithm to generate JSON Web Tokens. You will need to generate a key and set the appropriate environment variables.
+
+To generate a key do the following from the root pairmotron directory:
+
+```elixir
+iex -S mix
+
+iex> JOSE.JWK.generate_key({:ec, "P-521"}) |> JOSE.JWK.to_map
+{%{kty: :jose_jwk_kty_ec},
+ %{"crv" => "P-521",
+   "d" => "Ae-wdbGhjfpxapevgJDAxaiGHmKYoyWnYDLeAb9jALSBNBzkyelSL-FUHcdFw1B7V2FvPy3YaHEkrVqwPwBwNvLP",
+   "kty" => "EC",
+   "x" => "AWFw34kJJaT8Lwew8IG4LcDDr8sMcURn4PhUWMBiMW5vGGonteVvZQAVdW652GFOY9z1nlhymKYXBwNy3PHlz9Z_",
+   "y" => "APLY5Rww4oI1fhUI7JrIkmHPymzgpGOKsNXHhxoMJDycdoQPWfaimoOX-afOHoJiGWwh2m_EbTSC-4lC4Cz0uzPk"}}
+```
+
+And then set the following environment variables:
+* GUARDIAN_JWK_ES512_D - The "d" value of the key generated above.
+* GUARDIAN_JWK_ES512_X - The "x" value of the key generated above.
+* GUARDIAN_JWK_ES512_Y - The "y" value of the key generated above.
