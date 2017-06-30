@@ -1,7 +1,7 @@
 defmodule Pairmotron.AdminProjectController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.Project
+  alias Pairmotron.{Group, Project, User}
 
   @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
@@ -12,20 +12,14 @@ defmodule Pairmotron.AdminProjectController do
   @spec new(Plug.Conn.t, map()) :: Plug.Conn.t
   def new(conn, _params) do
     changeset = Project.changeset(%Project{})
-    groups = Repo.all(Pairmotron.Group)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users} = retrieve_groups_and_users()
     render(conn, "new.html", changeset: changeset, groups: groups, users: users)
   end
 
   @spec create(Plug.Conn.t, map()) :: Plug.Conn.t
   def create(conn, %{"project" => project_params}) do
     changeset = Project.changeset(%Project{}, project_params)
-    groups = Repo.all(Pairmotron.Group)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users} = retrieve_groups_and_users()
 
     case Repo.insert(changeset) do
       {:ok, _project} ->
@@ -47,10 +41,7 @@ defmodule Pairmotron.AdminProjectController do
   def edit(conn, %{"id" => id}) do
     project = Repo.get!(Project, id)
     changeset = Project.changeset(project)
-    groups = Repo.all(Pairmotron.Group)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users} = retrieve_groups_and_users()
     render(conn, "edit.html", project: project, changeset: changeset, groups: groups, users: users)
   end
 
@@ -58,10 +49,7 @@ defmodule Pairmotron.AdminProjectController do
   def update(conn, %{"id" => id, "project" => project_params}) do
     project = Repo.get!(Project, id)
     changeset = Project.changeset(project, project_params)
-    groups = Repo.all(Pairmotron.Group)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users} = retrieve_groups_and_users()
 
     case Repo.update(changeset) do
       {:ok, project} ->
@@ -84,5 +72,16 @@ defmodule Pairmotron.AdminProjectController do
     conn
     |> put_flash(:info, "Project deleted successfully.")
     |> redirect(to: admin_project_path(conn, :index))
+  end
+
+  @spec retrieve_groups_and_users() :: {Types.group, Types.user}
+  defp retrieve_groups_and_users() do
+    groups = Group 
+      |> Repo.all
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    users = User 
+      |> Repo.all
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users}
   end
 end

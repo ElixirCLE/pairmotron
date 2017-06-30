@@ -5,7 +5,8 @@ defmodule Pairmotron.AdminUserController do
 
   @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
-    users = Repo.all(User)
+    users = User
+      |> Repo.all
       |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     render(conn, "index.html", users: users)
   end

@@ -1,7 +1,7 @@
 defmodule Pairmotron.AdminGroupMembershipRequestController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.{Group, GroupMembershipRequest}
+  alias Pairmotron.{Group, GroupMembershipRequest, User}
 
   import Pairmotron.ControllerHelpers
 
@@ -14,10 +14,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
   @spec new(Plug.Conn.t, map()) :: Plug.Conn.t
   def new(conn, _params) do
     changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{})
-    groups = Repo.all(Pairmotron.Group)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users} = retrieve_groups_and_users()
     render(conn, "new.html", changeset: changeset, groups: groups, users: users)
   end
 
@@ -26,10 +23,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     group_id = parameter_as_integer(group_membership_request_params, "group_id")
     group = group_id |> Group.group_with_users |> Repo.one
     changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, group_membership_request_params, group)
-    groups = Repo.all(Pairmotron.Group)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users} = retrieve_groups_and_users()
 
     case Repo.insert(changeset) do
       {:ok, _group_membership_request} ->
@@ -51,10 +45,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
   def edit(conn, %{"id" => id}) do
     group_membership_request = Repo.get!(GroupMembershipRequest, id)
     changeset = GroupMembershipRequest.changeset(group_membership_request)
-    groups = Repo.all(Pairmotron.Group)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users} = retrieve_groups_and_users()
     render(conn, "edit.html", group_membership_request: group_membership_request, changeset: changeset, groups: groups, users: users)
   end
 
@@ -62,10 +53,7 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
   def update(conn, %{"id" => id, "group_membership_request" => group_membership_request_params}) do
     group_membership_request = Repo.get!(GroupMembershipRequest, id)
     changeset = GroupMembershipRequest.users_changeset(group_membership_request, group_membership_request_params)
-    groups = Repo.all(Pairmotron.Group)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users} = retrieve_groups_and_users()
 
     case Repo.update(changeset) do
       {:ok, group_membership_request} ->
@@ -88,5 +76,16 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     conn
     |> put_flash(:info, "GroupMembershipRequest deleted successfully.")
     |> redirect(to: admin_group_membership_request_path(conn, :index))
+  end
+
+  @spec retrieve_groups_and_users() :: {Types.group, Types.user}
+  defp retrieve_groups_and_users() do
+    groups = Group 
+      |> Repo.all
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    users = User 
+      |> Repo.all
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    {groups, users}
   end
 end

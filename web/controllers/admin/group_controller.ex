@@ -12,16 +12,14 @@ defmodule Pairmotron.AdminGroupController do
   @spec new(Plug.Conn.t, map()) :: Plug.Conn.t
   def new(conn, _params) do
     changeset = Group.changeset(%Group{})
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    users = retrieve_users()
     render(conn, "new.html", changeset: changeset, users: users)
   end
 
   @spec create(Plug.Conn.t, map()) :: Plug.Conn.t
   def create(conn, %{"group" => group_params}) do
     changeset = Group.changeset(%Group{}, group_params)
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    users = retrieve_users()
 
     case Repo.insert(changeset) do
       {:ok, _group} ->
@@ -43,8 +41,7 @@ defmodule Pairmotron.AdminGroupController do
   def edit(conn, %{"id" => id}) do
     group = Repo.get!(Group, id)
     changeset = Group.changeset(group)
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    users = retrieve_users()
     render(conn, "edit.html", group: group, changeset: changeset, users: users)
   end
 
@@ -52,8 +49,7 @@ defmodule Pairmotron.AdminGroupController do
   def update(conn, %{"id" => id, "group" => group_params}) do
     group = Repo.get!(Group, id)
     changeset = Group.changeset(group, group_params)
-    users = Repo.all(Pairmotron.User)
-      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
+    users = retrieve_users()
 
     case Repo.update(changeset) do
       {:ok, group} ->
@@ -76,5 +72,12 @@ defmodule Pairmotron.AdminGroupController do
     conn
     |> put_flash(:info, "Group deleted successfully.")
     |> redirect(to: admin_group_path(conn, :index))
+  end
+
+  @spec retrieve_users() :: Types.user
+  defp retrieve_users() do
+    User 
+    |> Repo.all
+    |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
   end
 end
