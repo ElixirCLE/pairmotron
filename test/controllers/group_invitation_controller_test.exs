@@ -1,5 +1,6 @@
 defmodule Pairmotron.GroupInvitationControllerTest do
   use Pairmotron.ConnCase
+  use Bamboo.Test
 
   alias Pairmotron.{GroupMembershipRequest, UserGroup}
 
@@ -128,6 +129,15 @@ defmodule Pairmotron.GroupInvitationControllerTest do
 
       assert redirected_to(conn) == group_invitation_path(conn, :index, group)
       assert Repo.get_by(GroupMembershipRequest, %{group_id: group.id, user_id: other_user.id, initiated_by_user: false})
+    end
+
+    test "sends an email to the invited user if the group_membership_request is created", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user)
+      attrs = %{user_id: other_user.id}
+      post conn, group_invitation_path(conn, :create, group), group_membership_request: attrs
+
+      assert_delivered_email Pairmotron.Email.group_invitation_email(other_user, group)
     end
 
     test "can create a group_membership_request if current_user is admin of group", %{conn: conn, logged_in_user: user} do
