@@ -47,4 +47,43 @@ defmodule Pairmotron.Email do
   defp reset_path(token_string) do
     password_reset_url(Pairmotron.Endpoint, :edit, token_string)
   end
+
+  @doc """
+  Returns an email ready to be sent by Bamboo to a user instructing them that
+  they have been invited to a group. It contains a link to their invitations
+  page.
+  """
+  @spec group_invitation_email(Types.user, Types.group) :: Bamboo.Email.t
+  def group_invitation_email(user, group) do
+    new_email()
+    |> to(user.email)
+    |> from("no-reply@pairmotron.com")
+    |> subject("Pairmotron Group Invitation")
+    |> html_body(group_invitation_email_html_body(group.name))
+    |> text_body(group_invitation_email_text_body(group.name))
+  end
+
+  @spec group_invitation_email_html_body(String.t) :: String.t
+  defp group_invitation_email_html_body(group_name) do
+  """
+  You have been invited to join the #{group_name} group in Pairmotron!
+  <br><br>
+  <a href=#{invitation_index_path()}>Click here to view your invitations</a>
+  """
+  end
+
+  @spec group_invitation_email_text_body(String.t) :: String.t
+  defp group_invitation_email_text_body(group_name) do
+  """
+  You have been invited to join the #{group_name} group in Pairmotron!
+  \n\n
+  Follow this link to view your invitations: #{invitation_index_path()}
+  """
+  end
+
+  @spec invitation_index_path() :: String.t
+  defp invitation_index_path() do
+    users_group_membership_request_url(Pairmotron.Endpoint, :index)
+  end
+
 end
