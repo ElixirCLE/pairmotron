@@ -76,10 +76,10 @@ defmodule Pairmotron.AdminUserGroupController do
 
   @spec retrieve_groups_and_users() :: {Types.group, Types.user}
   defp retrieve_groups_and_users() do
-    groups = Group 
+    groups = Group
       |> Repo.all
       |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
-    users = User 
+    users = User
       |> Repo.all
       |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     {groups, users}
