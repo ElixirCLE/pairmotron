@@ -61,7 +61,7 @@ defmodule Pairmotron.ViewHelpers do
   @spec data_as_select_with_ids(List.t) :: [{binary(), integer()}]
   def data_as_select_with_ids(data) do
     data
-    |> Enum.map(&["#{&1.id}: #{&1.name}": &1.id])
+    |> Enum.map(&["#{&1.name} (#{&1.id})": &1.id])
     |> List.flatten
   end
 end
