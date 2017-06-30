@@ -50,7 +50,6 @@ defmodule Pairmotron.AdminUserGroupController do
     user_group = Repo.get!(UserGroup, id)
     changeset = UserGroup.changeset(user_group, user_group_params)
     {groups, users} = retrieve_groups_and_users()
-    render(conn, "edit.html", user_group: user_group, changeset: changeset, groups: groups, users: users)
 
     case Repo.update(changeset) do
       {:ok, user_group} ->
