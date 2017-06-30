@@ -15,7 +15,9 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
   def new(conn, _params) do
     changeset = GroupMembershipRequest.changeset(%GroupMembershipRequest{})
     groups = Repo.all(Pairmotron.Group)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     users = Repo.all(Pairmotron.User)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     render(conn, "new.html", changeset: changeset, groups: groups, users: users)
   end
 
@@ -25,7 +27,9 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     group = group_id |> Group.group_with_users |> Repo.one
     changeset = GroupMembershipRequest.users_changeset(%GroupMembershipRequest{}, group_membership_request_params, group)
     groups = Repo.all(Pairmotron.Group)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     users = Repo.all(Pairmotron.User)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
 
     case Repo.insert(changeset) do
       {:ok, _group_membership_request} ->
@@ -48,7 +52,9 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     group_membership_request = Repo.get!(GroupMembershipRequest, id)
     changeset = GroupMembershipRequest.changeset(group_membership_request)
     groups = Repo.all(Pairmotron.Group)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     users = Repo.all(Pairmotron.User)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     render(conn, "edit.html", group_membership_request: group_membership_request, changeset: changeset, groups: groups, users: users)
   end
 
@@ -57,7 +63,9 @@ defmodule Pairmotron.AdminGroupMembershipRequestController do
     group_membership_request = Repo.get!(GroupMembershipRequest, id)
     changeset = GroupMembershipRequest.users_changeset(group_membership_request, group_membership_request_params)
     groups = Repo.all(Pairmotron.Group)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     users = Repo.all(Pairmotron.User)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
 
     case Repo.update(changeset) do
       {:ok, group_membership_request} ->

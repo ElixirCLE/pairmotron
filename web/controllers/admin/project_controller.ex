@@ -13,7 +13,9 @@ defmodule Pairmotron.AdminProjectController do
   def new(conn, _params) do
     changeset = Project.changeset(%Project{})
     groups = Repo.all(Pairmotron.Group)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     users = Repo.all(Pairmotron.User)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     render(conn, "new.html", changeset: changeset, groups: groups, users: users)
   end
 
@@ -21,7 +23,9 @@ defmodule Pairmotron.AdminProjectController do
   def create(conn, %{"project" => project_params}) do
     changeset = Project.changeset(%Project{}, project_params)
     groups = Repo.all(Pairmotron.Group)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     users = Repo.all(Pairmotron.User)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
 
     case Repo.insert(changeset) do
       {:ok, _project} ->
@@ -44,7 +48,9 @@ defmodule Pairmotron.AdminProjectController do
     project = Repo.get!(Project, id)
     changeset = Project.changeset(project)
     groups = Repo.all(Pairmotron.Group)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     users = Repo.all(Pairmotron.User)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     render(conn, "edit.html", project: project, changeset: changeset, groups: groups, users: users)
   end
 
@@ -53,7 +59,9 @@ defmodule Pairmotron.AdminProjectController do
     project = Repo.get!(Project, id)
     changeset = Project.changeset(project, project_params)
     groups = Repo.all(Pairmotron.Group)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     users = Repo.all(Pairmotron.User)
+      |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
 
     case Repo.update(changeset) do
       {:ok, project} ->
