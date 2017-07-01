@@ -11,21 +11,13 @@ defmodule Pairmotron.AdminInvitationAcceptController do
 
     case result do
       {:ok, :user_added_to_group} ->
-        conn
-        |> put_flash(:info, "User has been added to the group.")
-        |> redirect(to: admin_group_membership_request_path(conn, :index))
+        conn |> redirect_and_flash(:info, "User has been added to the group")
       {:ok, :user_already_in_group} ->
-        conn
-        |> put_flash(:info, "User was already in group. Invitation removed.")
-        |> redirect(to: admin_group_membership_request_path(conn, :index))
+        conn |> redirect_and_flash(:info, "User was already in group. Invitation removed.")
       {:error, :user_not_found} ->
-        conn
-        |> put_flash(:error, "User could not be found.")
-        |> redirect(to: admin_group_membership_request_path(conn, :index))
+        conn |> redirect_and_flash(:error, "User could not be found.")
       {:error, :group_membership_request_not_found} ->
-        conn
-        |> put_flash(:error, "Invitation could not be found.")
-        |> redirect(to: admin_group_membership_request_path(conn, :index))
+        conn |> redirect_and_flash(:info, "Invitation could not be found.")
     end
   end
 
@@ -47,7 +39,7 @@ defmodule Pairmotron.AdminInvitationAcceptController do
     end
   end
 
-  @spec retrieve_user(non_neg_integer()) :: {:ok, Types.user} | {:error, :user_not_found}
+  @spec retrieve_user(integer() | binary()) :: {:ok, Types.user} | {:error, :user_not_found}
   defp retrieve_user(user_id) do
     case Repo.get(User, user_id) do
       user = %User{} -> {:ok, user}
@@ -55,17 +47,24 @@ defmodule Pairmotron.AdminInvitationAcceptController do
     end
   end
 
-  @spec retrieve_group_membership_request(non_neg_integer()) ::
+  @spec retrieve_group_membership_request(integer() | binary()) ::
     {:ok, Types.group_membership_request} | {:error, :group_membership_request_not_found}
   defp retrieve_group_membership_request(group_membership_request_id) do
-    IO.inspect group_membership_request_id
     case Repo.get(GroupMembershipRequest, group_membership_request_id) do
       group_membership_request = %GroupMembershipRequest{} -> {:ok, group_membership_request}
       _ -> {:error, :group_membership_request_not_found}
     end
   end
 
+  @spec retrieve_user_group(integer(), integer()) :: Types.user_group | nil
   defp retrieve_user_group(user_id, group_id) do
     Repo.get_by(UserGroup, %{user_id: user_id, group_id: group_id})
+  end
+
+  @spec redirect_and_flash(Plug.Conn.t, atom(), String.t) :: Plug.Conn.t
+  defp redirect_and_flash(conn, message_type, message) do
+    conn
+    |> put_flash(message_type, message)
+    |> redirect(to: admin_group_membership_request_path(conn, :index))
   end
 end
