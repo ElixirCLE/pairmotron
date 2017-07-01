@@ -29,7 +29,7 @@
       <h3>Member of</h3>
       <%= for group <- @user.groups do %>
         <li class="list-group-item">
-          <h4><%= group.name %></h4>
+          <h4><%= link group.name, to: group_path(@conn, :show, group) %></h4>
           <%= render Pairmotron.GroupView, "group_actions.html", conn: @conn, group: group, user_group: Pairmotron.GroupView.user_group_associated_with_group(group, @user_groups) %>
         </li>
       <% end %>
