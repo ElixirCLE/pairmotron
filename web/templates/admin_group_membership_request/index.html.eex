@@ -30,6 +30,7 @@
       </td>
       <td><%= group_membership_request.initiated_by_user %></td>
       <td class="text-right">
+        <%= link "Accept", to: admin_invitation_accept_path(@conn, :update, group_membership_request.user_id, group_membership_request.id), class: "btn btn-default btn-xs", method: :put %>
         <%= link "Show", to: admin_group_membership_request_path(@conn, :show, group_membership_request), class: "btn btn-default btn-xs" %>
         <%= link "Edit", to: admin_group_membership_request_path(@conn, :edit, group_membership_request), class: "btn btn-default btn-xs" %>
         <%= link "Delete", to: admin_group_membership_request_path(@conn, :delete, group_membership_request), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>

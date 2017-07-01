@@ -4,7 +4,7 @@ defmodule Pairmotron.AdminInvitationAcceptController do
   alias Pairmotron.{Group, GroupMembershipRequest, User, UserGroup}
 
   @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
-  def update(conn, %{"user_id" => user_id, "group_membership_request_id" => group_membership_request_id}) do
+  def update(conn, params = %{"user_id" => user_id, "group_membership_request_id" => group_membership_request_id}) do
     result = with {:ok, user} <- retrieve_user(user_id),
                   {:ok, group_membership_request} <- retrieve_group_membership_request(group_membership_request_id),
                   do: delete_invite_and_add_user_to_group(user, group_membership_request)
@@ -38,7 +38,7 @@ defmodule Pairmotron.AdminInvitationAcceptController do
         changeset = UserGroup.changeset(%UserGroup{}, %{user_id: user.id, group_id: group_id})
         multi = Ecto.Multi.new
           |> Ecto.Multi.delete(:group_membership_request, group_membership_request)
-          |> Ecto.insert(:user_group, changeset)
+          |> Ecto.Multi.insert(:user_group, changeset)
         Repo.transaction(multi)
         {:ok, :user_added_to_group}
       user_group ->
@@ -51,16 +51,17 @@ defmodule Pairmotron.AdminInvitationAcceptController do
   defp retrieve_user(user_id) do
     case Repo.get(User, user_id) do
       user = %User{} -> {:ok, user}
-      _ = {:error, :user_not_found}
+      _ -> {:error, :user_not_found}
     end
   end
 
   @spec retrieve_group_membership_request(non_neg_integer()) ::
     {:ok, Types.group_membership_request} | {:error, :group_membership_request_not_found}
   defp retrieve_group_membership_request(group_membership_request_id) do
+    IO.inspect group_membership_request_id
     case Repo.get(GroupMembershipRequest, group_membership_request_id) do
       group_membership_request = %GroupMembershipRequest{} -> {:ok, group_membership_request}
-      _ = {:error, :group_membership_request_not_found}
+      _ -> {:error, :group_membership_request_not_found}
     end
   end
 
