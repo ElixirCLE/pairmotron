@@ -18,3 +18,5 @@ config :pairmotron, Pairmotron.Repo,
   hostname: System.get_env("DB_ENV_POSTGRES_HOST"),
   pool: Ecto.Adapters.SQL.Sandbox
 
+config :pairmotron, Pairmotron.Mailer,
+  adapter: Bamboo.TestAdapter

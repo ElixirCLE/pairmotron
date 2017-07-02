@@ -74,6 +74,8 @@ defmodule Pairmotron.GroupInvitationController do
 
       case Repo.insert(changeset) do
         {:ok, _group_membership_request} ->
+          send_group_invitation_email(user, group)
+
           conn
           |> put_flash(:info, "Successfully invited #{user.name} to join #{group.name}.")
           |> redirect(to: group_invitation_path(conn, :index, group_id))
@@ -84,6 +86,13 @@ defmodule Pairmotron.GroupInvitationController do
     else
       redirect_and_flash_error(conn, "You must be the owner or admin of a group to invite user to that group", group_id)
     end
+  end
+
+  @spec send_group_invitation_email(Types.user, Types.group) :: any
+  defp send_group_invitation_email(user, group) do
+    user
+    |> Pairmotron.Email.group_invitation_email(group)
+    |> Pairmotron.Mailer.deliver_later
   end
 
   @spec invitable_users_for_select(Types.group) :: [{binary(), integer()}]

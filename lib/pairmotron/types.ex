@@ -9,4 +9,5 @@ defmodule Pairmotron.Types do
   @type pair :: Pairmotron.Pair
   @type project :: Pairmotron.Project
   @type user_group :: Pairmotron.UserGroup
+  @type password_reset_token :: Pairmotron.PasswordResetToken
 end
