@@ -6,6 +6,9 @@ web:
   environment:
     - MIX_ENV=dev
     - PORT=4000
+    - PG_USER=postgres
+    - PG_PASSWORD=postgres
+    - PG_HOST=db
   volumes:
     - .:/app
   working_dir: /app
@@ -14,6 +17,6 @@ web:
 db:
   image: postgres:9.5
   environment:
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=postgres
-    - POSTGRES_HOST=db
+    - PG_USER=postgres
+    - PG_PASSWORD=postgres
+    - PG_HOST=db

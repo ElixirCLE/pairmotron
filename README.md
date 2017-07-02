@@ -17,8 +17,9 @@ Pairmotron is an app powered by [Phoenix](http://www.phoenixframework.org/) that
   * Setup environment variables for your PostgreSQL user (PG_USER) and password (PG_PASSWORD)
     * On Mac or Linux add this to your .bashrc or .zshrc:
 ```
-export DB_ENV_POSTGRES_USER="example_username"
-export DB_ENV_POSTGRES_PASSWORD="example_password"
+export PG_USER="example_username"
+export PG_PASSWORD="example_password"
+export PG_HOST="localhost"
 ```
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   * Install Node.js dependencies with `npm install`

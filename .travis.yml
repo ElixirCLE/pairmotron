@@ -7,7 +7,7 @@ addons:
   - postgresql: '9.5'
 env:
   - MIX_ENV=test
-  - DB_ENV_POSTGRES_USER=postgres
+  - PG_USER=postgres
 install:
   - mix local.hex --force
   - mix local.rebar --force
