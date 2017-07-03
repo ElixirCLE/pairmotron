@@ -1,10 +1,10 @@
 defmodule Pairmotron.AdminInvitationAcceptController do
   use Pairmotron.Web, :controller
 
-  alias Pairmotron.{Group, GroupMembershipRequest, User, UserGroup}
+  alias Pairmotron.{GroupMembershipRequest, User, UserGroup}
 
   @spec update(Plug.Conn.t, map()) :: Plug.Conn.t
-  def update(conn, params = %{"user_id" => user_id, "group_membership_request_id" => group_membership_request_id}) do
+  def update(conn, %{"user_id" => user_id, "group_membership_request_id" => group_membership_request_id}) do
     result = with {:ok, user} <- retrieve_user(user_id),
                   {:ok, group_membership_request} <- retrieve_group_membership_request(group_membership_request_id),
                   do: delete_invite_and_add_user_to_group(user, group_membership_request)
@@ -33,7 +33,7 @@ defmodule Pairmotron.AdminInvitationAcceptController do
           |> Ecto.Multi.insert(:user_group, changeset)
         Repo.transaction(multi)
         {:ok, :user_added_to_group}
-      user_group ->
+      _user_group ->
         Repo.delete!(group_membership_request)
         {:ok, :user_already_in_group}
     end
