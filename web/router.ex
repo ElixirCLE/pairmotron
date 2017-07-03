@@ -48,6 +48,7 @@ defmodule Pairmotron.Router do
     resources "/projects", AdminProjectController
     resources "/user_groups", AdminUserGroupController
     resources "/group_membership_requests", AdminGroupMembershipRequestController
+    put "/invitation_accept/:user_id/:group_membership_request_id", AdminInvitationAcceptController, :update
   end
 
   scope "/", Pairmotron do
