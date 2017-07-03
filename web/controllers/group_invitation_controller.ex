@@ -100,6 +100,7 @@ defmodule Pairmotron.GroupInvitationController do
     group
     |> User.users_not_in_group
     |> Repo.all
+    |> Enum.sort(&(String.downcase(&1.name) <= String.downcase(&2.name)))
     |> Enum.map(&["#{&1.name}": &1.id])
     |> List.flatten
   end

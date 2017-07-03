@@ -179,6 +179,17 @@ defmodule Pairmotron.UserGroupControllerTest do
       refute Repo.get(UserGroup, user_group.id)
     end
 
+    test "deletes user group if logged in user is a group admin", %{conn: conn, logged_in_user: user} do
+      group = insert(:group)
+      insert(:user_group, %{group: group, user: user, is_admin: true})
+      other_user = insert(:user)
+      user_group = insert(:user_group, %{group: group, user: other_user})
+
+      conn = delete conn, user_group_path(conn, :delete, group, other_user)
+      assert redirected_to(conn) == group_path(conn, :show, group)
+      refute Repo.get(UserGroup, user_group.id)
+    end
+
     test "deletes user group and redirects to profile user is owner of group and the user on the user_group",
       %{conn: conn, logged_in_user: user} do
 

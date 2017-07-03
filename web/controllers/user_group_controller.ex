@@ -80,10 +80,9 @@ defmodule Pairmotron.UserGroupController do
   """
   @spec delete(Plug.Conn.t, map()) :: Plug.Conn.t
   def delete(conn, %{"group_id" => group_id, "user_id" => user_id}) do
-    #user_group = UserGroup |> Repo.get!(id) |> Repo.preload(:group)
-    user_group = user_id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
-
+    user_group = user_group_for_user_and_group(user_id, group_id)
     current_user = conn.assigns.current_user
+    current_user_group = user_group_for_user_and_group(current_user.id, group_id)
     cond do
       is_nil(user_group) ->
         conn
@@ -93,9 +92,16 @@ defmodule Pairmotron.UserGroupController do
         delete_user_group_and_redirect(conn, user_group, profile_path(conn, :show))
       current_user.id == user_group.group.owner_id ->
         delete_user_group_and_redirect(conn, user_group, group_path(conn, :show, user_group.group))
+      !is_nil(current_user_group) and current_user_group.is_admin ->
+        delete_user_group_and_redirect(conn, user_group, group_path(conn, :show, user_group.group))
       true ->
         redirect_not_authorized(conn, group_path(conn, :show, user_group.group))
     end
+  end
+
+  @spec user_group_for_user_and_group(non_neg_integer(), non_neg_integer()) :: Types.user_group
+  defp user_group_for_user_and_group(user_id, group_id) do
+    user_id |> UserGroup.user_group_for_user_and_group(group_id) |> Repo.one
   end
 
   @spec delete_user_group_and_redirect(Plug.Conn.t, Types.user_group, binary()) :: Plug.Conn.t
