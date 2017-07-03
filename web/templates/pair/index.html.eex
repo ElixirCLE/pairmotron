@@ -1,6 +1,6 @@
 <h2>Pairs for <%= @start_date %> to <%= @stop_date %></h2>
 <div class="row">
-  <div class="col-md-8 col-sm-12 col-xs-12">
+  <div class="col-md-12 col-sm-12 col-xs-12">
     <ul class="list-group">
 
       <%= for {group, pairs_with_retros} <- @groups_and_pairs do %>
