@@ -11,3 +11,18 @@ a.padded-link {
 .prevent-overflow {
   overflow: hidden;
 }
+
+body {
+  background-color: #ffffff;
+  background-image: url("../images/bg.png");
+}
+
+.paneled {
+  padding: 3rem 4rem!important;
+  overflow-y: hidden;
+  min-height: 100%;
+  background-color: #fff;
+  border-radius: .25rem;
+  box-shadow: 0 1px 0 rgba(0,0,0,.25);
+  border: 1px solid #e8e8e8;
+}
