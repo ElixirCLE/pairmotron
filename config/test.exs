@@ -15,7 +15,7 @@ config :pairmotron, Pairmotron.Repo,
   username: System.get_env("PG_USER"),
   password: System.get_env("PG_PASSWORD"),
   database: "pairmotron_test",
-  hostname: "localhost",
+  hostname: System.get_env("PG_HOST"),
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :pairmotron, Pairmotron.Mailer,
