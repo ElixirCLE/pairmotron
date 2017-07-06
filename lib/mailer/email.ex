@@ -93,7 +93,7 @@ defmodule Pairmotron.Email do
   @spec unsubscribe_html() :: String.t
   defp unsubscribe_html() do
     """
-    If you would not like to receive further emails from pairmotron, follow 
+    If you would not like to receive further emails from Pairmotron, follow 
     <a href=#{user_profile_edit_path()}>this link</a> to disable emailing from 
     your profile.
     """
@@ -102,7 +102,7 @@ defmodule Pairmotron.Email do
   @spec unsubscribe_text() :: String.t
   defp unsubscribe_text() do
     """
-    If you would not like to receive further emails from pairmotron, follow this 
+    If you would not like to receive further emails from Pairmotron, follow this 
     link: #{user_profile_edit_path()} to disable emailing from your profile.
     """
   end
