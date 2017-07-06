@@ -8,7 +8,7 @@
       <th>Email</th>
       <th>Active</th>
       <th>Admin</th>
-      <th>Email Disabled</th>
+      <th>Email Enabled</th>
       <th></th>
     </tr>
   </thead>
@@ -20,7 +20,7 @@
       <td><%= user.email %></td>
       <td><%= user.active %></td>
       <td><%= user.is_admin %></td>
-      <td><%= user.email_disabled %></td>
+      <td><%= user.email_enabled %></td>
       <td class="text-right">
         <%= link "Show", to: admin_user_path(@conn, :show, user), class: "btn btn-default btn-xs" %>
         <%= link "Edit", to: admin_user_path(@conn, :edit, user), class: "btn btn-default btn-xs" %>

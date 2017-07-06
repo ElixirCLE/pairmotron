@@ -90,7 +90,7 @@ defmodule Pairmotron.GroupInvitationController do
 
   @spec send_group_invitation_email(Types.user, Types.group) :: any
   defp send_group_invitation_email(user, group) do
-    unless user.email_disabled do
+    if user.email_enabled do
       user
       |> Pairmotron.Email.group_invitation_email(group)
       |> Pairmotron.Mailer.deliver_later

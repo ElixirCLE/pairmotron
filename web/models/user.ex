@@ -18,7 +18,7 @@ defmodule Pairmotron.User do
     field :email, :string
     field :active, :boolean
     field :is_admin, :boolean
-    field :email_disabled, :boolean
+    field :email_enabled, :boolean
 
     field :password, :string, virtual: true
     field :password_confirmation, :string, virtual: true
@@ -33,7 +33,7 @@ defmodule Pairmotron.User do
 
   @minimum_password_length 8
 
-  @all_params ~w(name email password password_confirmation active is_admin email_disabled)
+  @all_params ~w(name email password password_confirmation active is_admin email_enabled)
   @required_params [:name, :email]
 
   @doc """
@@ -69,7 +69,7 @@ defmodule Pairmotron.User do
     |> common_changeset
   end
 
-  @all_profile_params ~w(name email active password password_confirmation email_disabled)
+  @all_profile_params ~w(name email active password password_confirmation email_enabled)
   @required_profile_params [:name, :email]
 
   @doc """

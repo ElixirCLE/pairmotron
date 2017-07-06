@@ -28,8 +28,8 @@
   </li>
 
   <li>
-    <strong>Email disabled</strong>
-    <%= @user.email_disabled %>
+    <strong>Email enabled</strong>
+    <%= @user.email_enabled %>
   </li>
 
 </ul>

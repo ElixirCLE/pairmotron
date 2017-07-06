@@ -142,7 +142,7 @@ defmodule Pairmotron.GroupInvitationControllerTest do
 
     test "does not send an email to the invited user if that user has email disabled", %{conn: conn, logged_in_user: user} do
       group = insert(:group, %{owner: user, users: [user]})
-      other_user = insert(:user, %{email_disabled: true})
+      other_user = insert(:user, %{email_enabled: false})
       attrs = %{user_id: other_user.id}
       post conn, group_invitation_path(conn, :create, group), group_membership_request: attrs
 

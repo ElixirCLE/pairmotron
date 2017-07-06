@@ -3,7 +3,7 @@ defmodule Pairmotron.Repo.Migrations.AddEmailDisabledToUser do
 
   def change do
     alter table(:users) do
-      add :email_disabled, :boolean, default: false, null: false
+      add :email_enabled, :boolean, default: true, null: false
     end
   end
 end
