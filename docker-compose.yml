@@ -1,0 +1,22 @@
+web:
+  build: .
+  ports:
+    - "4000:4000"
+  command: mix phoenix.server
+  environment:
+    - MIX_ENV=dev
+    - PORT=4000
+    - PG_USER=postgres
+    - PG_PASSWORD=postgres
+    - PG_HOST=db
+  volumes:
+    - .:/app
+  working_dir: /app
+  links:
+    - db
+db:
+  image: postgres:9.5
+  environment:
+    - PG_USER=postgres
+    - PG_PASSWORD=postgres
+    - PG_HOST=db

@@ -4,7 +4,7 @@
 
 Pairmotron is an app powered by [Phoenix](http://www.phoenixframework.org/) that randomly pairs up users within groups on a weekly basis to work on a project or just write some code!
 
-## Installation
+## Local Installation
 
 ### Prerequisites
 
@@ -19,14 +19,36 @@ Pairmotron is an app powered by [Phoenix](http://www.phoenixframework.org/) that
 ```
 export PG_USER="example_username"
 export PG_PASSWORD="example_password"
+export PG_HOST="localhost"
 ```
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   * Install Node.js dependencies with `npm install`
   * Start Phoenix endpoint with `mix phoenix.server`
 
+## Developing and Testing with Docker
+
+Using this model of development allows you to not install anything other
+than docker.
+
+### Running it
+  * docker-compose up -d web
+  * docker-compose exec web mix deps.get
+  * docker-compose exec web mix ecto.create 
+  * docker-compose exec web mix ecto.migrate
+  * docker-compose exec web npm install
+  * docker-compose restart web
+
+### Run the Tests in Docker
+  * docker-compose run -e "MIX_ENV=test" web mix test 
+  * Only test a specific test file
+    * docker-compose run -e "MIX_ENV=test" web mix test test/controllers/group_controller_test.exs
+  
+## Check it out in a browser
+
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-## Ready to run in production?
+## Deploy to Production
+Ready to run in production? 
 * Please [check the phoenix deployment guides](http://www.phoenixframework.org/docs/deployment).
 
 ### Environment Variables to set

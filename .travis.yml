@@ -6,8 +6,7 @@ otp_release:
 addons:
   - postgresql: '9.5'
 env:
-  - MIX_ENV=test
-  - PG_USER=postgres
+  - MIX_ENV=test PG_USER=postgres
 install:
   - mix local.hex --force
   - mix local.rebar --force
