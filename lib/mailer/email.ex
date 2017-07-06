@@ -65,20 +65,24 @@ defmodule Pairmotron.Email do
 
   @spec group_invitation_email_html_body(String.t) :: String.t
   defp group_invitation_email_html_body(group_name) do
-  """
-  You have been invited to join the #{group_name} group in Pairmotron!
-  <br><br>
-  <a href=#{invitation_index_path()}>Click here to view your invitations</a>
-  """
+    """
+    You have been invited to join the #{group_name} group in Pairmotron!
+    <br><br>
+    <a href=#{invitation_index_path()}>Click here to view your invitations</a>
+    <br><br>
+    #{unsubscribe_html()}
+    """
   end
 
   @spec group_invitation_email_text_body(String.t) :: String.t
   defp group_invitation_email_text_body(group_name) do
-  """
-  You have been invited to join the #{group_name} group in Pairmotron!
-  \n\n
-  Follow this link to view your invitations: #{invitation_index_path()}
-  """
+    """
+    You have been invited to join the #{group_name} group in Pairmotron!
+    \n\n
+    Follow this link to view your invitations: #{invitation_index_path()}
+    \n\n
+    #{unsubscribe_text()}
+    """
   end
 
   @spec invitation_index_path() :: String.t
@@ -86,4 +90,25 @@ defmodule Pairmotron.Email do
     users_group_membership_request_url(Pairmotron.Endpoint, :index)
   end
 
+  @spec unsubscribe_html() :: String.t
+  defp unsubscribe_html() do
+    """
+    If you would not like to receive further emails from Pairmotron, follow 
+    <a href=#{user_profile_edit_path()}>this link</a> to disable emailing from 
+    your profile.
+    """
+  end
+
+  @spec unsubscribe_text() :: String.t
+  defp unsubscribe_text() do
+    """
+    If you would not like to receive further emails from Pairmotron, follow this 
+    link: #{user_profile_edit_path()} to disable emailing from your profile.
+    """
+  end
+
+  @spec user_profile_edit_path() :: String.t
+  defp user_profile_edit_path() do
+    profile_url(Pairmotron.Endpoint, :edit)
+  end
 end

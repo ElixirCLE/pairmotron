@@ -24,6 +24,12 @@
   </div>
 
   <div class="form-group">
+    <%= label f, :email_enabled, class: "control-label" %>
+    <%= checkbox f, :email_enabled, class: "form-control" %>
+    <%= error_tag f, :email_enabled %>
+  </div>
+
+  <div class="form-group">
     <%= label f, :is_admin, class: "control-label" %>
     <%= checkbox f, :is_admin, class: "form-control" %>
     <%= error_tag f, :is_admin %>

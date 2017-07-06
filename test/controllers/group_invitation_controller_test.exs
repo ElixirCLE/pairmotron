@@ -140,6 +140,15 @@ defmodule Pairmotron.GroupInvitationControllerTest do
       assert_delivered_email Pairmotron.Email.group_invitation_email(other_user, group)
     end
 
+    test "does not send an email to the invited user if that user has email disabled", %{conn: conn, logged_in_user: user} do
+      group = insert(:group, %{owner: user, users: [user]})
+      other_user = insert(:user, %{email_enabled: false})
+      attrs = %{user_id: other_user.id}
+      post conn, group_invitation_path(conn, :create, group), group_membership_request: attrs
+
+      refute_delivered_email Pairmotron.Email.group_invitation_email(other_user, group)
+    end
+
     test "can create a group_membership_request if current_user is admin of group", %{conn: conn, logged_in_user: user} do
       group = insert(:group)
       insert(:user_group, %{user: user, group: group, is_admin: true})

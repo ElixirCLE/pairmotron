@@ -26,6 +26,13 @@ defmodule Pairmotron.PasswordResetControllerTest do
       assert_delivered_email Pairmotron.Email.password_reset_email(token)
     end
 
+    test "sends a password reset email if user exists even if that user has email disabled", %{conn: conn} do
+      user = insert(:user, %{email_enabled: false})
+      post conn, password_reset_path(conn, :create), password_reset_token: %{email: user.email}
+      token = Repo.get_by(PasswordResetToken, user_id: user.id) |> Repo.preload(:user)
+      assert_delivered_email Pairmotron.Email.password_reset_email(token)
+    end
+
     test "does not create a PasswordResetToken if user does not exist with given email", %{conn: conn} do
       conn = post conn, password_reset_path(conn, :create), password_reset_token: %{email: "null@email.com"}
       assert [] = Repo.all(PasswordResetToken)

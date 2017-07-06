@@ -2,13 +2,13 @@ defmodule Pairmotron.Repo.Migrations.AddUserPasswords do
   use Ecto.Migration
 
   def up do
-    default_hash = Comeonin.Bcrypt.hashpwsalt("password") 
+    default_hash = Comeonin.Bcrypt.hashpwsalt("password")
 
-    alter table(:users) do 
+    alter table(:users) do
       add :password_hash, :string
     end
 
-    flush
+    flush()
 
     Pairmotron.Repo.update_all("users", set: [password_hash: default_hash])
 
