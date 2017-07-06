@@ -27,6 +27,11 @@
     <%= @user.is_admin %>
   </li>
 
+  <li>
+    <strong>Email disabled</strong>
+    <%= @user.email_disabled %>
+  </li>
+
 </ul>
 
 <%= link "Edit", to: admin_user_path(@conn, :edit, @user) %>
