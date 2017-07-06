@@ -18,6 +18,7 @@ defmodule Pairmotron.User do
     field :email, :string
     field :active, :boolean
     field :is_admin, :boolean
+    field :email_disabled, :boolean
 
     field :password, :string, virtual: true
     field :password_confirmation, :string, virtual: true
