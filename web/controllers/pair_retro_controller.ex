@@ -121,6 +121,7 @@ defmodule Pairmotron.PairRetroController do
   defp project_from_params_or_pair_retro(params, pair_retro) do
     case Map.get(params, "project_id") || (pair_retro.project && pair_retro.project.id) do
       nil -> nil
+      "" -> nil
       id -> Repo.get(Project, id)
     end
   end
