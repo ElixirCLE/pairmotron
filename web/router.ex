@@ -60,6 +60,7 @@ defmodule Pairmotron.Router do
     resources "/projects", ProjectController
 
     get "/pairs", PairController, :index
+    get "/pairs/:date", PairController, :from_date
     get "/pairs/:year/:week", PairController, :show
 
     get "/groups/:id/pairs", GroupPairController, :show

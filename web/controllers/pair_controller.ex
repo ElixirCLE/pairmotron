@@ -10,11 +10,15 @@ defmodule Pairmotron.PairController do
 
   @spec index(Plug.Conn.t, map()) :: Plug.Conn.t
   def index(conn, _params) do
+    from_date(conn, %{"date" => Date.to_iso8601(Timex.today)})
+  end
+
+  defp foo() do
     {year, week} = Timex.iso_week(Timex.today)
-    user = conn.assigns[:current_user]
+    user = conn().assigns[:current_user]
     {groups_and_pairs, messages} = user |> fetch_groups_and_pairs(year, week)
 
-    conn
+    conn()
     |> flash_messages(messages)
     |> render_index(year, week, groups_and_pairs)
   end
@@ -29,6 +33,12 @@ defmodule Pairmotron.PairController do
     conn
     |> flash_messages(messages)
     |> render_index(year, week, groups_and_pairs)
+  end
+
+  def from_date(conn, %{"date" => raw_date}) do
+    {:ok, date} = Date.from_iso8601(raw_date)
+    {year, week} = Timex.iso_week(date)
+    show(conn, %{"year" => Integer.to_string(year), "week" => Integer.to_string(week)})
   end
 
   @spec render_index(Plug.Conn.t, integer(), 1..53, pair_session) :: Plug.Conn.t
