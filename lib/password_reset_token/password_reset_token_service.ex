@@ -22,9 +22,6 @@ defmodule Pairmotron.PasswordResetTokenService do
 
   If there is no user with that email, generate_token/1 returns an error tuple
   of the form {:error, :no_user_with_email}.
-
-  generate/token1 also handles retrying in the unlikely case that the randomly
-  generated token is already associated with a PasswordResetToken.
   """
   @spec generate_token(String.t) :: {:ok, Types.password_reset_token} | {:error, atom()}
   def generate_token(email) when is_binary(email) do
