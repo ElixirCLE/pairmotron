@@ -15,6 +15,17 @@ defmodule Pairmotron.PairTest do
       changeset = Pair.changeset(%Pair{}, @invalid_attrs)
       refute changeset.valid?
     end
+
+    test "valid changeset produces a period attribute" do
+      changeset = Pair.changeset(%Pair{}, @valid_attrs)
+      assert Ecto.Changeset.fetch_field(changeset, :period)
+    end
+
+    test "invalid changeset does not produce a period attribute" do
+      changeset = Pair.changeset(%Pair{}, @invalid_attrs)
+      {_, change} = Ecto.Changeset.fetch_field(changeset, :period)
+      refute change
+    end
   end
 
   describe "pair_with_users/1" do
