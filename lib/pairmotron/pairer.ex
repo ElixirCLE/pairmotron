@@ -14,57 +14,40 @@ defmodule Pairmotron.Pairer do
   alias Pairmotron.{Pair, Types, UserPair}
 
   @spec generate_pairs([Types.user], [Types.pair]) :: %PairerResult{}
-  def generate_pairs(users, []), do: generate_pairs(users)
-  def generate_pairs(users, pairs) do
-    sorted_pairs = pairs |> sort_pairs_by_length
-    users
-      |> chunk
-      |> Enum.reverse
-      |> friendify
-      |> Enum.reverse
-      |> unlonelify(sorted_pairs)
+  # No existing pairs. Generate new ones.
+  def generate_pairs(users, []), do: generate_new_pairs(users)
+  def generate_pairs([user], pairs) do
+    # Just one user to add. Sort the list so that shorter pairs are first.
+    # Recurse the list until we find a pair we can add the single user to (1 or
+    # 2 users in pair). If we don't find a suitable pair, create a new single
+    # user pair.
+    unlonelify([[user]], pairs |> sort_pairs_by_length)
+  end
+  def generate_pairs(users, _pairs) do
+    # More than one user to add. Let Accomplice group the new users into pairs
+    # just like it would if there were no pairs. Old pairs are not relevant.
+    generate_new_pairs(users)
   end
 
-  @spec generate_pairs([Types.user]) :: %PairerResult{pairs: [Types.pair]}
-  def generate_pairs([]), do: %PairerResult{pairs: []}
-  def generate_pairs([user]), do: %PairerResult{pairs: [[user]]}
-  def generate_pairs(users) do
-    case users |> Accomplice.group(%{minimum: 2, ideal: 2, maximum: 3}) do
-      :impossible -> :impossible
-      pairs -> %PairerResult{pairs: pairs}
-    end
-  end
-
-  defp chunk(users) do
-    users
-      |> Enum.chunk(2, 2, [])
+  @spec generate_new_pairs([Types.user]) :: %PairerResult{pairs: [Types.pair]}
+  defp generate_new_pairs([]), do: %PairerResult{pairs: []}
+  defp generate_new_pairs([user]), do: %PairerResult{pairs: [[user]]}
+  defp generate_new_pairs(users) do
+    pairs = users |> Accomplice.group(%{minimum: 2, ideal: 2, maximum: 3})
+    %PairerResult{pairs: pairs}
   end
 
   defp sort_pairs_by_length(pairs) do
-    pairs |> Enum.sort_by(fn(pair) -> -length(pair.users) end)
+    pairs |> Enum.sort_by(fn(pair) -> length(pair.users) end)
   end
 
-  defp unlonelify([], _), do: %PairerResult{}
-  defp unlonelify(users = [[_1, _2]], _), do: %PairerResult{pairs: users}
-  defp unlonelify(users = [[_1, _2, _3]], _), do: %PairerResult{pairs: users}
-  defp unlonelify(users = [[_1, _2] | _], _), do: %PairerResult{pairs: users}
-  defp unlonelify(users = [[_]], [%Pair{users: [_1, _2, _3]}]), do: %PairerResult{pairs: users}
-  defp unlonelify([[single]], [pair = %Pair{users: [_1, _2]}]) do
-    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
-  end
-  defp unlonelify([[single]], [pair = %Pair{users: [_1]}]) do
-    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
-  end
+  defp unlonelify([[single]], []), do: %PairerResult{pairs: [[single]]}
   defp unlonelify([[single]], [pair = %Pair{users: [_1]} | _]) do
     %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
   end
-  defp unlonelify([[single]], [%Pair{users: [_1, _2]} | pairs]), do: unlonelify([[single]], pairs)
-  defp unlonelify([[single]], [%Pair{users: [_1, _2, _3]} | pairs]), do: unlonelify([[single]], pairs)
-
-  defp friendify(pairs = [[_first, _second] | _rest]), do: pairs
-  defp friendify([[single], pair | rest]) do
-    [[single | pair] | rest]
+  defp unlonelify([[single]], [pair = %Pair{users: [_1, _2]} | _]) do
+    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
   end
-  defp friendify(pairs), do: pairs
+  defp unlonelify([[single]], [%Pair{users: [_1, _2, _3]} | pairs]), do: unlonelify([[single]], pairs)
 
 end

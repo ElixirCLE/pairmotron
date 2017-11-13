@@ -27,40 +27,6 @@ defmodule Pairmotron.PairerTest do
     true
   end
 
-  describe ".generate_pairs/1" do
-    test "empty list of users returns empty list" do
-      assert %PairerResult{pairs: []} = Pairer.generate_pairs([])
-    end
-
-    test "list of one user returns a pair of that user" do
-      assert %PairerResult{pairs: [[@user_1]]} == Pairer.generate_pairs([@user_1])
-    end
-
-    test "list of two users returns a pair of those users" do
-      assert %PairerResult{pairs: [first_pair]} = Pairer.generate_pairs([@user_1, @user_2])
-      assert Enum.sort(first_pair) == [@user_1, @user_2]
-    end
-
-    test "list of four users returns two pairs of those users" do
-      assert %PairerResult{pairs: pairs} = Pairer.generate_pairs([@user_1, @user_2, @user_3, @user_4])
-      assert length(pairs) == 2
-      assert List.flatten(pairs) <~> [@user_1, @user_2, @user_3, @user_4]
-      assert pairs |> grouping_is([2, 2])
-    end
-
-    test "list of three users returns one pair of those three users" do
-      assert %PairerResult{pairs: [first_pair]} = Pairer.generate_pairs([@user_1, @user_2, @user_3])
-      assert Enum.sort(first_pair) == [@user_1, @user_2, @user_3]
-    end
-
-    test "list of five users returns two pairs with the three person pair at the end" do
-      assert %PairerResult{pairs: pairs} = Pairer.generate_pairs([@user_1, @user_2, @user_3, @user_4, @user_5])
-      assert length(pairs) == 2
-      assert List.flatten(pairs) <~> [@user_1, @user_2, @user_3, @user_4, @user_5]
-      assert pairs |> grouping_is([2, 3])
-    end
-  end
-
   describe ".generate_pairs/2" do
     test "empty list of users and empty user pairs returns empty list" do
       assert %PairerResult{user_pair: nil, pairs: []} = Pairer.generate_pairs([], [])
@@ -97,7 +63,8 @@ defmodule Pairmotron.PairerTest do
     end
 
     test "two new users with existing pair get matched as a new pair" do
-      assert %PairerResult{pairs: [[@user_3, @user_4]]} = Pairer.generate_pairs([@user_3, @user_4], [@pair1])
+      assert %PairerResult{pairs: [new_pair]} = Pairer.generate_pairs([@user_3, @user_4], [@pair1])
+      assert new_pair <~> [@user_3, @user_4]
     end
 
     test "three new users with existing pair get matched as a new three pair" do
@@ -106,7 +73,10 @@ defmodule Pairmotron.PairerTest do
     end
 
     test "four new users with an existing pair get matched as two new pairs" do
-      assert %PairerResult{pairs: [[@user_3, @user_4], [@user_5, @user_6]]} = Pairer.generate_pairs([@user_3, @user_4, @user_5, @user_6], [@pair1])
+      assert %PairerResult{pairs: new_pairs} = Pairer.generate_pairs([@user_3, @user_4, @user_5, @user_6], [@pair1])
+      assert length(new_pairs) == 2
+      assert List.flatten(new_pairs) <~> [@user_3, @user_4, @user_5, @user_6]
+      assert new_pairs |> grouping_is([2, 2])
     end
   end
 end
