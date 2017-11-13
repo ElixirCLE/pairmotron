@@ -16,12 +16,13 @@ defmodule Pairmotron.Pairer do
   @spec generate_pairs([Types.user], [Types.pair]) :: %PairerResult{}
   def generate_pairs(users, []), do: generate_pairs(users)
   def generate_pairs(users, pairs) do
+    sorted_pairs = pairs |> sort_pairs_by_length
     users
       |> chunk
       |> Enum.reverse
       |> friendify
       |> Enum.reverse
-      |> unlonelify(pairs |> Enum.sort_by(fn(p) -> length(p.users) end) |> Enum.reverse)
+      |> unlonelify(sorted_pairs)
   end
 
   @spec generate_pairs([Types.user]) :: %PairerResult{pairs: [Types.pair]}
@@ -30,15 +31,17 @@ defmodule Pairmotron.Pairer do
   def generate_pairs(users) do
     case users |> Accomplice.group(%{minimum: 2, ideal: 2, maximum: 3}) do
       :impossible -> :impossible
-      pairs ->
-        reversed_pairs = pairs |> Enum.reverse
-        %PairerResult{pairs: reversed_pairs}
+      pairs -> %PairerResult{pairs: pairs}
     end
   end
 
   defp chunk(users) do
     users
       |> Enum.chunk(2, 2, [])
+  end
+
+  defp sort_pairs_by_length(pairs) do
+    pairs |> Enum.sort_by(fn(pair) -> -length(pair.users) end)
   end
 
   defp unlonelify([], _), do: %PairerResult{}

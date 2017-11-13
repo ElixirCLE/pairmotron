@@ -3,6 +3,8 @@ defmodule Pairmotron.PairerTest do
 
   alias Pairmotron.{Pairer, User, UserPair, Pair}
 
+  import OrderInvariantCompare
+
   @user_1 %User{id: 1}
   @user_2 %User{id: 2}
   @user_3 %User{id: 3}
@@ -16,6 +18,14 @@ defmodule Pairmotron.PairerTest do
 
   @user_pair_changeset UserPair.changeset(%UserPair{}, %{pair_id: 1, user_id: 5})
   @user_pair_changeset2 UserPair.changeset(%UserPair{}, %{pair_id: 3, user_id: 5})
+
+  def grouping_is(grouping, expected_grouping) when is_list(grouping) do
+    group_counts = Enum.map(grouping, fn element -> length(element) end)
+    unless group_counts <~> expected_grouping do
+      flunk("expected grouping of #{inspect expected_grouping} \ngot grouping of      #{inspect group_counts}")
+    end
+    true
+  end
 
   describe ".generate_pairs/1" do
     test "empty list of users returns empty list" do
@@ -32,9 +42,10 @@ defmodule Pairmotron.PairerTest do
     end
 
     test "list of four users returns two pairs of those users" do
-      assert %PairerResult{pairs: [first_pair, second_pair]} = Pairer.generate_pairs([@user_1, @user_2, @user_3, @user_4])
-      assert Enum.sort(first_pair) == [@user_1, @user_2]
-      assert Enum.sort(second_pair) == [@user_3, @user_4]
+      assert %PairerResult{pairs: pairs} = Pairer.generate_pairs([@user_1, @user_2, @user_3, @user_4])
+      assert length(pairs) == 2
+      assert List.flatten(pairs) <~> [@user_1, @user_2, @user_3, @user_4]
+      assert pairs |> grouping_is([2, 2])
     end
 
     test "list of three users returns one pair of those three users" do
@@ -43,9 +54,10 @@ defmodule Pairmotron.PairerTest do
     end
 
     test "list of five users returns two pairs with the three person pair at the end" do
-      assert %PairerResult{pairs: [first_pair, second_pair]} = Pairer.generate_pairs([@user_1, @user_2, @user_3, @user_4, @user_5])
-      assert Enum.sort(first_pair) == [@user_1, @user_2]
-      assert Enum.sort(second_pair) == [@user_3, @user_4, @user_5]
+      assert %PairerResult{pairs: pairs} = Pairer.generate_pairs([@user_1, @user_2, @user_3, @user_4, @user_5])
+      assert length(pairs) == 2
+      assert List.flatten(pairs) <~> [@user_1, @user_2, @user_3, @user_4, @user_5]
+      assert pairs |> grouping_is([2, 3])
     end
   end
 
