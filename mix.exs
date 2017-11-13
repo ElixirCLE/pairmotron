@@ -48,6 +48,7 @@ defmodule Pairmotron.Mixfile do
      {:credo, "~> 0.5", only: [:dev, :test]},
      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
      {:html_sanitize_ex, "~> 1.0.0"},
+     {:accomplice, "~> 0.1.0"},
      {:bamboo, "~> 0.8"}]
   end
 

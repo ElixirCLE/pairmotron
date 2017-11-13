@@ -25,23 +25,20 @@ defmodule Pairmotron.Pairer do
   end
 
   @spec generate_pairs([Types.user]) :: %PairerResult{pairs: [Types.pair]}
+  def generate_pairs([]), do: %PairerResult{pairs: []}
+  def generate_pairs([user]), do: %PairerResult{pairs: [[user]]}
   def generate_pairs(users) do
-    users
-      |> chunk
-      |> unlonelify
+    case users |> Accomplice.group(%{minimum: 2, ideal: 2, maximum: 3}) do
+      :impossible -> :impossible
+      pairs ->
+        reversed_pairs = pairs |> Enum.reverse
+        %PairerResult{pairs: reversed_pairs}
+    end
   end
 
   defp chunk(users) do
     users
       |> Enum.chunk(2, 2, [])
-  end
-
-  defp unlonelify(pairs) do
-    results = pairs
-      |> Enum.reverse
-      |> friendify
-      |> Enum.reverse
-    %PairerResult{pairs: results}
   end
 
   defp unlonelify([], _), do: %PairerResult{}
@@ -61,9 +58,8 @@ defmodule Pairmotron.Pairer do
   defp unlonelify([[single]], [%Pair{users: [_1, _2]} | pairs]), do: unlonelify([[single]], pairs)
   defp unlonelify([[single]], [%Pair{users: [_1, _2, _3]} | pairs]), do: unlonelify([[single]], pairs)
 
-
   defp friendify(pairs = [[_first, _second] | _rest]), do: pairs
-  defp friendify([[single] | [pair | rest]]) do
+  defp friendify([[single], pair | rest]) do
     [[single | pair] | rest]
   end
   defp friendify(pairs), do: pairs
