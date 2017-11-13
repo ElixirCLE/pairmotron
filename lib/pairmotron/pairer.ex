@@ -21,7 +21,7 @@ defmodule Pairmotron.Pairer do
     # Recurse the list until we find a pair we can add the single user to (1 or
     # 2 users in pair). If we don't find a suitable pair, create a new single
     # user pair.
-    unlonelify([[user]], pairs |> sort_pairs_by_length)
+    try_add_to_non_full_pair(user, pairs)
   end
   def generate_pairs(users, _pairs) do
     # More than one user to add. Let Accomplice group the new users into pairs
@@ -37,17 +37,21 @@ defmodule Pairmotron.Pairer do
     %PairerResult{pairs: pairs}
   end
 
+  defp try_add_to_non_full_pair(user, pairs) do 
+    try_add_to_pair(user, pairs |> sort_pairs_by_length)
+  end
+
   defp sort_pairs_by_length(pairs) do
     pairs |> Enum.sort_by(fn(pair) -> length(pair.users) end)
   end
 
-  defp unlonelify([[single]], []), do: %PairerResult{pairs: [[single]]}
-  defp unlonelify([[single]], [pair = %Pair{users: [_1]} | _]) do
-    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
+  defp try_add_to_pair(user, []), do: %PairerResult{pairs: [[user]]}
+  defp try_add_to_pair(user, [pair = %Pair{users: [_1]} | _]) do
+    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: user.id})}
   end
-  defp unlonelify([[single]], [pair = %Pair{users: [_1, _2]} | _]) do
-    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: single.id})}
+  defp try_add_to_pair(user, [pair = %Pair{users: [_1, _2]} | _]) do
+    %PairerResult{user_pair: UserPair.changeset(%UserPair{}, %{pair_id: pair.id, user_id: user.id})}
   end
-  defp unlonelify([[single]], [%Pair{users: [_1, _2, _3]} | pairs]), do: unlonelify([[single]], pairs)
+  defp try_add_to_pair(user, _), do: %PairerResult{pairs: [[user]]}
 
 end
